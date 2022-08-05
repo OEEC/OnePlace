@@ -1,0 +1,20 @@
+﻿@inherits SimComponentBase
+
+<div class="@Classname" style="@Style">
+    @if (CardCabeceraAvatar != null)
+    {
+        <div class="sim-card-header-avatar">@CardCabeceraAvatar</div>
+    }
+    @if (CardCabeceraContenido != null)
+    {
+        <div class="sim-card-header-content">@CardCabeceraContenido</div>
+    }
+    @if (CardCabeceraAcciones != null)
+    {
+        <div class="sim-card-header-actions">@CardCabeceraAcciones</div>
+    }
+    @if (ChildContent != null)
+    {        
+        @ChildContent
+    }
+</div>

@@ -1,0 +1,16 @@
+﻿@typeparam TItem
+@inject IRepositorio repositorio
+@inherits SimComponentBase
+
+<div class="dropdown @DropdownClass">
+    <button class="@Classname" style="@Style" data-toggle="dropdown" type="button" @onclick="e => this.show=!this.show" aria-haspopup="true" aria-expanded="false">           
+        @Tip
+    </button>
+    <CascadingValue name="Dropdown" Value="@this">
+        <div class="dropdown-menu @ClassDropdownMenu @(show? "show":"")">
+            @ChildContent
+        </div>
+    </CascadingValue>
+</div>
+
+

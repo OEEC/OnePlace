@@ -1,0 +1,22 @@
+﻿@if(Parent.ActivePage == this)
+{
+    @ChildContent
+}
+
+@code {
+    [CascadingParameter] private TabControl Parent { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    //se añade un parametro texto, para que el padre sepa que mostrar dentro del botón que activa cada página.
+    [Parameter] public string Text { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Parent == null)
+            throw new ArgumentNullException(nameof(Parent), "TabPage must exist within a TabControl");
+        base.OnInitialized();
+
+        //notifique al componente padre de su existencia
+        Parent.AddPage(this);
+    }
+}

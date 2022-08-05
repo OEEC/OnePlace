@@ -1,0 +1,73 @@
+﻿@page "/singlefile"
+@inject HttpClient client
+@using System.IO
+
+<h1>Single file</h1>
+
+<BlazorInputFile.InputFile OnChange="HandleSelection" />
+
+@if (progress.HasValue)
+{
+    @if (progress < 100)
+    {
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:@(progress)%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@progress%</div>
+        </div>       
+    }
+    else
+    {
+        <p>@status</p>
+    }
+}
+
+
+@code {
+    string status;
+
+    public int? progress;
+
+    async Task HandleSelection(IFileListEntry[] files)
+    {
+        int countSize = 0;
+
+        var file = files.FirstOrDefault();
+        if (file != null)
+        {
+            var ms = new MemoryStream();
+
+            #region Proggress
+            var bufferSize = 1048576;
+            var buffer = new byte[bufferSize];
+            int count;
+            while ((count = await file.Data.ReadAsync(buffer, 0, buffer.Length)) != 0)
+            {
+                ms.Write(buffer, 0, count);
+                countSize += count;
+                progress = (int)(((decimal)countSize / file.Size) * 100);
+                this.StateHasChanged();
+                await Task.Delay(1);
+
+                Console.WriteLine(progress);
+            }
+            #endregion
+
+            await file.Data.CopyToAsync(ms);
+            status = $"Finished loading {file.Size} bytes from {file.Name}";
+
+            var content = new MultipartFormDataContent
+            {
+               { new ByteArrayContent(ms.GetBuffer()), "\"Upload\"", file.Name }
+            };
+            await client.PostAsync("api/Upload", content);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+

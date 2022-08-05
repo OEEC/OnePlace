@@ -1,0 +1,33 @@
+﻿@typeparam TItem
+@inherits SimComponentBase
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+
+<div class="table-responsive scrollbar">
+    <table class="@TableClass">
+        <thead class="@TheadClass">
+            <tr>
+                @Cabecera                
+            </tr>
+        </thead>
+        <tbody class="@TBodyClass">
+            @if (Items != null)
+            {
+                @foreach (var item in Items)
+                {
+                    <tr>
+                        @Filas(item)
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                @Pie
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+

@@ -1,0 +1,36 @@
+﻿@inherits SimComponentBase
+
+<div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
+    <div class="bg-white p-3 h-100perfil">
+
+        <Avatar AvatarImgClass="img-thumbnail img-fluid rounded-circle mb-3 shadow-sm" Image="@Imagen" alt="" width="100"></Avatar>
+
+        @if (VerDetalles == true)
+        {
+            <Enlace Href="@(UrlDetalles+"/"+Id+"/"+Nombre.Replace(" ", "-"))">
+                <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
+                    @Nombre
+                </Texto>
+            </Enlace>
+        }
+        else
+        {
+            <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
+                @Nombre
+            </Texto>
+        }
+
+        <Enlace Class="btn p-0" Href="@(UrlEditar+"/"+Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+            <Icono Icon="text-500 fas fa-edit" />
+        </Enlace>
+
+        @if (VerBorrar == true)
+        {
+            if (VerBorrarSoloActivo == true)
+            {
+                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@OnDeleted" />
+            }
+        }
+    </div>
+</div>
+

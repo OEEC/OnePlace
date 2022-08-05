@@ -1,0 +1,74 @@
+﻿<div>
+    <label for="imagen">@Label</label>
+    <div>
+        <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnChange" accept=".jpg,.jpeg,.png" multiple/>
+    </div>
+</div>
+
+<div>
+    @*si es diferente de nulo mostramos la imagen*@
+    @if (imagenBase64 != null)
+    {
+        <div>
+            <div style="margin:10px">
+                <img src="@imagenBase64" style="width: 100px" />
+            </div>
+        </div>
+    }
+
+    @*aqui recibimos la imagen cuando ya esta almacenada es en modo de edicion*@
+    @if (ImagenURL != null)
+    {
+        <div>
+            <div style="margin:10px">
+                <img src="@ImagenURL" style="width: 100px" />
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    //nombre que va en el label por defecto es imagen
+    [Parameter] public string Label { get; set; } = "Imagen";
+
+    //este parametro recibira la url de la imagen cuando vayamos a editar
+    [Parameter] public string ImagenURL { get; set; }
+
+    //devolvemos la representacion de la imagen en base64
+    [Parameter] public EventCallback<string> ImagenSeleccionada { get; set; }
+
+    private string imagenBase64;
+
+    //el evento se ejecuta cuando el usuario selecciona una imagen
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var fileFormat = "image/png";
+
+        //esta variable recibe la imagen seleccionada, aqui puedes recibir multiples imagenes, por el momento solo recibes una !!!
+        var imagenes = e.GetMultipleFiles();       
+
+        //recorremos las imagenes seleccionadas
+        foreach (var imagen in imagenes)
+        {
+            //inicializamos un arreglo de bytes y le pasamos el tamaño de la imagen
+            var arrbytes = new byte[imagen.Size];
+
+            //transferimos los bytes al arreglo de bytes
+            await imagen.OpenReadStream(1512000).ReadAsync(arrbytes);
+
+            //NOTA: no solo se convirtio a base 64, sino que se puso toda la ruta con la cual se almacena en la bd 
+            //utilizaremos base64 para la representacion de la imagen, convertimos el arreglo de bytes a base64
+            imagenBase64 = $"data: {fileFormat}; base64,{Convert.ToBase64String(arrbytes)}";
+
+            //cuando el usuario seleccione una nueva imagen se pone en null para que no se muestren ambas imagenes
+            ImagenURL = null;
+
+            //invocamos el metodo y le pasamos la imagen en base64
+            await ImagenSeleccionada.InvokeAsync(imagenBase64);
+
+            //este metodo nos ayuda a visualizar las imagenes una vez ejecutado el eventcallback
+            StateHasChanged();
+        }
+    }
+}

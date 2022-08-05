@@ -1,0 +1,52 @@
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <!--sino se pone cascadingvalue marca object reference null al momento de cambiar el layout desde otra page razor-->
+        <CascadingValue Value="this">
+
+            <!--aqui cambiamos routeview por authorizerouteview-->
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="this.LayoutType">
+                <!--con estas etiquetas cambiamos el mensaje por default de autorizar por uno custom-->
+                <Authorizing>
+                    <text>Autorizando...</text>
+                </Authorizing>
+                <NotAuthorized>
+                    @if (!context.User.Identity.IsAuthenticated)
+                    {
+                        //sino esta logueado redirigir al login
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        //sino esta autorizado mostrar pagina de no tiene acceso
+                        <Error401 />
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+
+        </CascadingValue>
+    </Found>
+    <NotFound>
+        <!--con cascadingauth indicamos que la autorizacion le va a caer a cualquier componente hijo que este detro de esta etiqueta en el layoutview-->
+        <CascadingAuthenticationState>
+            <LayoutView Layout="@typeof(LoginLayout)">
+                <Error404 />
+            </LayoutView>
+        </CascadingAuthenticationState>
+    </NotFound>
+</Router>
+
+@code {
+
+    //cambiar el diseño dependiendo del rol del usuario logueado
+    private Type LayoutType = typeof(MainLayout);
+
+    public void SetLayout(Type layout)
+    {
+        if (layout != LayoutType)
+        {
+            this.LayoutType = layout;
+            StateHasChanged();
+        }
+    }
+}
+

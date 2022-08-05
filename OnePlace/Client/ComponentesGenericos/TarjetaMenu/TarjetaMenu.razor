@@ -1,0 +1,32 @@
+﻿@inherits SimComponentBase
+
+<Card Class="card col-md-6 no-padding">
+    <CardBody Class="card-body">
+        <div class="h1 text-muted text-right mb-4">
+            @if (!String.IsNullOrEmpty(Icon))
+            {
+                <Icono Icon="@Icon" />
+            }
+        </div>
+        <div class="h4 mb-0">
+            <Enlace Class="count" Href="@Href" Style="@("text-decoration:none; color:"+Color+";")">@Titulo</Enlace>
+        </div>
+        @if (Acciones == true)
+        {
+            <Enlace Class="btn p-0" Href="@Editar" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                <Icono Icon="text-500 fas fa-edit" />
+            </Enlace>
+            if (VerBorrarSoloActivo == true)
+            {
+                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@BorrarOk" />
+            }
+        }
+        else
+        {
+            <Texto Typo="Typo.small" Class="text-muted text-uppercase font-weight-bold">@Subtitulo</Texto>
+        }
+        <div class="progress progress-xs mt-3 mb-0" style="background-color:@BackGroundColor; width: 40%; height: 5px;"></div>
+    </CardBody>
+</Card>
+
+

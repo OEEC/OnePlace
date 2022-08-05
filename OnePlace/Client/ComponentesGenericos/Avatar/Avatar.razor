@@ -1,0 +1,12 @@
+﻿@inherits SimComponentBase
+
+<div @attributes="UserAttributes" class="@Classname" style="@Style">
+    @if (!String.IsNullOrEmpty(Image))
+    {
+         <img src="@Image" class="@ClassAvatarImg"/> 
+    }
+    else
+    {
+         @ChildContent
+    }
+</div>

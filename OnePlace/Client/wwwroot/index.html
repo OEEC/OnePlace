@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>OnePlace</title>
+    <base href="/" />
+    <!--<base href="/oneplace/" />-->
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="OnePlace.Client.styles.css" rel="stylesheet" />
+
+    <!--fontawsome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <!--Select2-->
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" />-->
+    <link rel="stylesheet" href="css/EstilosSelect2.css" />
+    <!--BlazoredTypeahead-->
+    <link rel="stylesheet" href="css/blazored-typeahead.css" />
+    <!--LandingPage-->
+    <link rel="stylesheet" href="css/Landingpagestyle.css" />
+    <!--Swiper-->
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+    <!--Owl Carrusel-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+    <!--Animate-->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!--<div id="app">Loading...</div>-->
+
+    <div id="app">
+        <style>
+            @keyframes slide {
+                0% {
+                    transform: translateX(-25%);
+                }
+
+                100% {
+                    transform: translateX(25%);
+                }
+            }
+
+            .mud-wasm {
+                animation: slide 3s ease-in-out infinite alternate;
+                background-image: linear-gradient(-60deg,#efd233 50%,#ce1c2c 50%);         
+                bottom: 0;
+                left: -50%;
+                opacity: .5;
+                position: fixed;
+                right: -50%;
+                top: 0;
+                z-index: -1
+            }
+
+            .mud-wasm-cont {
+                left: 50%;
+                padding: 10vmin;
+                position: fixed;
+                text-align: center;
+                top: 50%;
+                transform: translate(-50%,-50%)
+            }
+        </style>
+        <div style="height:100%;width:100%;margin:0;position:fixed;">
+            <div class="mud-wasm"></div>
+            <div class="mud-wasm" style="animation-direction:alternate-reverse;animation-duration:4s;"></div>
+            <div class="mud-wasm" style="animation-duration:5s;"></div>
+            <div class="mud-wasm-cont ">
+                <img src="Img/oneplace3.png"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="js/Utilidades.js"></script>
+    <script src="js/SaveFile.js"></script>
+    <!--libreria sweetalert-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <!--libreria jquery-->
+    <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!--Pure Counter-->
+    <script src="lib/purecounter_vanilla.js"></script>
+    <!--Charts Blazor-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="_content/ChartJs.Blazor.Fork/ChartJsBlazorInterop.js"></script>
+    <!--Select2-->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
+    <script src="_content/NEvaldas.Blazor.Select2/select2.blazor.js"></script>
+    <!--BlazorInputFile-->
+    <!--<script src="_content/BlazorInputFile/inputfile.js"></script>-->
+    <script src="js/inputfile.js"></script>
+    <!--BlazoredTypeahead-->
+    <script src="js/blazored-typeahead.js"></script>
+    <!--Swiper-->
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <!--Owl Carrusel-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <!--EasingJS-->
+    <script src="lib/easing/easing.min.js"></script>
+    <!--Wow-->
+    <script src="lib/wow/wow.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+﻿@page "/todo"
+@*<div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <Card Class="card">
+                <CardHeader Class="card-header">
+                    <Texto Typo="Typo.h6" Class="mb-0">Equipos esperando entrada al almacen</Texto>
+                </CardHeader>
+                <CardBody Class="card-body">
+
+                    <EditForm Model="task" OnValidSubmit="AddTask" class="form-inline">
+                        <InputText class="form-control form-control-sm mx-2" placeholder="Ejemplo" @bind-Value="task.TaskName" />
+                        <Boton ButtonType="ButtonType.Submit" Class="btn btn-sm btn-primary mx-2"><Icono Icon="fa fa-plus" />Añadir</Boton>
+                    </EditForm>
+
+                    <div class="progress-bar progress-bar-striped progress-bar-animated my-2" role="progressbar" style="width:@(PercentageCompleted)%" aria-valuemax="100" aria-valuemin="0">
+                        @(PercentageCompleted)%
+                    </div>
+
+                    <Lista Class="list-group list-group-flush my-2">
+                        @foreach (var taskitem in taskList)
+                        {
+                            @if (taskitem.IsComplete)
+                            {
+                                //si la tarea esta completada se pone en verde y subrayado
+                                <ListaItem Class="list-group-item d-flex justify-content-between align-items-center mx-1" @onclick="(()=> taskitem.IsComplete = !taskitem.IsComplete)">
+                                    <Texto Typo="Typo.del" Style="color: #198754">@taskitem.TaskName</Texto>
+                                    <Chips Class="badge rounded-pill bg-success text-white" Icon="fa fa-check">&nbsp;Autorizado</Chips>
+                                </ListaItem>
+                            }
+                            else
+                            {
+                                //si la tarea no esta completa se agrega en gris
+                                <ListaItem Class="list-group-item d-flex justify-content-between align-items-center mx-1" @onclick="(()=> taskitem.IsComplete = !taskitem.IsComplete)">
+                                    @taskitem.TaskName
+                                    <Chips Class="badge rounded-pill bg-danger text-white" Icon="fa fa-times">&nbsp;Por Autorizar</Chips>
+                                </ListaItem>
+                            }
+                        }
+                    </Lista>
+                </CardBody>
+            </Card>
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>*@
+
+<Card Class="card">
+    <CardHeader Class="card-header">
+        <Texto Typo="Typo.h6" Class="mb-0">Equipos esperando entrada al almacen</Texto>
+    </CardHeader>
+    <CardBody Class="card-body">
+
+        <EditForm Model="task" OnValidSubmit="AddTask" class="form-inline">
+            <InputText class="form-control form-control-sm mx-2" placeholder="Ejemplo" @bind-Value="task.TaskName" />
+            <Boton ButtonType="ButtonType.Submit" Class="btn btn-sm btn-primary mx-2"><Icono Icon="fa fa-plus" />Añadir</Boton>
+        </EditForm>
+
+        <div class="progress-bar progress-bar-striped progress-bar-animated my-2" role="progressbar" style="width:@(PercentageCompleted)%" aria-valuemax="100" aria-valuemin="0">
+            @(PercentageCompleted)%
+        </div>
+
+        <Lista Class="list-group list-group-flush my-2">
+            @foreach (var taskitem in taskList)
+            {
+                @if (taskitem.IsComplete)
+                {
+                    //si la tarea esta completada se pone en verde y subrayado
+                    <ListaItem Class="list-group-item d-flex justify-content-between align-items-center mx-1" @onclick="(()=> taskitem.IsComplete = !taskitem.IsComplete)">
+                        <Texto Typo="Typo.del" Style="color: #198754">@taskitem.TaskName</Texto>
+                        <Chips Class="badge rounded-pill bg-success text-white" Icon="fa fa-check">&nbsp;Autorizado</Chips>
+                    </ListaItem>
+                }
+                else
+                {
+                    //si la tarea no esta completa se agrega en gris
+                    <ListaItem Class="list-group-item d-flex justify-content-between align-items-center mx-1" @onclick="(()=> taskitem.IsComplete = !taskitem.IsComplete)">
+                        @taskitem.TaskName
+                        <Chips Class="badge rounded-pill bg-danger text-white" Icon="fa fa-times">&nbsp;Por Autorizar</Chips>
+                    </ListaItem>
+                }
+            }
+        </Lista>
+    </CardBody>
+</Card>
+
+@code{
+    protected TaskModel task = new TaskModel();
+
+    protected List<TaskModel> taskList = new List<TaskModel>();
+
+    private void AddTask()
+    {
+        taskList.Add(task);
+        task = new TaskModel();
+    }
+
+    public int PercentageCompleted
+    {
+        get
+        {
+            //cuentas las tareas que hay en la lista si es mayor a 0, cuentas las tareas completas x 100 entre el total de tareas y te da el porcentaje y sino es mayor a 0 pues es 0
+            return taskList.Count > 0 ? (taskList.Count(x => x.IsComplete) * 100 / taskList.Count) : 0;
+        }
+    }
+}

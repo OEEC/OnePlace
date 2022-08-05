@@ -1,0 +1,102 @@
+﻿<nav aria-label="Page navigation example">
+    <ul class="pagination pagination-sm justify-content-center">
+        @foreach (var enlace in Enlaces)
+        {
+            <!--si el enlace esta habilitado no pasa nada pero sino le colocamos disable-->
+            <li @onclick="@(() => PaginaSeleccionadaInterno(enlace))"
+                style="cursor: pointer;"
+                class="page-item @(enlace.Habilitada ? null : "disabled") @(enlace.Activa ? "active" : null)">
+                <span class="page-link" href="#">@enlace.Texto</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+@code {
+    [Parameter] public int PaginaActual { get; set; } = 1;
+    [Parameter] public int PaginasTotales { get; set; }
+    [Parameter] public int Radio { get; set; } = 3;
+    //ejecuta un evento al hacer click en un boton de la paginacion
+    [Parameter] public EventCallback<int> PaginaSeleccionada { get; set; }
+    //una lista de paginasmodel representa una lista de enlaces
+    List<PaginasModel> Enlaces = new List<PaginasModel>();
+
+
+    private async Task PaginaSeleccionadaInterno(PaginasModel paginaModel)
+    {
+        //aqu decimos si llamamos al eventcallback paginaseleccionada
+        if (paginaModel.Pagina == PaginaActual)
+        {
+            //si el usuario hace click en la pagina actual no hacemos nada por que estamos en esa misma pagina
+            return;
+        }
+
+        if (!paginaModel.Habilitada)
+        {
+            return;
+        }
+        //de esta manera el componente padre puede reaccionar a este cambio y hacer una peticion htttp hacia el webappi solicitando la nueva informacion
+        await PaginaSeleccionada.InvokeAsync(paginaModel.Pagina);
+    }
+
+    protected override void OnParametersSet()
+    {
+        Enlaces = new List<PaginasModel>();//reiniciamos la lista de enlaces cada vez que cambie
+
+        //se puso para el enlace de ir a la primera pagina
+        var enlaceprimeroHabilitado = PaginaActual != 1;
+        var enlacePrimero = 1;
+        Enlaces.Add(new PaginasModel(enlacePrimero, enlaceprimeroHabilitado, "Primero"));
+
+        //revisamos si el estado de la pagina anterior esta habilitado y si nos encontramos en la pagina uno desabilitamos el enlace de la pagina anterio
+        var enlaceAnteriorHabilitada = PaginaActual != 1;
+        var enlaceAnterior = PaginaActual - 1;//desabilitar enlace de la pagina anterior
+                                              //pasamos las variables anteriores al modelo de paginacion y el texto a mosrar
+        Enlaces.Add(new PaginasModel(enlaceAnterior, enlaceAnteriorHabilitada, "Anterior"));
+
+        for (int i = 1; i <= PaginasTotales; i++)
+        {
+            /*determinamos si el 1 esta dentro del rango definido al rededor de la pagina actual y si si esta entonces
+             agregamos una nueva pagina y determinamos si es una pagina activa */
+            if (i >= PaginaActual - Radio && i <= PaginaActual + Radio)
+            {
+                Enlaces.Add(new PaginasModel(i) { Activa = PaginaActual == i });
+            }
+        }
+
+        //la pagina actual sea diferente al total de las paginas
+        var enlaceSiguienteHabilitada = PaginaActual != PaginasTotales;
+        var enlaceSiguiente = PaginaActual + 1;//el numero de la pagina siguiente va hacer la pagina actual +1
+        Enlaces.Add(new PaginasModel(enlaceSiguiente, enlaceSiguienteHabilitada, "Siguiente"));
+
+        //se puso para el enlace de ir a la ultima pagina
+        var enlaceultimoHabilitado = PaginaActual != PaginasTotales;
+        var enlaceUltimo = PaginasTotales;
+        Enlaces.Add(new PaginasModel(enlaceUltimo, enlaceultimoHabilitado, "Último"));
+    }
+
+    //este modelo encapsula un estado de un enlace
+    class PaginasModel
+    {
+
+        public PaginasModel(int pagina)
+            : this(pagina, true)
+        { }
+
+        public PaginasModel(int pagina, bool habilitada)
+            : this(pagina, habilitada, pagina.ToString())
+        { }
+
+        public PaginasModel(int pagina, bool habilitada, string texto)
+        {
+            Pagina = pagina;
+            Habilitada = habilitada;
+            Texto = texto;
+        }
+
+        public string Texto { get; set; }//para ponerle next and previous
+        public int Pagina { get; set; }//numero de pagina
+        public bool Habilitada { get; set; } = true;
+        public bool Activa { get; set; } = false;//para ver que en que pagina te encuentras y se pinte el numero
+    }
+}

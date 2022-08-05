@@ -1,0 +1,25 @@
+﻿@inherits SimButtonBase
+@using OnePlace.Client.ComponentesGenericos.Extensions;
+
+<Elemento Ref="@_elementReference"
+            HtmlTag="@HtmlTag"
+            Class="@Classname"
+            Style="@Style"
+            @attributes="UserAttributes"
+            @onclick="OnClickHandler"
+            type="@ButtonType.ToDescriptionString()"
+            href="@Link"
+            target="@Target"
+            rel="@(Target=="_blank"?"noopener":null)"
+            disabled="@Disabled">
+    @if (!String.IsNullOrEmpty(Icon))
+    {
+        <span class="mud-icon-button-label">
+            <Icono Icon="@Icon" Title="@Title" />
+        </span> 
+    }
+    else
+    {
+        <Texto Typo="Typo.body2">@ChildContent</Texto>
+    }
+</Elemento>

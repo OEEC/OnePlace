@@ -1,0 +1,59 @@
+﻿@inherits SimComponentBase
+
+@if (EsVisible)
+{
+    <div class="@ModalClass" tabindex="-1" style="@Stylename" role="dialog">
+        <div class="@ModalDialogClass">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    @ModalCabecera
+                    <Texto Typo="Typo.h5" Class="modal-title">@Titulo</Texto>
+                    <Boton ButtonType="ButtonType.Button" Class="close" data-dismiss="modal" aria-label="Close" @onclick="ModalCancel">
+                        <Texto Typo="Typo.normal" Class="font-weight-light" aria-hidden="true">&times;</Texto>
+                    </Boton>
+                </div>
+
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+
+                <div class="modal-footer">
+                    @ModalPie
+
+                    @switch (BotonesModal)
+                    {
+                        case TiposdeBoton.Ok:
+                            <Boton ButtonType="ButtonType.Submit" Class="btn btn-sm btn-success" @onclick="ModalOk">Guardar</Boton>
+                            break;
+                        case TiposdeBoton.CancelarBorrar:
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-secondary" @onclick="ModalCancel">Cerrar</Boton>
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-danger">Borrar</Boton>
+                            break;
+                        case TiposdeBoton.OkCancelar:
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-secondary" @onclick="ModalCancel">Cerrar</Boton>
+                            <Boton ButtonType="ButtonType.Submit" Class="btn btn-sm btn-success" @onclick="ModalOk">Guardar</Boton>
+                            break;
+                        case TiposdeBoton.Cancelar:
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-secondary" @onclick="ModalCancel">Cerrar</Boton>
+                            break;
+                        case TiposdeBoton.Link:
+                            <Enlace Href="@Href" Class="btn btn-sm btn-primary">@TituloEnlace</Enlace>
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-secondary" @onclick="ModalCancel">Cerrar</Boton>
+                            break;
+                        case TiposdeBoton.LinkOK:
+                            <Enlace Href="@Href" Class="btn btn-sm btn-primary">@TituloEnlace</Enlace>
+                            <Boton ButtonType="ButtonType.Submit" Class="btn btn-sm btn-success" @onclick="ModalOk">Guardar</Boton>
+                            break;
+                        case TiposdeBoton.SinBtn:
+                            break;
+                        case TiposdeBoton.BotonOnclick:
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-secondary" @onclick="ModalCancel">Cerrar</Boton>
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-sm btn-success" @onclick="ModalOk2">Guardar</Boton>                            
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

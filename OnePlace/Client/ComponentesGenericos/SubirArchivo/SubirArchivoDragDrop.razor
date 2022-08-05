@@ -1,0 +1,118 @@
+﻿@page "/dragdrop"
+@inject HttpClient Http
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+
+<div class="drag-drop-zone">
+    <BlazorInputFile.InputFile multiple OnChange="HandleSelection" />
+    @status
+</div>
+
+@if (selectedFiles != null)
+{
+    <div class="pre">
+        @if (progress.HasValue)
+        {
+            @if (progress < 100)
+            {
+                <div class="progress" style="height:30px;">
+                    <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:@(progress)%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">
+                        <h6 style="margin-bottom: .1rem;">@status2 @progress%</h6>                       
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="progress" style="height:30px;">
+                    <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                        <h6 style="margin-bottom: .1rem;">@status2</h6>
+                    </div>
+                </div>
+                <br />
+                @if(status3 != null)
+                {
+                    <div class="d-inline-flex flex-column">
+                         <div class="border px-2 rounded-3 d-flex flex-between-center bg-white text-200 my-1 fs--1">
+                             <span class="fa fa-file"></span>
+                             <span class="ms-2">
+                             @status3.NombreArchivo (@(status3.Tamaño.ToSize(GetSizeFile.SizeUnits.KB)+"KB"))
+                             </span>
+                         </div>
+                    </div>
+                 }                
+            }
+        }
+    </div>  
+}
+
+@code {
+    //parametro de tipo eventcallback, que espera devolverte una propiedad de tipo int
+    [Parameter] public EventCallback<int> SubidaExitosa { get; set; }
+
+    public int ArchivoId { get; set; }//variable donde se guardara la respuesta de la peticion http
+
+    const string DefaultStatus = "Suelte los archivos aquí o haga clic para cargar.";   
+    string status = DefaultStatus;
+    string status2 = "";
+    ArchivoAdjunto status3;
+    public int? progress;
+
+    IFileListEntry[] selectedFiles;
+    async Task HandleSelection(IFileListEntry[] files)
+    {
+        int countSize = 0;
+        selectedFiles = files;
+        foreach (var selectedFiles in files)
+        {
+            if (files != null)
+            {
+                status = "";
+                status2 = "Cargando...";
+
+                var ms = new MemoryStream();//inicializamos el memorystream
+
+                #region Proggress
+                var bufferSize = 1048576;
+                var buffer = new byte[bufferSize];
+                int count;
+                while ((count = await selectedFiles.Data.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                {
+                    ms.Write(buffer, 0, count);
+                    countSize += count;
+                    progress = (int)(((decimal)countSize / selectedFiles.Size) * 100);
+                    this.StateHasChanged();
+                    await Task.Delay(1);
+
+                    Console.WriteLine(progress);
+                }
+                #endregion
+
+                await selectedFiles.Data.CopyToAsync(ms);//copiamos el file que viene del foreach al memorystream
+
+                ArchivoAdjunto archivo = new ArchivoAdjunto();//inicializamos el objeto
+                archivo.ArchivoEnBytes = ms.GetBuffer();//convertimos el memorystream en array se podria usar tambien ToArray()
+                archivo.NombreArchivo = selectedFiles.Name;//obtenemos el nombre del archivo               
+                archivo.Tamaño = selectedFiles.Size;
+                //enviamos un objeto y nos regresa un int
+                var httpResponse = await repositorio.Post<ArchivoAdjunto, int>("api/Upload", archivo);
+                if (httpResponse.Error)
+                {
+                    status = DefaultStatus;
+                    var body = await httpResponse.GetBody();
+                    status2 = body;
+                }
+                else
+                {
+                    status = DefaultStatus;
+                    status2 = "Archivo Almacenado";
+                    status3 = archivo;
+
+                    ArchivoId = httpResponse.Response;
+                    await SubidaExitosa.InvokeAsync(ArchivoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api
+                }
+            }
+        }
+    }
+}
+

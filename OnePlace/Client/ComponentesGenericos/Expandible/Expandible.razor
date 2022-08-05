@@ -1,0 +1,22 @@
+﻿@inherits SimComponentBase
+
+<div class="row">
+    @if (Collapsed)
+    {
+        <span class="mb-4 d-block d-flex align-items-center" @onclick="@Toggle" style="@Stylename"><span class="circle-dashed"><span class="fas fa-plus"></span></span><span class="ml-3">@Label</span></span>
+    }
+    else
+    {
+        <span class="mb-4 d-block d-flex align-items-center" @onclick="@Toggle" style="@Stylename"><span class="circle-dashed"><span class="fas fa-minus"></span></span><span class="ml-3">@Label</span></span>
+    }
+</div>
+@if (!Collapsed)
+{
+    <div class="card card-body">
+        @ChildContent
+    </div>
+}
+
+
+
+

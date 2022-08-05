@@ -1,0 +1,49 @@
+﻿@inherits SimComponentBase
+@inject IJSRuntime JS
+
+<Card Style="min-width: 12rem;" Class="card mb-3 overflow-hidden">
+    <div class="bg-holder bg-card" style="@StyleString"></div>   
+    <CardBody Class="card-body position-relative">
+        <Texto Typo="Typo.h6">
+            @Titulo&nbsp;
+
+            @if (MostrarBadge == true)
+            {
+                 <Texto Typo="Typo.normal" Class="@("badge"+" "+"rounded-pill"+" "+ClaseBadge+" ml-2")">@Porcentaje%</Texto>
+            }
+
+            @ChildContent
+            <br />
+            <span id="@CounterName" data-purecounter-start="@CantidadInicial" data-purecounter-end="@CantidadFinal" class="display-4 fs-4 mb-2 font-weight-normal text-sans-serif @ColorTexto"></span>
+            <br />
+
+            @if (UsarBotonEjecutable == true)
+            {
+                <Enlace Class="font-weight-semi-bold fs--1 text-nowrap text-primary manita" @onclick="BotonEjecutable">
+                    @TextoLink
+                    <Texto Typo="Typo.normal" Class="fas fa-angle-right ml-1" data-fa-transform="down-1"></Texto>
+                </Enlace>
+            }
+            else
+            {
+                <Enlace Class="font-weight-semi-bold fs--1 text-nowrap manita" Href="@Href">
+                    @TextoLink
+                    <Texto Typo="Typo.normal" Class="fas fa-angle-right ml-1" data-fa-transform="down-1"></Texto>
+                </Enlace>
+            }
+        </Texto>
+    </CardBody>
+</Card>
+
+@code{
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("PureCounter");
+            firstRender = false;
+            StateHasChanged();
+        }
+    }
+}

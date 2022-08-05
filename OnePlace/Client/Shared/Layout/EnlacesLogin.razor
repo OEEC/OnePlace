@@ -1,0 +1,37 @@
+﻿@using System.Security.Claims
+
+<AuthorizeView>
+    <Authorized>
+        <DropDown TItem="string" Class="@ColorDropDown">
+            <InitialTip>
+                @*<Texto Typo="Typo.normal" Class="@ColorTexto">@context.User.Identity.Name</Texto>*@
+                <Texto Typo="Typo.normal" Class="@ColorTexto">@Nombre</Texto>
+                <Icono Icon="fas fa-user fa-fw" Style="@ColorIcono"></Icono>
+            </InitialTip>
+            <ChildContent>
+                <DropDownListLink Href="logout" Nombre="Logout"><Icono Icon="oi oi-account-login" /></DropDownListLink>
+            </ChildContent>
+        </DropDown>
+    </Authorized>   
+</AuthorizeView>
+
+@code {
+    [Parameter] public string ColorDropDown { get; set; }
+    [Parameter] public string ColorTexto { get; set; }
+    [Parameter] public string ColorIcono { get; set; }
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string Nombre = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            Nombre = ($"{user.FindFirst(x => x.Type == ClaimTypes.GivenName)?.Value +" "+ user.FindFirst(x => x.Type == ClaimTypes.Surname)?.Value}");
+        }
+    }
+}

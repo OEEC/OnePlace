@@ -1,0 +1,32 @@
+﻿@inherits SimComponentBase
+
+<div class="@Classname" style="@Style" @onclick="@OnClickHandler">
+    @if (!String.IsNullOrEmpty(Avatar))
+    {
+        <Avatar Class="@AvatarClass">
+            <Icono Icon="@Avatar" />
+        </Avatar> 
+    }
+    else if (!String.IsNullOrEmpty(Icon) && !IsChecked)
+    {
+        <Icono Icon="@Icon" Class="mud-chip-icon"/> 
+    }
+    else if (IsChecked)
+    {
+        <Icono Icon="oi oi-check" Class="mud-chip-icon"/>
+    }
+    <span class="mud-chip-content">
+        @if (ChildContent == null)
+        {
+           @Text 
+        }
+        else
+        {
+           @ChildContent
+        }
+        @if (OnClose.HasDelegate || ChipSet?.AllClosable == true)
+        {
+            <BotonIcono Class="mud-chip-close-button" Icon="@(String.IsNullOrEmpty(CloseIcon) ? $"oi oi-x" : $"{CloseIcon}")" OnClick="OnCloseHandler"/>
+        }
+    </span>
+</div>

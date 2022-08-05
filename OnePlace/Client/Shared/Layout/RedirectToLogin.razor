@@ -1,0 +1,12 @@
+﻿@inject NavigationManager navigationManager
+
+@*componente para redirigir a las usuarios no autenticados al login*@
+
+@code{
+
+    protected async override Task OnInitializedAsync()
+    {
+        navigationManager.NavigateTo("/");
+    }
+}
+

@@ -1,0 +1,69 @@
+﻿@page "/collapse"
+
+<table class="table">
+    <thead>
+        <tr style="cursor:pointer;">
+            <th>#</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Person person in People)
+        {
+            <tr style="cursor:pointer" @onclick="()=>person.opened=!person.opened">
+                <td>@person.id</td>
+                <td>@person.name</td>
+                <td>@person.birthday.ToString("MM/dd/yyyy")</td>
+                <td>@(person.approved ? "Approved" : "Denied")</td>
+                <td>@person.reason</td>
+            </tr>
+            @if (person.opened)
+            {
+                <tr>
+                    <td colspan="5">
+                        <p style="text-align:center">
+                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
+                            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+                            when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+                            It has survived not only five centuries, but also the leap into electronic typesetting,
+                            remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset 
+                            sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like 
+                            Aldus PageMaker including versions of Lorem Ipsum.
+                        </p>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+
+    class Person
+    {
+        public int id;
+        public string name;
+        public DateTime birthday;
+        public bool approved;
+        public string info;
+        public string reason;
+        public bool opened;  // I call this a state carrier, because it's not really data.
+
+        public Person(int ID, string Name, DateTime Birthday, bool Approved, string Reason)
+        {
+            id = ID; name = Name; birthday = Birthday; approved = Approved; reason = Reason;
+        }
+    }
+
+    List<Person> People = new List<Person>();
+
+    protected override void OnInitialized()
+    {
+        People.Add(new Person(183, "John Doe", new DateTime(2014, 7, 11), true, "Good worker."));
+        People.Add(new Person(184, "Benjamin", new DateTime(2012, 9, 9), false, "Types too much."));
+        People.Add(new Person(1, "Jesus", new DateTime(2022, 1, 13), true, "Really nice guy."));
+    }
+}

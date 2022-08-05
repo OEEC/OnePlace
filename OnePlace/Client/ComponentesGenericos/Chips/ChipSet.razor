@@ -1,0 +1,7 @@
+﻿@inherits SimComponentBase
+
+<div @attributes="UserAttributes" class="@Classname" style="@Style">
+    <CascadingValue IsFixed="true" Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>

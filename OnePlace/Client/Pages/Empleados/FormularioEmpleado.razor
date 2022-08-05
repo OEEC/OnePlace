@@ -1,0 +1,40 @@
+﻿<EditForm Model="@Empleado" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">Empleados</Texto><br>
+                </div>                
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="nombre">Nombre</InputLabel>
+                        <InputText class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-Value="@Empleado.Correo" />
+                        <ValidationMessage For="@(() => Empleado.Correo)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="numero">Numero</InputLabel>
+                        <InputText class="form-control form-control-sm" id="numero" placeholder="Numero" @bind-Value="@Empleado.Noemp" />
+                        <ValidationMessage For="@(() => Empleado.Noemp)" />
+                    </div>
+                </div>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+@code{
+
+    [Parameter] public Empleado Empleado { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}
+

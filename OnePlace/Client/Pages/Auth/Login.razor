@@ -1,0 +1,46 @@
+﻿@layout CenteredCardLayout
+@page "/"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+
+<EditForm Model="@userInfoLogin" OnValidSubmit="LoginUsuario">
+    <DataAnnotationsValidator />
+    <div class="text-center">
+        <Texto Typo="Typo.h4" Class="h4 text-gray-900 mb-4">¡Bienvenido!</Texto>
+    </div>
+    <div class="form-group">
+        <InputLabel for="nomempleado">Número de Empleado:</InputLabel>
+        <InputText type="nomempleado" class="form-control form-control-sm" placeholder="Número de Empleado" @bind-Value="@userInfoLogin.NumeroEmpleado" />
+        <ValidationMessage For="@(() => userInfoLogin.NumeroEmpleado)" />
+    </div>
+    <div class="form-group">
+        <InputLabel for="password">Contraseña:</InputLabel>
+        <InputPassword class="form-control form-control-sm" PlaceHolder="Contraseña" @bind-Value="@userInfoLogin.Password" />
+        <ValidationMessage For="@(() => userInfoLogin.Password)" />
+    </div>
+    <Boton ButtonType="ButtonType.Submit" Class="btn btn-dark btn-sm btn-block">Inicio de Sesión</Boton>
+    <Divisor />   
+</EditForm>
+
+@code{
+
+    private UserInfoLogin userInfoLogin = new UserInfoLogin();   
+
+    private async Task LoginUsuario()
+    {
+        var httpResponse = await repositorio.Post<UserInfoLogin, UserToken>("api/Cuentas/Login", userInfoLogin);
+
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await loginService.Login(httpResponse.Response.Token);
+            navigationManager.NavigateTo("inicio");
+        }
+    }
+}

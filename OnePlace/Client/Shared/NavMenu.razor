@@ -1,0 +1,77 @@
+﻿
+@*solo los admin pueden ver el menu*@
+<AuthorizeView Roles="Administrador">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbarcolor border-bottom box-shadow mb-3 fixed-topcustom">
+        <div class="container">
+
+            <a class="navbar-brand" href="inicio">
+                <img src="Img/oneplace.png" />
+            </a>
+            <button class="navbar-toggler" @onclick="ToggleNavMenu" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="@NavMenuCssClass navbar-collapse d-sm-inline-flex flex-sm-row-reverse" @onclick="CollapseNavMenu">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="inicio" Match="NavLinkMatch.All">
+                            <span class="oi oi-home" aria-hidden="true"></span> Inicio
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-carrusel">
+                            <span class="fa fa-calendar" aria-hidden="true"></span>&nbsp;Eventos
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-carrusel">
+                            <span class="fas fa-ticket-alt" aria-hidden="true"></span>&nbsp;Promociones
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-cursos">
+                            <span class="fa fa-folder-open" aria-hidden="true"></span>&nbsp;Cursos
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-carrusel">
+                            <span class="fa fa-birthday-cake" aria-hidden="true"></span>&nbsp;Cumpleaños
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-carrusel">
+                            <span class="fas fa-image" aria-hidden="true"></span>&nbsp;Imagenes
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="indice-quiz">
+                            <span class="fa fa-question" aria-hidden="true"></span>&nbsp;Quiz
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div>
+            <EnlacesLogin ColorDropDown="btn btn-falcon-default btn-sm ml-2 dropdown-caret-none" ColorTexto="text-white" ColorIcono="color:white"/>
+        </div>
+    </nav>
+</AuthorizeView>
+
+@code {
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    void CollapseNavMenu()
+    {
+        collapseNavMenu = true;
+    }
+}
+

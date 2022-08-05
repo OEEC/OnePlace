@@ -1,0 +1,8 @@
+﻿@inherits SimComponentBase
+
+<ul @attributes="UserAttributes" class="@Classname" style="@Style">
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
+</ul>
+

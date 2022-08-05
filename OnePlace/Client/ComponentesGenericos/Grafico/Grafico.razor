@@ -1,0 +1,52 @@
+﻿@page "/grafico"
+@using ChartJs.Blazor.PieChart
+
+@*<Card Class="card">
+    <CardBody Class="card-body ">
+        <Chart Config="_config"></Chart>
+    </CardBody>
+</Card>*@
+
+<Chart Config="_config"/>
+
+@code {
+    private PieConfig _config;
+
+    protected override void OnInitialized()
+    {
+        RealizarConfiguracionPastel();
+    }
+
+    private void RealizarConfiguracionPastel()
+    {
+        _config = new PieConfig();
+
+        _config.Options = new PieOptions
+        {
+            Responsive = true,
+            Title = new OptionsTitle
+            {
+                Display = true,
+                Text = "Grafico de Activos"
+            }
+        };
+
+        foreach (string marcas in new[] { "Laptop", "Mouse", "Teclado", "Modem" })
+        {
+            _config.Data.Labels.Add(marcas);
+        }
+
+        PieDataset<int> dataset = new PieDataset<int>(new[] { 6, 5, 3, 7 })
+        {
+            BackgroundColor = new[]
+            {
+                ColorUtil.ColorHexString(255, 99, 132), // Slice 1 aka "Red"
+                ColorUtil.ColorHexString(255, 205, 86), // Slice 2 aka "Yellow"
+                ColorUtil.ColorHexString(75, 192, 192), // Slice 3 aka "Green"
+                ColorUtil.ColorHexString(54, 162, 235), // Slice 4 aka "Blue"
+            }
+        };
+
+        _config.Data.Datasets.Add(dataset);
+    }
+}

@@ -1,0 +1,678 @@
+﻿@page "/inicio"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@*todas las paginas necesitan este atributo para que no se puedan ver sino estas logueado*@
+@attribute [Authorize]
+@using System.Security.Claims
+
+@if (user.IsInRole("Usuario"))
+{
+    <div class="container-landingpage bg-white p-0 text-heebo">
+
+        <!-- Navbar & Hero Start -->
+        <div class="container-xxl position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+                <a href="" class="navbar-brand p-0">
+                    <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
+                    <img src="img/oneplace.png" alt="Logo">
+                </a>
+                <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
+                    <div class="navbar-nav ml-auto py-0">
+                        @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
+                        <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
+                        <a onclick="document.getElementById('eventos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Eventos</a>
+                        <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Promociones</a>
+                        <a onclick="document.getElementById('cursos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cursos</a>
+                        <a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>
+                        <!-- <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Otros</a>
+                            <div class="dropdown-menu m-0">
+                                <a href="team.html" class="dropdown-item">Efemerides</a>
+                                <a href="testimonial.html" class="dropdown-item">Historia</a>
+                            </div>
+                        </div> -->
+                        <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
+                    </div>
+                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
+                </div>
+            </nav>
+
+            <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
+                <div class="container my-5 py-5 px-lg-5">
+                    <div class="row g-5 py-5">
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
+                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
+                            <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Ver Más</a>
+                            <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
+                        </div>
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Navbar & Hero End -->
+        <!--Eventos-->
+        <div class="container-xxl py-5" id="eventos">
+            <div class="container px-lg-5">
+                <div class="row g-5">
+                    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                        <div class="section-title position-relative mb-4 pb-2">
+                            <h6 class="position-relative text-primarysimsa pl-4">Información</h6>
+                            <h2 class="mt-2">Lo más relevante</h2>
+                        </div>
+                        <p class="mb-4 colorgris">
+                            Mes con mes, encontrarás las fechas y acontecimientos de grupo simsa a través de imágenes y una breve descripción del hecho.
+                        </p>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEfemerides())">
+                                    <i class="fas fa-calendar text-primarysimsa mr-2"></i>
+                                    Efemerides
+                                </h6>
+                                <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEvento())">
+                                    <i class="fas fa-calendar text-primarysimsa mr-2"></i>
+                                    Torneo de Voléibol
+                                </h6>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 class="mb-0 eventos">
+                                    <i class="fas fa-calendar text-primarysimsa mr-2"></i>
+                                    Torneo de Futbol
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="img/about.jpg" style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Eventos End-->
+        <!-- Ofertas Start -->
+        <div class="swiper" id="promociones">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <img src="img/ultimo-slider.png">
+                </div>
+                <div class="swiper-slide">
+                    <img src="img/principal-one.png">
+                </div>
+                <div class="swiper-slide">
+                    <img src="img/slider-2.png">
+                </div>
+            </div>
+            <!--  <div class="swiper-pagination"></div> -->
+        </div>
+        <!-- Ofertas End -->
+        <!--Cursos-->
+        <div class="container-xxl py-5" id="cursos">
+            <div class="container px-lg-5">
+                <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
+                    <h6 class="position-relative d-inline text-primarysimsa pl-4">Cursos</h6>
+                    <h2 class="mt-2">Lo Que Puedes Aprender</h2>
+                </div>
+                <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
+                    <div class="item">
+                        <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                            <div class="service-icon flex-shrink-0">
+                                <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                            </div>
+                            <h5 class="mb-3">Procedimiento de Servicio</h5>
+                            <p class="colorgris">
+                                Integra los 10 puntos del decálogo de servicio con la finalidad de brindar un servicio de calidad.
+                            </p>
+                            <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="">Capacitate!</a>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                            <div class="service-icon flex-shrink-0">
+                                <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                            </div>
+                            <h5 class="mb-3">Uniforme Operativo</h5>
+                            <p class="colorgris">Muestra la imagen y equipo de trabajo que debe portar el despachador.</p>
+                            <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="">Capacitate!</a>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                            <div class="service-icon flex-shrink-0">
+                                <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                            </div>
+                            <h5 class="mb-3">Trabajo en Equipo</h5>
+                            <p class="colorgris">Como relacionarte con tu entorno y con tus compañeros de trabajo para una mejor colaboración.</p>
+                            <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="">Capacitate!</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Cursos End -->
+        <!--Logos Start -->
+        <div class="container-xxl bg-simsa testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="container py-5 px-lg-5">
+                <div class="owl-carousel testimonial-carousel">
+                    <div class="testimonial-item bg-transparent rounded text-white p-4">
+                        <img class="img-fluid" src="img/logo_simsa.png">
+                    </div>
+                    <div class="testimonial-item bg-transparent rounded text-white p-4">
+                        <img class="img-fluid" src="img/logo_pricegas_chico.png">
+                    </div>
+                    <div class="testimonial-item bg-transparent rounded text-white p-4">
+                        <img class="img-fluid" src="img/onestop.png">
+                    </div>
+                    <div class="testimonial-item bg-transparent rounded text-white p-4">
+                        <img class="img-fluid" src="img/shell.png">
+                    </div>
+                    <div class="testimonial-item bg-transparent rounded text-white p-4">
+                        <img class="img-fluid" src="img/Lmigasolina.png">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Logos End -->
+        <!-- Cumple Start -->
+        <div class="container-xxl py-5" id="cumple">
+            <div class="container px-lg-5">
+                <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
+                    <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
+                    <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
+                </div>
+                <div class="owl-carousel cumple-carousel wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="item">
+                        <div class="team-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-gift"></i></span>
+                                </div>
+                                <img class="img-fluidsimsa rounded w-100" src="img/team-1.jpg" alt="">
+                            </div>
+                            <div class="px-4 py-3">
+                                <h5 class="fw-bold m-0">Jhon Doe</h5>
+                                <span class="colorgris">CEO  / 13 de Julio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="team-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-gift"></i></span>
+                                </div>
+                                <img class="img-fluidsimsa rounded" src="img/team-2.jpg" alt="">
+                            </div>
+                            <div class="px-4 py-3">
+                                <h5 class="fw-bold m-0">Emma William</h5>
+                                <span class="colorgris">Manager / 15 de Julio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="team-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-gift"></i></span>
+                                </div>
+                                <img class="img-fluidsimsa rounded w-100" src="img/team-3.jpg" alt="">
+                            </div>
+                            <div class="px-4 py-3">
+                                <h5 class="fw-bold m-0">Noah Michael</h5>
+                                <span class="colorgris">Designer / 25 de Julio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Cumple End -->
+        <!-- Footer Start -->
+        <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
+            <div class="container py-5 px-lg-5">
+                <div class="row g-5">
+                    <div class="col-md-6 col-lg-6">
+                        <h5 class="text-white mb-4">Buzón</h5>
+                        <div class="position-relative w-100 mt-3">
+                            <form>
+                                <div class="form-group">
+                                    <label for="exampleInputEmail1">Mensaje:</label>
+                                    <textarea type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"></textarea>
+                                </div><br>
+                                <div class="form-group">
+                                    <div class="file-select" id="src-file1">
+                                        <input type="file" name="src-file1" aria-label="Archivo">
+                                    </div>
+                                </div>
+                                <br>
+                                <button type="submit" class="btn btn-light font-weight-bold">
+                                    <i class="fa fa-paper-plane text-primarysimsa"></i>
+                                    Enviar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <h5 class="text-white mb-4">Historia</h5>
+                        <p style="text-align:justify">
+                            Grupo SIMSA fué fundada en 1967 formada por un grupo de empresas Laguneras orientadas a la producción y distribución de bienes y servicios en diferentes divisiones tales como Transporte, Energéticos, Construcción, Entre otros.
+                            Grupo SIMSA es un enlace de empresas triunfadoras, que basado en su capital humano y la excelencia en el servicio, enfrenta el reto de la intensa competitividad con el nuevo milenio.
+                        </p>
+                        <div class="row g-2">
+                            <div class="col-4"></div>
+                            @*<div class="col-4"></div>*@
+                            <div class="col-8">
+                                <img class="img-fluid" src="img/gruposimsa.png" alt="Image" style="border-radius: 15px;
+                                box-shadow: 0 0 10px rgb(0 0 0 / 70%);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container px-lg-5">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-5">
+                            <p>
+                                <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
+                            </p>
+                            <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
+                            <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
+                        </div>
+                        <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <span class="border-bottom">One Place</span>, All Right Reserved.<br />
+                            Designed By <span class="border-bottom">Innovación</span>
+                            <br>Distributed By: <span class="border-bottom">Simsa</span>
+                        </div>
+                        <div class="col-md-3 text-center text-md-end">
+                            <div class="d-flex pt-2">
+                                <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
+    </div>
+
+    @if (isModal)
+    {
+        <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background-color: rgba(10,10,10,.8); border: none;">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn bg-simsa" data-bs-dismiss="modal" aria-label="Close"
+                                style="margin: -0.5rem -0.5rem -0.5rem auto;" @onclick="closeModal">
+                            <span class="fas fa-times" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row light">
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                            <div class="col-sm-6 col-lg-6 mb-3">
+                                <div class="card overflow-hidden">
+                                    <div class="card-img-top">
+                                        <img src="img/cumplecake.jpg" alt="Card image cap" style="width: 100%; height:250px; display: block" />
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            Feliz Cumpleaños:
+                                            @if (EmpleadoPersonaDTO != null)
+                                            {
+                                                @(EmpleadoPersonaDTO.Persona.Nombre+" "+EmpleadoPersonaDTO.Persona.ApePat)
+                                            }
+                                            !!
+                                        </h5>
+                                        <p class="card-text text-dark" style="text-align:justify">
+                                            “Trabajar contigo es un aprendizaje constante. Gracias por darnos tu apoyo y esfuerzo. Esta empresa no sería la misma sin ti. ¡Feliz cumpleaños!”
+                                        </p>
+                                        <p class="card-text"><small class="text-muted">@FechadeHoy.ToString("dddd, dd MMMM yyyy")</small></p>
+                                    </div>
+                                    <div class="card-footer bg-light d-flex justify-content-between">
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                ¡Por que te lo merecres!<br>
+                                                Grupo Simsa te regala un dona y un café de nuestras tiendas One.<br>
+                                                Escanea tu código QR, presentalo en una tienda participante y listo a disfrutar!!.<br>
+                                                Válido solo una vez.
+                                            </small>
+                                        </p>
+                                        <img src="img/QRcode.png" class="text-left" style="width:80px; height:80px;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (isModalEfemerides)
+    {
+        <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background-color: rgba(10,10,10,.8); border:none;">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn bg-simsa" data-bs-dismiss="modal" aria-label="Close"
+                                style="margin: -0.5rem -0.5rem -0.5rem auto;" @onclick="closeModalEfemerides">
+                            <span class="fas fa-times" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row light">
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+
+                            <div class="col-sm-6 col-lg-6 mb-3">
+                                <div class="card overflow-hidden">
+                                    <div class="card-img-top">
+                                        <img src="img/hero.png" alt="Card image cap" style="width: 100%; height:250px; display: block" />
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Día del Ingeniero</h5>
+                                        <p class="card-text" style="text-align:justify">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (isModalEvento)
+    {
+        <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background-color: rgba(10,10,10,.8); border:none;">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn bg-simsa" data-bs-dismiss="modal" aria-label="Close"
+                                style="margin: -0.5rem -0.5rem -0.5rem auto;" @onclick="closeModalEvento">
+                            <span class="fas fa-times" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row light">
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                            <div class="col-sm-6 col-lg-6 mb-3">
+                                <div class="card overflow-hidden">
+                                    <div class="card-img-top">
+                                        <img src="img/voleibol.jpg" alt="Card image cap" style="width: 100%; height:250px; display: block" />
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Torneo Voléibol</h5>
+                                        <p class="card-text" style="text-align:justify">
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="card mb-3 mb-lg-0">
+        <div class="card-header bg-light d-flex justify-content-between">
+            <h5 class="mb-0">Cumpleaños del Mes</h5>
+        </div>
+        <div class="card-body fs--1">
+            <div class="row">
+                <div class="col-md-6 h-100">
+                    <div class="d-flex btn-reveal-trigger">
+                        <div class="calendar"><span class="calendar-month">Ago</span><span class="calendar-day">26</span></div>
+                        <div class="flex-1 position-relative ps-3">
+                            <h6 class="fs-0 mb-0"><span class="text-primary">Jasiel Becerra</span></h6>
+                            <p class="mb-1 text-700"><small>Desarrollador Web</small></p>
+                            <p class="text-1000 mb-0"><small>Fecha de nacimiento: 26/08/1994</small></p> 
+                            <div class="border-dashed-bottom my-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 h-100">
+                    <div class="d-flex btn-reveal-trigger">
+                        <div class="calendar"><span class="calendar-month">Ago</span><span class="calendar-day">29</span></div>
+                        <div class="flex-1 position-relative ps-3">
+                            <h6 class="fs-0 mb-0"><span class="text-primary">Sofia Cazares</span></h6>
+                            <p class="mb-1 text-700"><small>Diseñadora</small></p>
+                            <p class="text-1000 mb-0"><small>Fecha de nacimiento: 29/08/1994</small></p>
+                            <div class="border-dashed-bottom my-3"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 h-100">
+                    <div class="d-flex btn-reveal-trigger">
+                        <div class="calendar"><span class="calendar-month">Ago</span><span class="calendar-day">21</span></div>
+                        <div class="flex-1 position-relative ps-3">
+                            <h6 class="fs-0 mb-0"><span class="text-primary">Pablo Torres</span></h6>
+                            <p class="mb-1 text-700"><small>Programador</small></p>
+                            <p class="text-1000 mb-0"><small>Fecha de nacimiento: 21/08/1994</small></p>
+                            <div class="border-dashed-bottom my-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />    
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Cursos</h5>
+        </div>
+        <div class="card-body">
+            <div class="row light">
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card overflow-hidden" style="width: 20rem;">
+                        <div class="card-img-top"><img class="img-fluid" src="/Img/uniforme.jpg" alt="Card image cap" /></div>
+                        <div class="card-body">
+                            <h5 class="card-title">Uniforme Operativo</h5>
+                            <p class="card-text">
+                                Muestra la imagen y equipo de trabajo que debe portar el despachador.
+                            </p>                           
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card overflow-hidden" style="width: 20rem;">
+                        <div class="card-img-top"><img class="img-fluid" src="/Img/gasolinera.jpg" alt="Card image cap" /></div>
+                        <div class="card-body">
+                            <h5 class="card-title">Procedimiento de Servicio</h5>
+                            <p class="card-text">
+                                Integra los 10 puntos del decálogo de servicio con la finalidad de brindar un servicio de calidad.
+                            </p>                           
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-4 mb-4">
+                    <div class="card overflow-hidden" style="width: 20rem;">
+                        <div class="card-img-top"><img class="img-fluid" src="/Img/portadacurso.jpg" alt="Card image cap" /></div>
+                        <div class="card-body">
+                            <h5 class="card-title">Trabajo en Equipo</h5>
+                            <p class="card-text">
+                                Como relacionarte con tu entorno y con tus compañeros de trabajo para una mejor colaboración.
+                            </p>                            
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>   
+    <br />
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] public App MyApp { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        @if (user.IsInRole("Usuario"))
+        {
+            //cambiar el diseño dependiendo del rol del usuario logueado
+            MyApp.SetLayout(typeof(UserLayout));
+        }
+        else
+        {
+            MyApp.SetLayout(typeof(MainLayout));
+        }
+
+        FechadeHoy = DateTime.Today;
+        await CargarCumple();
+    }
+
+    public EmpleadoPersonaDTO EmpleadoPersonaDTO { get; set; }
+    public DateTime FechadeHoy;
+
+    private async Task CargarCumple()
+    {
+        var responseHttp = await repositorio.Get<EmpleadoPersonaDTO>("api/Birthday");
+        if (!responseHttp.Error)
+        {
+            EmpleadoPersonaDTO = responseHttp.Response;
+
+            //si la fecha de cumple es igual a la fecha de hoy ismodal es true abre modal
+            if (EmpleadoPersonaDTO.ProximoCumple == FechadeHoy.ToString("dd/MM/yyyy"))
+            {
+                isModal = true;
+            }
+        }
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
+            //firstRender = false;
+            //StateHasChanged();
+
+            await JS.InvokeVoidAsync("Animacion");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("StarCarousel");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("StarCarousel2");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("StarCarousel3");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("StarCarousel4");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("BotonUP");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("Sticky");
+            firstRender = false;
+            StateHasChanged();
+        }
+    }
+
+    #region ColapsarMenu
+
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    void CollapseNavMenu()
+    {
+        collapseNavMenu = true;
+    }
+
+    #endregion
+
+    #region ModalCumple
+    private Boolean isModal = false;
+
+    private void closeModal()
+    {
+        this.isModal = false;
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region ModalEfemerides
+    private Boolean isModalEfemerides = false;
+
+    private void OpenModalEfemerides()
+    {
+        this.isModalEfemerides = true;
+    }
+
+    private void closeModalEfemerides()
+    {
+        this.isModalEfemerides = false;
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region ModalEvento
+    private Boolean isModalEvento = false;
+
+    private void OpenModalEvento()
+    {
+        this.isModalEvento = true;
+    }
+
+    private void closeModalEvento()
+    {
+        this.isModalEvento = false;
+        StateHasChanged();
+    }
+
+    #endregion
+}

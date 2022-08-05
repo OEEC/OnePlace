@@ -1,0 +1,21 @@
+﻿@inherits SimBooleanInput<T>
+@typeparam T  
+
+<div class="custom-control custom-switch">
+    <input type="checkbox" class="custom-control-input" id="@IdTag" checked="@BoolValue" @attributes="UserAttributes" @onchange="@OnChange" disabled="@Disabled" @onclick:preventDefault="@ReadOnly">
+    <label class="@Classname" for="@ForTag" style="@Style">
+         @if (!String.IsNullOrEmpty(Label))
+         {
+            <Texto>@Label</Texto>
+         }
+         @if (ChildContent != null)
+         {
+            <Texto>
+              @ChildContent
+            </Texto>
+         }
+    </label>
+</div>
+     
+
+

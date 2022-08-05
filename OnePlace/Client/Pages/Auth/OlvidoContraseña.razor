@@ -1,0 +1,88 @@
+﻿@*@page "/olvido-contraseña/{UserName}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@using Pages.Usuarios;
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Administrador")]
+
+<EditForm Model="@recoveryPassword" OnValidSubmit="Forgotpassword">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">Restablecer Contraseña</Texto>
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="password">Contraseña</InputLabel>
+                        <InputPassword class="form-control form-control-sm" PlaceHolder="Contraseña" @bind-Value="@recoveryPassword.Password" />
+                        <ValidationMessage For="@(() => recoveryPassword.Password)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="passwordrandom">Generar Contraseña</InputLabel><br />
+                        <Boton Class="btn btn-outline-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="GenerateRandomPass"><Icono Icon="oi oi-random fs--2 mr-1"></Icono></Boton>
+                    </div>
+                </div>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Restablecer</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    ClaimsPrincipal user;
+
+    //usamos  recoveryPassword  ya que contiene las propiedades unicamente necesarias para recuperar el password
+    private RecoveryPassword recoveryPassword = new RecoveryPassword();
+    [Parameter] public string UserName { get; set; }
+    private string UsuarioLogueado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //obtener el user, role y claims
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        UsuarioLogueado = user.Identity.Name;
+    }
+
+    private async Task Forgotpassword()
+    {
+        recoveryPassword.Usuario = UserName;
+        var httpResponse = await repositorio.Post<RecoveryPassword>("api/Cuentas/OlvidoPassword", recoveryPassword);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Se restablecio la contraseña correctamente");
+
+            /*si el nombre del usuario que se esta editando es igual al usuario logueado retornarlo al inicio de sesion
+            sino dejarlo dentro de la app*/
+            @if (UserName == UsuarioLogueado)
+            {
+                navigationManager.NavigateTo("logout");
+            }
+        }
+    }
+
+    public async Task GenerateRandomPass()
+    {
+        recoveryPassword.Password = GenerarPassword.GenerateRandomPassword();
+    }
+}*@

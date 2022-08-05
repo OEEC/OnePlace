@@ -1,0 +1,25 @@
+﻿@inject ViewOptionService ViewOption
+
+@if (ViewOption.IsNavigationVisible)
+{
+    @*<button @onclick="ViewOption.Toggle" class="btn btn-primary">
+    <span class="oi oi-collapse-left" aria-hidden="true"></span> 
+    Hide Menu
+    </button>*@ 
+     <button class="togglediseño" @onclick="ViewOption.Toggle">
+        <span class="navbar-toggler-icon imgburger"></span>
+     </button>
+}
+else
+{
+    @*<button @onclick="ViewOption.Toggle" class="btn btn-primary">
+    <span class="oi oi-collapse-right" aria-hidden="true"></span> 
+    Show Menu
+    </button>*@
+
+    <button class="togglediseño" @onclick="ViewOption.Toggle">
+       <span class="navbar-toggler-icon imgburger"></span>
+    </button>
+}
+
+

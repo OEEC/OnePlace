@@ -1,0 +1,26 @@
+﻿@page "/crear-empleado"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioEmpleado OnValidSubmit="Crear" Empleado="Empleado"/>
+
+@code {
+
+    private Empleado Empleado = new Empleado();
+
+     async Task Crear()
+     {
+            var httpResponse = await repositorio.Post("api/Empleado", Empleado);
+            @if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                await mostrarMensajes.MostrarMensajeExitoso("Empleado Creado");
+                navigationManager.NavigateTo("indice-empleados");
+            }              
+     }           
+}

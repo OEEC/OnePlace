@@ -1,0 +1,20 @@
+﻿@inherits SimComponentBase
+
+<div class="@ContainerClass">
+
+    @ChildContent
+
+    @if (!String.IsNullOrEmpty(Text) || TooltipContent != null)
+    {
+        <span class="@Classname" style="@GetTimeDelay()">
+            @if (TooltipContent != null)
+            {
+                @TooltipContent
+            }
+            else
+            {
+                @Text
+            }
+        </span>
+    }
+</div>
