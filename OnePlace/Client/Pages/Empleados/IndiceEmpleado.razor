@@ -25,7 +25,7 @@
                     {
                         @if (item.Persona != null)
                         {
-                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlEditar="editar-empleado" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img" VerDetalles="true" />
+                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img" VerDetalles="true" VerEditar="false"/>
                         }
                     }
                 </div>              

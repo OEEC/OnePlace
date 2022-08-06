@@ -1,0 +1,438 @@
+﻿@page "/detalles-empleado/{EmpleadoId:int}"
+@page "/detalles-empleado/{EmpleadoId:int}/{NombreEmpleado}"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject NavigationManager navigationManager
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+@if (DetallesEmpleado == null)
+{
+    <LoadingSpinner IsLoading="Procesando" />
+}
+else
+{
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header position-relative min-vh-25 mb-7">
+            <CardMedia Class="bg-holder rounded-soft rounded-bottom-0" Image="Img/migasolina1.jpg" />           
+            <Avatar Class="avatar avatar-5xl avatar-profile">
+                <Imagen Class="rounded-circle img-thumbnail2 shadow-sm" Src="@DetallesEmpleado.Empleado.Img" />
+            </Avatar>
+        </CardHeader>
+        <CardBody Class="card-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <Texto Typo="Typo.h4" Class="mb-1">
+                        @DetallesEmpleado.Persona.Nombre @DetallesEmpleado.Persona.ApePat @DetallesEmpleado.Persona.ApeMat
+                        <Texto Typo="Typo.small" Class="fas fa-check-circle text-primary ml-1" data-toggle="tooltip" data-placement="right" title="Verified" data-fa-transform="shrink-4 down-2"></Texto>
+                    </Texto>
+                    @*<Texto Typo="Typo.h5" Class="fs-0 font-weight-normal">
+                        @if (DetallesEmpleado.Empleado.Puesto != null)
+                        {
+                            <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Nombre</Texto>
+                        }
+                        else
+                        {
+                            <text>No hay registro</text>
+                        }
+                    </Texto>*@
+                    <p class="text-500">Simsa, Torreón Coahuila</p>
+                   
+                    @if (user.IsInRole("Administrador"))
+                    {
+                        <Enlace Class="btn btn-outline-primary btn-sm px-3" Href="@("registro/"+DetallesEmpleado.Empleado.Idempleado)"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Crear Usuario</Enlace>
+                    }
+                    <Divisor Class="border-dashed my-4 d-lg-none" />
+                </div>
+                <div class="col pl-2 pl-lg-3">
+                    <Texto Typo="Typo.normal" Class="media align-items-center mb-2">
+                        <Texto Typo="Typo.normal" Class="fas fa-user-circle fs-4 mr-2 text-700"></Texto>
+                        <div class="media-body">
+                            <Texto Typo="Typo.h6" Class="mb-0">
+                                @if (DetallesEmpleado.Empleado.Correo != null)
+                                {
+                                    <Enlace Href="@("mailto:"+DetallesEmpleado.Empleado.Correo)">@DetallesEmpleado.Empleado.Correo</Enlace>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </Texto>
+                        </div>
+                    </Texto>                   
+                </div>
+            </div>
+        </CardBody>
+    </Card>
+
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header bg-transparent">
+            <div class="row align-items-center">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">Detalles del Empleado</Texto>
+                </div>
+                <div class="col-auto"></div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top bg-light-custom">
+            <div class="row">
+                <div class="col-lg col-xxl-5">
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">N. de Empleado:</Texto>
+                        </div>
+                        <div class="col">@DetallesEmpleado.Empleado.Noemp</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Nombre:</Texto>
+                        </div>
+                        <div class="col">
+                            <Texto Typo="Typo.body2" Class="mb-1">@DetallesEmpleado.Persona.Nombre @DetallesEmpleado.Persona.ApePat @DetallesEmpleado.Persona.ApeMat </Texto>
+                        </div>
+                    </div>
+                    @*<div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Tipo de Usuario:</Texto>
+                        </div>
+                        <div class="col">
+                            <Texto Typo="Typo.body2" Class="mb-1">@DetallesEmpleado.Empleado.TipodeUsuario.ToString()</Texto>
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Correo:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Correo != null)
+                            {
+                                <Enlace Href="@("mailto:"+DetallesEmpleado.Empleado.Correo)">@DetallesEmpleado.Empleado.Correo</Enlace>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Teléfono:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Telefono != null)
+                            {
+                                <Texto Typo="Typo.body2">@DetallesEmpleado.Empleado.Telefono</Texto>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>                    
+                </div>
+
+                <div class="col-lg col-xxl-5 mt-4 mt-lg-0 offset-xxl-1">
+                    @*<div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Departamento:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Departamento != null)
+                            {
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Departamento.Nombre</Texto>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Puesto:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Puesto != null)
+                            {
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Nombre</Texto>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Área:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Area != null)
+                            {
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Area.Nombre</Texto>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Razón Social:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.RazonSocialEstacion != null)
+                            {
+                                <Texto Typo="Typo.body2">@DetallesEmpleado.Empleado.RazonSocialEstacion.Nombre</Texto>
+                            }
+                            else
+                            {
+                                <text>No hay registro</text>
+                            }
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Fecha de Creación:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Fchalta != null)
+                            {
+                                @DetallesEmpleado.Empleado.Fchalta.Value.ToString("MM/dd/yyyy h:mm tt")
+                            }
+                            else
+                            {
+                                <Texto Typo="Typo.normal" Class="text-danger"> No exiten datos</Texto>
+                            }
+                        </div>
+                    </div>
+                    @*<div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Estado:</Texto>
+                        </div>
+                        <div class="col">
+                            @if (DetallesEmpleado.Empleado.Activo == true)
+                            {
+                                <Chips Class="badge badge-pill badge-success" Icon="ml-1 fas fa-check">&nbsp;Activo</Chips>
+                            }
+                            else
+                            {
+                                <Chips Class="badge badge-pill badge-danger" Icon="ml-1 fas fa-times">&nbsp;Inactivo</Chips>
+                            }
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        <div class="col-5 col-sm-4">
+                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Ver Más:</Texto>
+                        </div>
+                        <div class="col">
+                            <Boton Class="btn btn-outline-primary btn-sm" ButtonType="ButtonType.Button" @onclick="ClickVerMas"><Icono Icon="fas fa-eye fs--2 mr-1"></Icono></Boton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            @if (VerMas)
+            {
+                <div class="row">
+                    <div class="col-lg col-xxl-5">
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Fecha de Nacimiento:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Fchnac == null)
+                                {
+                                    <text>No hay registro</text>
+                                }
+                                else
+                                {
+                                    <Texto Typo="Typo.body2" Class="mb-1">
+                                        @DetallesEmpleado.Persona.Fchnac.Value.ToString("dd MMM yyyy")
+                                    </Texto>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Sexo:</Texto>
+                            </div>
+                            <div class="col">
+                                <Texto Typo="Typo.body2" Class="mb-1">@DetallesEmpleado.Persona.Sexo</Texto>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Edad:</Texto>
+                            </div>
+                            <div class="col">
+                                <Texto Typo="Typo.body2" Class="mb-1">
+                                    @if (DetallesEmpleado.Persona.Fchnac == null)
+                                    {
+                                        <text>No hay registro</text>
+                                    }
+                                    else
+                                    {
+                                        @DetallesEmpleado.Persona.Edad
+                                    }
+                                </Texto>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Correo Personal:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Correo != null)
+                                {
+                                    <Enlace Href="@("mailto:"+DetallesEmpleado.Persona.Correo)">@DetallesEmpleado.Persona.Correo</Enlace>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>                       
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Celular Personal:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Telefono != null)
+                                {
+                                    <Enlace Href="@("https://api.whatsapp.com/send?phone="+Lada+DetallesEmpleado.Persona.Telefono)">@DetallesEmpleado.Persona.Telefono</Enlace>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg col-xxl-5 mt-4 mt-lg-0 offset-xxl-1">
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Rfc:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Rfc != null)
+                                {
+                                    <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Persona.Rfc</Texto>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Curp:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Curp != null)
+                                {
+                                    <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Persona.Curp</Texto>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Nss:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Persona.Nss != null)
+                                {
+                                    <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Persona.Nss</Texto>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Dirección:</Texto>
+                            </div>
+                            <div class="col">
+                                <Texto Typo="Typo.body2" Class="mb-1">
+                                    @DetallesEmpleado.Persona.Calle #@DetallesEmpleado.Persona.Noext @DetallesEmpleado.Persona.Noint @DetallesEmpleado.Persona.Colonia @DetallesEmpleado.Persona.Cp, @DetallesEmpleado.Persona.Ciudad @DetallesEmpleado.Persona.Estado
+                                </Texto>
+                            </div>
+                        </div>                 
+                    </div>
+                </div>
+            }
+        </CardBody>
+        <CardFooter Class="card-footer border-top bg-transparent"></CardFooter>
+    </Card>
+    <br />
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    ClaimsPrincipal user;
+
+    [Parameter] public int EmpleadoId { get; set; }
+    [Parameter] public string NombreEmpleado { get; set; }
+
+    public EmpleadoPersonaDTO DetallesEmpleado { get; set; }
+    public int Lada = 52;
+
+    private bool Procesando = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        await CargarDetalles();
+    }
+
+    private async Task CargarDetalles()
+    {
+        var responseHttp = await repositorio.Get<EmpleadoPersonaDTO>($"api/Empleado/{EmpleadoId}");
+
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            DetallesEmpleado = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    #region CargarMasDetallesdePersona
+
+    public Boolean VerMas = false;
+
+    private void ClickVerMas()
+    {
+        VerMas = !VerMas;
+    }
+
+    #endregion   
+}
+
+

@@ -456,7 +456,7 @@ else
                         <div class="flex-1 position-relative ps-3">
                             <h6 class="fs-0 mb-0"><span class="text-primary">Jasiel Becerra</span></h6>
                             <p class="mb-1 text-700"><small>Desarrollador Web</small></p>
-                            <p class="text-1000 mb-0"><small>Fecha de nacimiento: 26/08/1994</small></p> 
+                            <p class="text-1000 mb-0"><small>Fecha de nacimiento: 26/08/1994</small></p>
                             <div class="border-dashed-bottom my-3"></div>
                         </div>
                     </div>
@@ -486,7 +486,7 @@ else
             </div>
         </div>
     </div>
-    <br />    
+    <br />
 
     <div class="card">
         <div class="card-header">
@@ -501,7 +501,7 @@ else
                             <h5 class="card-title">Uniforme Operativo</h5>
                             <p class="card-text">
                                 Muestra la imagen y equipo de trabajo que debe portar el despachador.
-                            </p>                           
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -512,7 +512,7 @@ else
                             <h5 class="card-title">Procedimiento de Servicio</h5>
                             <p class="card-text">
                                 Integra los 10 puntos del decálogo de servicio con la finalidad de brindar un servicio de calidad.
-                            </p>                           
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -523,14 +523,15 @@ else
                             <h5 class="card-title">Trabajo en Equipo</h5>
                             <p class="card-text">
                                 Como relacionarte con tu entorno y con tus compañeros de trabajo para una mejor colaboración.
-                            </p>                            
+                            </p>
                         </div>
                     </div>
                 </div>
 
             </div>
         </div>
-    </div>   
+    </div>
+    <br />
     <br />
 }
 
@@ -550,7 +551,7 @@ else
             //cambiar el diseño dependiendo del rol del usuario logueado
             MyApp.SetLayout(typeof(UserLayout));
 
-            await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");           
+            await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
             StateHasChanged();
         }
         else

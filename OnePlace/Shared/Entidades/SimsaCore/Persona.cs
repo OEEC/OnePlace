@@ -23,5 +23,27 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public string Cp { get; set; }
         public string Ciudad { get; set; }
         public string Estado { get; set; }
+        public int Edad
+        {
+            get
+            {
+                DateTime now = DateTime.Today;
+                int Edad = 0;
+
+                if (Fchnac != null)
+                {
+                    Edad = DateTime.Today.Year - Fchnac.Value.Year;
+
+                    if (DateTime.Today < Fchnac.Value.AddYears(Edad))
+                        return --Edad;
+                    else
+                        return Edad;
+                }
+                else
+                {
+                    return Edad;
+                }
+            }
+        }
     }
 }

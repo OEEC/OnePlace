@@ -20,9 +20,12 @@
             </Texto>
         }
 
-        <Enlace Class="btn p-0" Href="@(UrlEditar+"/"+Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
-            <Icono Icon="text-500 fas fa-edit" />
-        </Enlace>
+        @if (VerEditar == true)
+        {
+            <Enlace Class="btn p-0" Href="@(UrlEditar+"/"+Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                <Icono Icon="text-500 fas fa-edit" />
+            </Enlace>
+        }
 
         @if (VerBorrar == true)
         {

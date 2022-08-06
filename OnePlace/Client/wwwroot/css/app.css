@@ -165,3 +165,80 @@ a, .btn-link {
 .text-500 {
     color: rgba(157, 169, 187) !important;
 }
+
+/*css de detalles empleados imagen background*/
+
+.rounded-bottom-0 {
+    border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.rounded-3 {
+    border-radius: 0.375rem !important;
+}
+
+/*css de detalles de empleados avatar-imagen*/
+.img-thumbnail2 {
+    padding: 0.25rem;
+    background-color: #fff;
+    border: 3px solid #fff;
+    border-radius: 0.25rem;
+    -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    width: 168px;
+    height: 168px;
+}
+
+.avatar-profile {
+    position: absolute;
+    bottom: 0;
+    -webkit-transform: translateY(50%);
+    -ms-transform: translateY(50%);
+    transform: translateY(50%);
+}
+
+.avatar-5xl {
+    height: 10.5rem;
+    width: 10.5rem;
+}
+
+.avatar {
+    position: relative;
+    display: inline-block;
+}
+
+    .avatar img {
+        -o-object-fit: cover;
+        object-fit: cover;
+    }
+
+    .avatar img {
+        display: block;
+    }
+
+/*css de detalles empleados card margen del texto*/
+
+.mb-7 {
+    margin-bottom: 5rem !important;
+}
+
+.min-vh-25 {
+    min-height: 25vh !important;
+}
+
+/*css de detalles empleados card portada de perfil*/
+.bg-holder {
+    position: absolute;
+    width: 100%;
+    min-height: 100%;
+    top: 0;
+    left: 0;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    will-change: transform, opacity, filter;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background-repeat: no-repeat;
+    z-index: 0;
+}

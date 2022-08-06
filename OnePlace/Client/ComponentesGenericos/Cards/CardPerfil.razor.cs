@@ -20,6 +20,7 @@ namespace OnePlace.Client.ComponentesGenericos.Cards
         [Parameter] public int Id { get; set; }
         [Parameter] public string Imagen { get; set; }
         [Parameter] public bool VerBorrar { get; set; }
+        [Parameter] public bool VerEditar { get; set; }
         [Parameter] public bool VerBorrarSoloActivo { get; set; }//se puso para que solo se vea el boton de eliminar si es activo el empleado
         [Parameter] public bool VerDetalles { get; set; }
         [Parameter] public EventCallback OnDeleted { get; set; }

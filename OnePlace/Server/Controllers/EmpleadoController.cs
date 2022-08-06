@@ -100,6 +100,30 @@ namespace OnePlace.Server.Controllers
             var queryable = empleados.AsQueryable();
             await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros,true);
             return queryable.Paginar(paginacion).ToList();
-        }        
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EmpleadoPersonaDTO>> Get(int id)
+        {
+            var empleado = await context.Empleados.Where(x => x.Idempleado == id).FirstOrDefaultAsync();
+
+            if (empleado == null) { return NotFound(); }
+
+            //si el usuario no subio imagen poner una por defecto
+            if (string.IsNullOrEmpty(empleado.Img))
+            {
+                // Aquí colocas la URL de la imagen por defecto
+                empleado.Img = "Img" + "/" + "avatars-1.png";
+            }
+
+            var persona = await context.Personas.Where(x => x.Idpersona == empleado.Idpersona).FirstOrDefaultAsync();
+            if (persona == null) { return NotFound(); }           
+
+            var model = new EmpleadoPersonaDTO();
+            model.Empleado = empleado;
+            model.Persona = persona;
+
+            return model;
+        }
     }
 }
