@@ -221,15 +221,15 @@ function Animacion() {
     new WOW().init();
 };
 
-//function loadCss(cssPath) {
+function loadCss(cssPath) {
 
-//    var link = document.createElement('link');
-//    link.rel = "stylesheet";
-//    link.type = "text/css";
-//    link.href = cssPath
+    var link = document.createElement('link');
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href = cssPath
 
-//    document.head.appendChild(link);
-//};
+    document.head.appendChild(link);
+};
 
 
 

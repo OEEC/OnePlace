@@ -1,0 +1,74 @@
+﻿@page "/indice-empleados"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject NavigationManager navigationManager
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+
+<Card Class="card">
+    <CardHeader Class="card-header">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-sm-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Texto Typo="Typo.h5" Class="mb-0">Empleados</Texto>
+                    </div>
+                </div>                           
+            </div>
+        </div>
+    </CardHeader>
+    <CardBody Class="card-body p-0">
+        <ListadoGenerico Listado="Empleados">
+            <HayRegistrosCompleto>
+                <div class="row no-gutters text-center fs--1">
+                    @foreach (var item in Empleados)
+                    {
+                        @if (item.Persona != null)
+                        {
+                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlEditar="editar-empleado" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img" VerDetalles="true" />
+                        }
+                    }
+                </div>              
+            </HayRegistrosCompleto>
+        </ListadoGenerico>
+    </CardBody>
+    <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+        <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales"></Paginacion>
+    </CardFooter>
+</Card>
+
+@code {
+
+    public List<Empleado> Empleados { get; set; }
+
+    private int paginaActual = 1;
+    private int paginasTotales;   
+
+    #region CargarEmpleados
+
+    protected async override Task OnInitializedAsync()
+    {
+        await Cargar();       
+    }
+
+    private async Task paginaSeleccionada(int pagina)
+    {        
+        paginaActual = pagina;
+        await Cargar(pagina);
+    }
+
+    private async Task Cargar(int pagina = 1)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado?pagina={pagina}");
+        if (!responseHttp.Error)
+        {
+            Empleados = responseHttp.Response;
+           
+            var conteo = responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault();            
+            paginasTotales = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+        }
+    }
+
+    #endregion CargarEmpleados   
+}
+

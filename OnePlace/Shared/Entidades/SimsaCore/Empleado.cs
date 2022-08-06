@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
@@ -20,5 +21,11 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public string Idestatus { get; set; }
         public DateTime? Fchalta { get; set; }
         public DateTime? Fchbaja { get; set; }
+
+        //Sin el [NotMapped] atributo EF, se crearía una relación de uno a uno basada en la propiedad Persona de navegación
+        //en Empleado la propiedad de clave externa idpersona en Persona.
+        //El [NotMapped] impedirá eso.
+        [NotMapped]
+        public virtual Persona Persona { get; set; }
     }
 }

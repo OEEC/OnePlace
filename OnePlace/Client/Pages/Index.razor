@@ -549,6 +549,9 @@ else
         {
             //cambiar el diseño dependiendo del rol del usuario logueado
             MyApp.SetLayout(typeof(UserLayout));
+
+            await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");           
+            StateHasChanged();
         }
         else
         {
@@ -581,10 +584,6 @@ else
     {
         if (firstRender)
         {
-            //await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
-            //firstRender = false;
-            //StateHasChanged();
-
             await JS.InvokeVoidAsync("Animacion");
             firstRender = false;
             StateHasChanged();

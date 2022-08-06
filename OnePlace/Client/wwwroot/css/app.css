@@ -149,3 +149,19 @@ a, .btn-link {
 .mb-0 {
     margin-bottom: 0 !important;
 }
+
+/*css para el indice-empleados componente donde se muestra la imagen*/
+.img-thumbnail {
+    padding: 0.25rem;
+    background-color: #fff;
+    border: 3px solid #fff;
+    border-radius: 0.25rem;
+    -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    width: 96px;
+    height: 96px;
+}
+
+.text-500 {
+    color: rgba(157, 169, 187) !important;
+}
