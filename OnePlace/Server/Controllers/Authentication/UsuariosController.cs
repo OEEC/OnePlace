@@ -120,8 +120,7 @@ namespace OnePlace.Server.Controllers
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
-        }
-       
+        }       
         public async Task AsignarTipodeUsuario(EditarRolDTO editarRolDTO)
         {
             //lo buscamos por su id con findbyid

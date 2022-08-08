@@ -8,7 +8,7 @@ namespace OnePlace.Shared.DTOs
 {
     public class RolDTO
     {
-        public Guid RolDTOId { get; set; }
+        //public Guid RolDTOId { get; set; }
         public string RoleId { get; set; }
         public string Nombre { get; set; }
     }
