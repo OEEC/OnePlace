@@ -16,7 +16,10 @@ namespace OnePlace.Shared.DTOs
 
         [Required(ErrorMessage = "El campo contraseña es requerido")]
         [CustomPasswordValidator]
-        public string Password { get; set; }     
+        public string Password { get; set; }
+        public string Nombre { get; set; }       
+        public string ApellidoPaterno { get; set; }     
+        public string ApellidoMaterno { get; set; }
 
         //propiedades de navegacion
         public int EmpleadoId { get; set; }
@@ -35,9 +38,8 @@ namespace OnePlace.Shared.DTOs
     public class RecoveryPassword
     {
         /*con estas propiedades el usuario va poder recuperar su contraseña*/
-        [Required(ErrorMessage = "El campo {0} es requerido")]
-        [EmailAddress(ErrorMessage = "El correo no tiene el formato correcto: @dominio")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "El campo {0} es requerido")]       
+        public string NumeroEmpleado { get; set; }
 
         [Required(ErrorMessage = "El campo contraseña es requerido")]
         [CustomPasswordValidator]

@@ -51,6 +51,9 @@ namespace OnePlace.Server.Controllers
                 UserName = model.NumeroEmpleado,
                 noemp = model.NumeroEmpleado,               
                 Idempleado = model.EmpleadoId,
+                Nombre = model.Nombre,
+                ApellidoMaterno = model.ApellidoMaterno,
+                ApellidoPaterno = model.ApellidoPaterno,
                 //Empleado = null,
                 ContraseñaTextoPlano = model.Password,
                 Activo = true
@@ -152,74 +155,74 @@ namespace OnePlace.Server.Controllers
         // RESTABLECER CONTRASEÑA ////////
         ////////////////////////////////// 
 
-        //[HttpPost("OlvidoPassword")]
-        //public async Task<ActionResult> OlvidoPassword([FromBody] RecoveryPassword recoveryPassword)
-        //{
-        //    //buscamos un usuario por medio de su UserName
-        //    var usuario = await _userManager.FindByEmailAsync(recoveryPassword.Email);
+        [HttpPost("OlvidoPassword")]
+        public async Task<ActionResult> OlvidoPassword([FromBody] RecoveryPassword recoveryPassword)
+        {
+            //buscamos un usuario por medio de su UserName
+            var usuario = await _userManager.FindByNameAsync(recoveryPassword.NumeroEmpleado);
 
-        //    //si el usuario no es nulo 
-        //    if (usuario != null)
-        //    {
-        //        //creamos un token para resetear su password
-        //        var tokenreset = await _userManager.GeneratePasswordResetTokenAsync(usuario);
-        //        //pasamos al metodo de verificacion
-        //        await VerifyResetPassAsync(usuario.UserName, tokenreset, recoveryPassword);
-        //    }
-        //    return Ok();
-        //}
-        //public async Task<ActionResult> VerifyResetPassAsync(string nombre, string token, RecoveryPassword recoveryPassword)
-        //{
-        //    if (nombre == null || token == null)
-        //        return Content("Faltan datos para restablecer contraseña");
+            //si el usuario no es nulo 
+            if (usuario != null)
+            {
+                //creamos un token para resetear su password
+                var tokenreset = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+                //pasamos al metodo de verificacion
+                await VerifyResetPassAsync(usuario.UserName, tokenreset, recoveryPassword);
+            }
+            return Ok();
+        }
+        public async Task<ActionResult> VerifyResetPassAsync(string nombre, string token, RecoveryPassword recoveryPassword)
+        {
+            if (nombre == null || token == null)
+                return Content("Faltan datos para restablecer contraseña");
 
-        //    //buscamos el usuario por su UserName
-        //    var user = await _userManager.FindByEmailAsync(nombre);
+            //buscamos el usuario por su UserName
+            var user = await _userManager.FindByNameAsync(nombre);
 
-        //    if (user == null)
-        //        return Content("Usuario no encontrado");
+            if (user == null)
+                return Content("Usuario no encontrado");
 
-        //    //verificamos el token           
-        //    bool ConfirmarToken = await _userManager.VerifyUserTokenAsync
-        //    (user, this._userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
+            //verificamos el token           
+            bool ConfirmarToken = await _userManager.VerifyUserTokenAsync
+            (user, this._userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token);
 
-        //    //si es un token valido restableces la contraseña
-        //    if (ConfirmarToken)
-        //    {
-        //        //codigo para restablecer contraseña
-        //        var usuario = await _userManager.FindByEmailAsync(nombre);//buscamos el usuario por su UserName
-        //        if (usuario != null)
-        //        {
-        //            var resultado = await _userManager.ResetPasswordAsync(usuario, token, recoveryPassword.Password);
-        //            if (resultado.Succeeded)
-        //            {
-        //                //actualizar el campo contraseñatextoplano en la tabla aspnetuser cuando se restablezca la contraseña
-        //                var oldUsuario = await context.Users.FindAsync(usuario.Id);
+            //si es un token valido restableces la contraseña
+            if (ConfirmarToken)
+            {
+                //codigo para restablecer contraseña
+                var usuario = await _userManager.FindByNameAsync(nombre);//buscamos el usuario por su UserName
+                if (usuario != null)
+                {
+                    var resultado = await _userManager.ResetPasswordAsync(usuario, token, recoveryPassword.Password);
+                    if (resultado.Succeeded)
+                    {
+                        //actualizar el campo contraseñatextoplano en la tabla aspnetuser cuando se restablezca la contraseña
+                        var oldUsuario = await context.Users.FindAsync(usuario.Id);
 
-        //                //se tuvo que crear un nuevo objeto de ApplicationUser ya que el update solo se puede hacer entre mismos objetos
-        //                //si le pasamos recoverypassword con el password nuevo tecleado, da error ya que recoverypassword es un DTO
-        //                //el nuevo objeto de applicationuser lo igualamos con todo lo que trae el oldusuario, solo cambiamos el password
-        //                //que es el unico campo que cambio y que nos interesa cambiar
-        //                var nuevousuariosoloparaactualizar = new ApplicationUser();
-        //                nuevousuariosoloparaactualizar = oldUsuario;
-        //                nuevousuariosoloparaactualizar.ContraseñaTextoPlano = recoveryPassword.Password;
-        //                context.Entry(oldUsuario).CurrentValues.SetValues(nuevousuariosoloparaactualizar);
-        //                await context.SaveChangesAsync();
+                        //se tuvo que crear un nuevo objeto de ApplicationUser ya que el update solo se puede hacer entre mismos objetos
+                        //si le pasamos recoverypassword con el password nuevo tecleado, da error ya que recoverypassword es un DTO
+                        //el nuevo objeto de applicationuser lo igualamos con todo lo que trae el oldusuario, solo cambiamos el password
+                        //que es el unico campo que cambio y que nos interesa cambiar
+                        var nuevousuariosoloparaactualizar = new ApplicationUser();
+                        nuevousuariosoloparaactualizar = oldUsuario;
+                        nuevousuariosoloparaactualizar.ContraseñaTextoPlano = recoveryPassword.Password;
+                        context.Entry(oldUsuario).CurrentValues.SetValues(nuevousuariosoloparaactualizar);
+                        await context.SaveChangesAsync();
 
-        //                return Ok("Se reestablecio correctamente");
-        //            }
-        //            else
-        //            {
-        //                string mensajeError = "La contraseña no se ha podido cambiar";
-        //                return BadRequest(mensajeError);
-        //            }
-        //        }
-        //        return NotFound("No se encontro el usuario");
-        //    }
-        //    else
-        //    {
-        //        return Content("Token de verificación no válido");
-        //    }
-        //}
+                        return Ok("Se reestablecio correctamente");
+                    }
+                    else
+                    {
+                        string mensajeError = "La contraseña no se ha podido cambiar";
+                        return BadRequest(mensajeError);
+                    }
+                }
+                return NotFound("No se encontro el usuario");
+            }
+            else
+            {
+                return Content("Token de verificación no válido");
+            }
+        }
     }
 }

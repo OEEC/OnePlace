@@ -1,0 +1,97 @@
+﻿@page "/registro/{EmpleadoId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<EditForm Model="@userInfo" OnValidSubmit="CrearUsuario">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">Crear Usuario</Texto><br>
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                @if (model != null)
+                {
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <InputLabel for="numero">Número de Empleado</InputLabel>
+                            <input type="text" class="form-control form-control-sm" placeholder="Número de Empleado" @bind-value="@model.Empleado.Noemp" disabled />
+                        </div>
+                    </div>
+                }
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="password">Contraseña</InputLabel>
+                        <InputPassword class="form-control form-control-sm" PlaceHolder="Contraseña" @bind-Value="@userInfo.Password" />
+                        <ValidationMessage For="@(() => userInfo.Password)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="passwordrandom">Generar Contraseña</InputLabel><br />
+                        <Boton Class="btn btn-outline-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="GenerateRandomPass"><Icono Icon="oi oi-random fs--2 mr-1"></Icono></Boton>
+                    </div>
+                </div>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Registrar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+@code{
+
+    [Parameter] public int EmpleadoId { get; set; }
+
+    private UserInfo userInfo = new UserInfo();
+
+    public EmpleadoPersonaDTO model { get; set; }
+
+    //se trae a un empleado por id para que su informacion se use para crearle un usuario y asi ese empleado pueda accesar al sistema
+    protected async override Task OnInitializedAsync()
+    {
+        await CargarEmpleado();
+    }
+
+    private async Task CargarEmpleado(int pagina = 1)
+    {
+        var responseHttp = await repositorio.Get<EmpleadoPersonaDTO>($"api/Empleado/{EmpleadoId}");
+        if (!responseHttp.Error)
+        {
+            model = responseHttp.Response;
+        }
+    }
+
+    private async Task CrearUsuario()
+    {
+        userInfo.Nombre = model.Persona.Nombre;
+        userInfo.ApellidoPaterno = model.Persona.ApePat;
+        userInfo.ApellidoMaterno = model.Persona.ApeMat;
+        userInfo.NumeroEmpleado = model.Empleado.Noemp;
+        userInfo.EmpleadoId = EmpleadoId;
+        userInfo.EmpleadoActual = model.Empleado;
+
+        var httpResponse = await repositorio.Post<UserInfo, UserToken>("api/Cuentas/Crear", userInfo);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo("usuarios");
+        }
+    }
+
+    public async Task GenerateRandomPass()
+    {
+        userInfo.Password = GenerarPassword.GenerateRandomPassword();
+    }
+}

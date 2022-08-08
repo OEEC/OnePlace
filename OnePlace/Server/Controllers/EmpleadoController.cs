@@ -31,6 +31,8 @@ namespace OnePlace.Server.Controllers
             this.logger = logger;
         }
 
+        #region EmpleadoconLogger
+
         //[HttpGet]
         //public async Task<ActionResult<List<Empleado>>> Get()
         //{
@@ -52,6 +54,8 @@ namespace OnePlace.Server.Controllers
         //    var listadodeempleados = await context.Empleados.ToListAsync();
         //    return listadodeempleados;
         //}
+
+        #endregion
 
         [HttpPost]
         public async Task<ActionResult<int>> Post(Empleado empleado)
@@ -85,7 +89,10 @@ namespace OnePlace.Server.Controllers
                                            Idtipo = e.Idtipo,
                                            Fchalta = e.Fchalta,
                                            Fchbaja = e.Fchbaja,
-                                           Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
+                                           Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                           Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
+                                           Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
+                                           Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
                                        }).ToList();
 
             foreach (var item in empleados)
@@ -105,7 +112,27 @@ namespace OnePlace.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EmpleadoPersonaDTO>> Get(int id)
         {
-            var empleado = await context.Empleados.Where(x => x.Idempleado == id).FirstOrDefaultAsync();
+            Empleado empleado = (from e in context.Empleados where e.Idempleado == id
+                                        select new Empleado
+                                        {
+                                            Idempleado = e.Idempleado,
+                                            Idpersona = e.Idpersona,
+                                            Img = e.Img,
+                                            Noemp = e.Noemp,
+                                            Correo = e.Correo,
+                                            Telefono = e.Telefono,
+                                            Iddepartamento = e.Iddepartamento,
+                                            Idarea = e.Idarea,
+                                            Idpuesto = e.Idpuesto,
+                                            Nomina = e.Nomina,
+                                            Variable = e.Variable,
+                                            Idtipo = e.Idtipo,
+                                            Fchalta = e.Fchalta,
+                                            Fchbaja = e.Fchbaja,                                          
+                                            Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
+                                            Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
+                                            Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
+                                        }).FirstOrDefault();
 
             if (empleado == null) { return NotFound(); }
 

@@ -1,0 +1,127 @@
+﻿@page "/usuarios"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+<Card Class="card">
+    <CardHeader Class="card-header">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-sm-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Texto Typo="Typo.h5">Usuarios</Texto>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </CardHeader>
+    <CardBody Class="card-body">
+        <ListadoGenerico Listado="Usuarios">
+            <HayRegistrosCompleto>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-hover table-bordered">
+                        <thead class="text-center">
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Contraseña</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            @foreach (var usuario in Usuarios)
+                            {
+                                <tr>
+                                    <td>
+                                        @(usuario.Nombre+" "+usuario.Apellido_Paterno)
+                                    </td>
+                                     <td>
+                                        @usuario.Contraseña
+                                     </td>
+                                    <td>
+                                        <Enlace Class="btn p-0" Href=@("usuarios-editar/"+usuario.UserId) data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                                            <Icono Icon="text-500 fas fa-edit" />
+                                        </Enlace>
+                                        <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(()=>BorrarUsuario(usuario))" />
+                                        <Enlace Class="btn p-0" Href=@("olvido-contraseña/"+usuario.NumeroEmpleado) data-bs-toggle="tooltip" data-bs-placement="top" title="Restablecer Contraseña">
+                                            <Icono Icon="text-500 oi oi-action-undo" />
+                                        </Enlace>
+                                    </td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </HayRegistrosCompleto>
+        </ListadoGenerico>
+    </CardBody>
+    <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+        <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
+    </CardFooter>
+</Card>
+
+@code{
+
+    //obtener el user, role y claims
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ClaimsPrincipal user;
+
+    List<UsuarioDTO> Usuarios;
+
+    private int paginaActual = 1;
+    private int paginasTotales;
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await Cargar(pagina);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //obtener el user, role y claims
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        await Cargar();
+    }
+
+    private async Task Cargar(int pagina = 1)
+    {
+        var httpResponse = await repositorio.Get<List<UsuarioDTO>>($"api/Usuarios?pagina={pagina}");
+
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+            Usuarios = httpResponse.Response;
+        }
+    }
+
+    private async Task BorrarUsuario(UsuarioDTO usuarioDTO)
+    {
+        string mensajeconfirmacion = $"¿Desea borrar este usuario: {usuarioDTO.Nombre+" "+usuarioDTO.Apellido_Paterno}?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            usuarioDTO.Activo = false;//cambiar el estado antes que llegue al controlador, como es un boton y no un checkbox no interactua el cambio de true a false
+            var responseHttp = await repositorio.Put("api/Usuarios/Desactivar", usuarioDTO);
+            if (responseHttp.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await responseHttp.GetBody());
+            }
+            else
+            {
+                //esto para volver a cargar los registros
+                await Cargar();
+            }
+        }
+    }
+}

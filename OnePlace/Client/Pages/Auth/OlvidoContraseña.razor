@@ -1,9 +1,8 @@
-﻿@*@page "/olvido-contraseña/{UserName}"
+﻿@page "/olvido-contraseña/{UserName}"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
 @inject IMostrarMensaje mostrarMensajes
-@using Pages.Usuarios;
 @using System.Security.Claims
 @attribute [Authorize(Roles = "Administrador")]
 
@@ -58,11 +57,14 @@
         user = authState.User;
 
         UsuarioLogueado = user.Identity.Name;
+
+        //se pone aqui por que en la clase tiene un required y el button submit en el metodo Forgotpassword la variable va vacia,
+        //en el proyecto de pricegas como no tiene el required el sumitvalidate no lo toma en cuenta y por eso pude ir dentro del metodo forgotpassword
+        recoveryPassword.NumeroEmpleado = UserName;
     }
 
     private async Task Forgotpassword()
     {
-        recoveryPassword.Usuario = UserName;
         var httpResponse = await repositorio.Post<RecoveryPassword>("api/Cuentas/OlvidoPassword", recoveryPassword);
         if (httpResponse.Error)
         {
@@ -85,4 +87,4 @@
     {
         recoveryPassword.Password = GenerarPassword.GenerateRandomPassword();
     }
-}*@
+}

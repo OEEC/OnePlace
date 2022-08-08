@@ -1,0 +1,95 @@
+﻿@page "/usuarios-editar/{UserId}"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<Card Class="card">
+    <CardHeader Class="card-header">
+        <Texto Typo="Typo.h5">Editar Usuario</Texto>
+    </CardHeader>
+    <CardBody Class="card-body">
+        <div class="form-inline">
+
+            <select class="form-control mb-2 mr-sm-2" @bind="rolSeleccionado">
+                <option value="0">--Seleccione un rol--</option>
+                @foreach (var rol in roles)
+                {
+                    <option value="@rol.Nombre">@rol.Nombre</option>
+                }
+            </select>
+
+            <Boton Class="btn btn-success btn-sm mb-2 mr-sm-2" ButtonType="ButtonType.Button" @onclick="AsignarRol">
+                <Icono Icon="fas fa-check"></Icono> Asignar Rol
+            </Boton>
+
+            <Boton Class="btn btn-danger btn-sm mb-2 mr-sm-2" ButtonType="ButtonType.Button" @onclick="RemoverRol">
+                <Icono Icon="fas fa-trash"></Icono> Remover Rol
+            </Boton>
+
+        </div>
+    </CardBody>
+    <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent" />
+</Card>
+
+
+@code {
+
+    //colocamos un parametro con el userid del usuario
+    [Parameter] public string UserId { get; set; }
+    //colocamos un listado de roles para pasarlo al select
+    private List<RolDTO> roles = new List<RolDTO>();
+    private string rolSeleccionado = "0";
+
+    //creamos un metodo para traer el listado de roles desde la bd
+    protected override async Task OnInitializedAsync()
+    {
+        var httpResponse = await repositorio.Get<List<RolDTO>>("api/Usuarios/roles");
+        //mostramos un mensaje de error
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            roles = httpResponse.Response;
+        }
+    }
+    //estos metodos van a consumir unos endpoint desde el controlador de usuarios
+    private async Task AsignarRol()
+    {
+        await EditarRol("api/Usuarios/asignarRol");
+    }
+
+    private async Task RemoverRol()
+    {
+        await EditarRol("api/Usuarios/removerRol");
+    }
+
+    //creamos un metodo que recibe como parametro una url
+    private async Task EditarRol(string url)
+    {
+        //debemos verificar si hay un rol seleccionado
+        if (rolSeleccionado == "0")
+        {
+            //sino se selecciono ninguno mostramos un mensaje de error
+            await mostrarMensajes.MostrarMensajeError("Debe seleccionar un rol");
+            return;
+        }
+
+        //aqui creamos la variable con las propiedades del editarroldto para pasarlo junto con la url en el httpresponse
+        var rolDTO = new EditarRolDTO() { RoleId = rolSeleccionado, UserId = UserId };
+
+        //por medio del editarroldto vamos a traer que rol queremos pasar a cual usuario ya que contiene el userid y rolid
+        var httpResponse = await repositorio.Post<EditarRolDTO>(url, rolDTO);
+
+        //mostramos un mensaje de error y sino un mensaje de que la operacion fue realizada con exito
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Operación realizada");
+        }
+    }
+}

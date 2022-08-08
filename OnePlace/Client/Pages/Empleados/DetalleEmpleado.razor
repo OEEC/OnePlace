@@ -27,22 +27,18 @@ else
                         @DetallesEmpleado.Persona.Nombre @DetallesEmpleado.Persona.ApePat @DetallesEmpleado.Persona.ApeMat
                         <Texto Typo="Typo.small" Class="fas fa-check-circle text-primary ml-1" data-toggle="tooltip" data-placement="right" title="Verified" data-fa-transform="shrink-4 down-2"></Texto>
                     </Texto>
-                    @*<Texto Typo="Typo.h5" Class="fs-0 font-weight-normal">
+                    <Texto Typo="Typo.h5" Class="fs-0 font-weight-normal">
                         @if (DetallesEmpleado.Empleado.Puesto != null)
                         {
-                            <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Nombre</Texto>
+                            <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Puesto1</Texto>
                         }
                         else
                         {
                             <text>No hay registro</text>
                         }
-                    </Texto>*@
+                    </Texto>
                     <p class="text-500">Simsa, Torreón Coahuila</p>
-                   
-                    @if (user.IsInRole("Administrador"))
-                    {
-                        <Enlace Class="btn btn-outline-primary btn-sm px-3" Href="@("registro/"+DetallesEmpleado.Empleado.Idempleado)"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Crear Usuario</Enlace>
-                    }
+                    <Enlace Class="btn btn-outline-primary btn-sm px-3" Href="@("registro/"+DetallesEmpleado.Empleado.Idempleado)"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Crear Usuario</Enlace>
                     <Divisor Class="border-dashed my-4 d-lg-none" />
                 </div>
                 <div class="col pl-2 pl-lg-3">
@@ -133,14 +129,14 @@ else
                 </div>
 
                 <div class="col-lg col-xxl-5 mt-4 mt-lg-0 offset-xxl-1">
-                    @*<div class="row">
+                    <div class="row">
                         <div class="col-5 col-sm-4">
                             <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Departamento:</Texto>
                         </div>
                         <div class="col">
                             @if (DetallesEmpleado.Empleado.Departamento != null)
                             {
-                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Departamento.Nombre</Texto>
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Departamento.Departamento1</Texto>
                             }
                             else
                             {
@@ -155,7 +151,7 @@ else
                         <div class="col">
                             @if (DetallesEmpleado.Empleado.Puesto != null)
                             {
-                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Nombre</Texto>
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Puesto.Puesto1</Texto>
                             }
                             else
                             {
@@ -170,7 +166,7 @@ else
                         <div class="col">
                             @if (DetallesEmpleado.Empleado.Area != null)
                             {
-                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Area.Nombre</Texto>
+                                <Texto Typo="Typo.body2" Class="fst-italic text-400 mb-0">@DetallesEmpleado.Empleado.Area.Area1</Texto>
                             }
                             else
                             {
@@ -178,7 +174,7 @@ else
                             }
                         </div>
                     </div>
-                    <div class="row">
+                    @*<div class="row">
                         <div class="col-5 col-sm-4">
                             <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Razón Social:</Texto>
                         </div>
