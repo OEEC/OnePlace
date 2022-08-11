@@ -1,0 +1,162 @@
+﻿@inject IRepositorio repositorio
+@using System.Security.Claims
+
+<EditForm Model="@Promocion" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">@Titulo</Texto><br>
+                </div>
+                <div class="col-auto d-none d-sm-block">
+                    <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="@Promocion.FechadeRegistro" disabled />
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="nombre">Nombre</InputLabel>
+                        <InputText class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-Value="@Promocion.Nombre" />
+                        <ValidationMessage For="@(() => Promocion.Nombre)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="descripcion">Descripción</InputLabel>
+                        <InputText class="form-control form-control-sm" id="descripcion" placeholder="Descripción" @bind-Value="@Promocion.Descripcion" />
+                        <ValidationMessage For="@(() => Promocion.Descripcion)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="fecha_termino">Vigencia</InputLabel>
+                        <InputDate class="form-control form-control-sm" @bind-Value="@Promocion.FechadeTermino" />
+                        <ValidationMessage For="@(() => Promocion.FechadeTermino)" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="tipodepromocion">Tipo</InputLabel>
+                        <select class="form-control form-control-sm" @bind="Promocion.TipodePromociones">
+                            @*<option value=" ">Seleccionar</option>*@
+                            @foreach (var item in Enum.GetValues(typeof(TipodePromocion)).Cast<TipodePromocion>())
+                            {
+                                <option value="@item.ToString()">@item.GetDescription()</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="zona">Zona</InputLabel>
+                        <Select2 TItem="Zona"
+                                 Placeholder="Seleccionar"
+                                 Id="simple-zona"
+                                 Data="@ListaZonas"
+                                 TextExpression="@(item => item.Zona1)"
+                                 @bind-Value="@Promocion.Zona">
+                        </Select2>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" />
+                    </div>
+                </div>
+                @if (Es_EditarPromocion == true)
+                {
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <br />
+                            <ToolTip Delay="1000">
+                                <ChildContent>
+                                    <CasillaVerificacion @bind-Checked="@Promocion.Activo" ManejarEstados="true" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <Texto Typo="Typo.body2">La casilla marcada indica que el registro esta activo</Texto>
+                                </TooltipContent>
+                            </ToolTip>
+                        </div>
+                    </div>
+                }
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+@code{
+
+    [Parameter] public Promocion Promocion { get; set; }
+    [Parameter] public bool Es_EditarPromocion { get; set; }
+    [Parameter] public string Titulo { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    public List<ImagenesCarrusel> listadeimagenes = new List<ImagenesCarrusel>();
+
+    //para editar
+    private string imagenURL;
+    public List<string> listadeimagenesURL = new List<string>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (Es_EditarPromocion == false)
+        {
+            Promocion.FechadeRegistro = DateTime.Now;
+        }
+
+        if (Promocion.Imagenes != null && Promocion.Imagenes.Count > 0)
+        {
+            foreach (var item in Promocion.Imagenes)
+            {
+                //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+                if (!string.IsNullOrWhiteSpace(item.Imagen))
+                {
+                    imagenURL = item.Imagen;//guardar imagen en la variable
+                    listadeimagenesURL.Add(imagenURL);//esto solo se hace para enviar una lista de imagenes al componente inputmultipleimg
+                    item.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+                }
+            }
+        }
+
+        await CargarZonas();
+    }
+
+    //este metodo actualiza las imagenes con las nuevas imagenes seleccionadas
+    private void ImagenesSeleccionadas(List<string> imagenesBase64)
+    {
+        //recorremos el listado de string que nos envio el componente
+        foreach (var item in imagenesBase64)
+        {
+            //por cada iteracion creamos un new imagencarrusel, y le asignamos el string a la propiedad imagen del objecto
+            ImagenesCarrusel imagen = new ImagenesCarrusel()
+            {
+                Imagen = item
+            };
+
+            //cada nuevo objecto imagencarrusel lo guardamos en una lista
+            listadeimagenes.Add(imagen);
+        }
+
+        //la lista llena de objetos imagenescarrusel la igualamos a la lista de imagenes en el objeto carrusel
+        Promocion.Imagenes = listadeimagenes;
+
+        //hacemos null las propiedades
+        imagenURL = null;
+        listadeimagenesURL = null;
+    }
+
+    private List<Zona> ListaZonas { get; set; } = new List<Zona>();
+
+    public async Task CargarZonas()
+    {
+        var responseHttp = await repositorio.Get<List<Zona>>("api/Promocion/ListaZonaSencilla");
+        ListaZonas = responseHttp.Response;
+    }
+}
+

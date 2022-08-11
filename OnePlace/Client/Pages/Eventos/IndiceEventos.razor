@@ -1,0 +1,259 @@
+﻿@page "/indice-eventos"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+<Card Class="card mb-3">
+    <CardHeader Class="card-header bg-light">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-sm-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Texto Typo="Typo.h5" Class="mb-0">Eventos</Texto>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Enlace Class="btn btn-outline-primary btn-sm" Href="crear-evento"><Icono Icon="fas fa-plus" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Crear</Texto></Enlace>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEventos"
+                                           Context="evento"
+                                           TValue="Evento"
+                                           TItem="Evento"
+                                           ValueExpression="@(()=>EventoSeleccionado)"
+                                           Value="@EventoSeleccionado"
+                                           ValueChanged="@((Evento item) => CargarEventosFiltro(item))"
+                                           placeholder="Buscar Eventos">
+                            <SelectedTemplate>
+                                @evento.NombreEvento
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @evento.NombreEvento
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay estados con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>             
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <div class="custom-control custom-switch">
+                            <input class="custom-control-input" id="customSwitch1" type="checkbox" @onchange="e => CheckChanged(e)" checked="@Activo">
+                            <label class="custom-control-label" for="customSwitch1">Inactivos</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-dark btn-sm" @onclick="Cargar">
+                            <Icono Icon="oi oi-magnifying-glass" data-fa-transform="shrink-3 down-2" />
+                            <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Filtrar</Texto>
+                        </Boton>
+                        <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-danger btn-sm" @onclick="LimpiarOnClick">
+                            <Icono Icon="oi oi-reload" data-fa-transform="shrink-3 down-2" />
+                            <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Limpiar</Texto>
+                        </Boton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </CardHeader>
+    <CardBody Class="card-body border-top">
+        <Tabla Items="ListadeEventos" Context="item">
+            <Cabecera>
+                <th scope="col">Nombre</th>               
+                <th scope="col">Fecha de Evento</th>           
+                <th class="text-end" scope="col">Acciones</th>
+            </Cabecera>
+            <Filas>
+                <td>
+                    <Enlace Href="@("detalles-evento/"+item.EventoId)">
+                        @item.NombreEvento
+                    </Enlace>
+                </td>              
+                <td>
+                    @if (item.FechaEvento != null)
+                    {
+                        @item.FechaEvento.Value.ToString("MM/dd/yyyy")
+                    }
+                </td>            
+                <td>
+                    <Enlace Class="btn p-0" Href="@("editar-evento/" + item.EventoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                        <Icono Icon="text-500 fas fa-edit" />
+                    </Enlace>
+                    @if (item.Activo == true)
+                    {
+                        <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => Desactivar(item))" />
+                    }
+                </td>
+            </Filas>
+        </Tabla>
+    </CardBody>
+    <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+        <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
+    </CardFooter>
+</Card>
+
+@code{
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
+    public List<Evento> ListadeEventos { get; set; }
+    private int paginaActual = 1;
+    private int paginasTotales;
+
+    //incluir mas parametros si se requieren
+    string eventoseleccionado = "0";
+    private bool Activo = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        var url = navigationManager.Uri;//aqui aplicamos el diccionario de string
+        var queries = navigationManager.ObtenerQueryStrings(url);
+        //si es la primera vez que el usuario entra esto estaria a nulo
+        if (queries == null)
+        {
+            await RealizarBusqueda(string.Empty);//le pasamos un string vacio
+        }
+        else
+        {
+            queryStringsDict = queries;
+            LlenarCampos();
+            var queryStrings = url.Split(new string[] { "?" }, StringSplitOptions.None)[1];//obtenemos los querystring atravez de la url
+            await RealizarBusqueda(queryStrings);
+        }
+    }
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        var queryStrings = GenerarQueryString();
+        navigationManager.NavigateTo("indice-eventos?" + queryStrings);
+        await RealizarBusqueda(queryStrings);
+    }
+
+    #region Filtrar
+
+    //este metodo me permite llenar los campos del formulario apartir del querystring
+    private void LlenarCampos()
+    {
+        //toma los campos del diccionario y los coloca en los campos correspondientes
+        if (queryStringsDict.ContainsKey("eventoid"))
+        {
+            eventoseleccionado = queryStringsDict["eventoid"];
+        }
+        if (queryStringsDict.ContainsKey("activo"))
+        {
+            bool.TryParse(queryStringsDict["activo"], out Activo);
+        }
+        if (queryStringsDict.ContainsKey("pagina"))
+        {
+            int.TryParse(queryStringsDict["pagina"], out paginaActual);
+        }
+    }
+
+    private async Task RealizarBusqueda(string queryStrings)
+    {
+        var httpResponse = await repositorio.Get<List<Evento>>("api/Evento/filtrar?" + queryStrings);
+        paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+        ListadeEventos = httpResponse.Response;
+    }
+
+    private string GenerarQueryString()
+    {
+        //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
+        if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["eventoid"] = eventoseleccionado;
+        queryStringsDict["activo"] = Activo.ToString();
+        queryStringsDict["pagina"] = paginaActual.ToString();
+
+        //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
+        var valoresporDefecto = new List<string>() { "false", "", "0" };
+
+        //construir ruta para compartir categoria=7&titulo=lenovo...
+        //en el where exluimos los valores por defecto
+        //en select le pasamos la llave y el valor y con encode codificamos el valor como por ejemplo espacion en blanco y evitar inyeccion sql
+        return string.Join("&", queryStringsDict
+            .Where(x => !valoresporDefecto.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+    }
+
+    private async Task LimpiarOnClick()
+    {
+        eventoseleccionado = "";
+        Activo = false;
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    #endregion
+
+    #region FiltroporEvento
+
+    private async Task<IEnumerable<Evento>> BuscarEventos(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Evento>>($"api/Evento/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    public Evento EventoSeleccionado { get; set; }
+
+    private void CargarEventosFiltro(Evento item)
+    {
+        @if (item != null)
+        {
+            EventoSeleccionado = item;
+            eventoseleccionado = EventoSeleccionado.EventoId.ToString();
+        }
+    }
+
+    #endregion      
+
+    #region FiltroActivos
+
+    private void CheckChanged(ChangeEventArgs ev)
+    {
+        Activo = (Boolean)ev.Value;
+    }
+
+    #endregion
+
+    #region BorrarEvento
+    public async Task Desactivar(Evento evento)
+    {
+        string mensajeconfirmacion = $"¿Desea borrar esta Evento: {evento.NombreEvento}?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            evento.Activo = false;
+            var httpResponse = await repositorio.Put("api/Evento/Desactivar", evento);
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                navigationManager.NavigateTo("indice-eventos");
+                await Cargar();
+            }
+        }
+    }
+    #endregion
+}

@@ -630,35 +630,36 @@ namespace OnePlace.Server.Data
                     .HasColumnName("usuario");
             });
 
-            modelBuilder.Entity<Zona>(entity =>
-            {
-                entity.HasKey(e => e.Idzona)
-                    .HasName("PRIMARY");
+            //se quito con esto ef piensa que hay una tabla llamada zona y ahora se llama zonas
+            //modelBuilder.Entity<Zona>(entity =>
+            //{
+            //    entity.HasKey(e => e.Idzona)
+            //        .HasName("PRIMARY");
 
-                entity.ToTable("zona");
+            //    entity.ToTable("zona");
 
-                entity.Property(e => e.Idzona).HasColumnName("idzona");
+            //    entity.Property(e => e.Idzona).HasColumnName("idzona");
 
-                entity.Property(e => e.Fchbaja)
-                    .HasColumnType("datetime")
-                    .HasColumnName("fchbaja");
+            //    entity.Property(e => e.Fchbaja)
+            //        .HasColumnType("datetime")
+            //        .HasColumnName("fchbaja");
 
-                entity.Property(e => e.Fchcreacion)
-                    .HasColumnType("datetime")
-                    .HasColumnName("fchcreacion");
+            //    entity.Property(e => e.Fchcreacion)
+            //        .HasColumnType("datetime")
+            //        .HasColumnName("fchcreacion");
 
-                entity.Property(e => e.Fchmod)
-                    .HasColumnType("datetime")
-                    .HasColumnName("fchmod");
+            //    entity.Property(e => e.Fchmod)
+            //        .HasColumnType("datetime")
+            //        .HasColumnName("fchmod");
 
-                entity.Property(e => e.Idestatus).HasColumnName("idestatus");
+            //    entity.Property(e => e.Idestatus).HasColumnName("idestatus");
 
-                entity.Property(e => e.Idusuario).HasColumnName("idusuario");
+            //    entity.Property(e => e.Idusuario).HasColumnName("idusuario");
 
-                entity.Property(e => e.Zona1)
-                    .HasMaxLength(100)
-                    .HasColumnName("zona");
-            });
+            //    entity.Property(e => e.Zona1)
+            //        .HasMaxLength(100)
+            //        .HasColumnName("zona");
+            //});
 
             #endregion
 
@@ -700,6 +701,9 @@ namespace OnePlace.Server.Data
         #region DbSetOnePlace
         public DbSet<Auditoria> Auditorias { get; set; }
         //public DbSet<Logs> Logs { get; set; }
+        public DbSet<Evento> Eventos { get; set; }
+        public DbSet<Promocion> Promociones { get; set; }
+        public DbSet<ImagenesCarrusel> ImagenesCarruseles { get; set; }
 
         #endregion
     }

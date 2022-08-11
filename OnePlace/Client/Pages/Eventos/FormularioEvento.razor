@@ -1,0 +1,122 @@
+﻿@inject IRepositorio repositorio
+@using System.Security.Claims
+
+<EditForm Model="@Evento" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">@Titulo</Texto><br>
+                </div>
+                <div class="col-auto d-none d-sm-block">
+                    <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="@Evento.FechaRegistro" disabled />
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">             
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="nombreevento">Nombre del Evento</InputLabel>
+                        <InputText class="form-control form-control-sm" id="nombreevento" placeholder="Nombre del Evento" @bind-Value="@Evento.NombreEvento" />
+                        <ValidationMessage For="@(() => Evento.NombreEvento)" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="tituloevento">Título del Evento</InputLabel>
+                        <InputText class="form-control form-control-sm" id="tituloevento" placeholder="Título del Evento" @bind-Value="@Evento.TituloEvento" />
+                        <ValidationMessage For="@(() => Evento.TituloEvento)" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="descripcion">Descripción</InputLabel>
+                        <InputText id="descripcion" placeholder="Descripción" type="text" class="form-control form-control-sm" @bind-Value="@Evento.DescripcionEvento" />
+                        <ValidationMessage For="@(() => Evento.DescripcionEvento)" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="fechaevento">Fecha del Evento</InputLabel>
+                        <InputDate class="form-control form-control-sm" @bind-Value="@Evento.FechaEvento" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="tipodeevento">Tipo de Evento</InputLabel>
+                        <select class="custom-select custom-select-sm mb-3" @bind="Evento.TipoEventos">
+                            @foreach (var item in Enum.GetValues(typeof(TipoEvento)).Cast<TipoEvento>())
+                            {
+                                <option value="@item">@item.GetDescription()</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                @if (Es_EditarEvento == true)
+                {
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <br />
+                            <ToolTip Delay="1000">
+                                <ChildContent>
+                                    <CasillaVerificacion @bind-Checked="@Evento.Activo" ManejarEstados="true" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <Texto Typo="Typo.body2">La casilla marcada indica que el registro esta activo</Texto>
+                                </TooltipContent>
+                            </ToolTip>
+                        </div>
+                    </div>
+                }
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" Label="Imagen" />
+                    </div>
+                </div>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+<br />
+
+@code{
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public Evento Evento { get; set; }
+    [Parameter] public bool Es_EditarEvento { get; set; }
+    [Parameter] public string Titulo { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    private string imagenURL;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        if (Es_EditarEvento == false)
+        {
+            Evento.FechaRegistro = DateTime.Now;
+        }
+
+        //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+        if (!string.IsNullOrWhiteSpace(Evento.ImgEvento))
+        {
+            imagenURL = Evento.ImgEvento;
+            Evento.ImgEvento = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+        }
+    }
+
+    //este metodo actualiza la imagen con la nueva imagen seleccionada
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        Evento.ImgEvento = imagenBase64;
+        imagenURL = null;
+    }
+}

@@ -1,0 +1,83 @@
+﻿@page "/detalles-promocion/{PromocionId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime js
+@attribute [Authorize(Roles = "Administrador")]
+
+@if (PromoDetalles == null)
+{
+    <LoadingSpinner IsLoading="Procesando" />
+}
+else
+{
+    <Card Class="card mb-3">
+        <CardBody Class="card-body">
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="position-relative">
+                        <div class="row light">
+                            @foreach (var item in PromoDetalles.Imagenes)
+                            {
+                                <div class="col-sm-6 col-lg-4 mb-4">
+                                    <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
+                                        <div class="card-img-top"><img class="img-fluid" src="@item.Imagen" alt="Card image" /></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <Texto Typo="Typo.h5">@PromoDetalles.Nombre (@PromoDetalles.FechadeRegistro.Value.ToString("yyyy"))</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">@PromoDetalles.Descripcion</Texto>                   
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Tipo:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.TipodePromociones.GetDescription()</Texto></Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Zona:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.Zona.Zona1</Texto></Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-danger">@PromoDetalles.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                    @if (PromoDetalles.Activo == true)
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1 text-500">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
+                    }
+                    <Enlace Class="btn btn-sm btn-primary" Href="@("editar-promocion/"+PromoDetalles.PromocionId)">
+                        <Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono>
+                        <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar</Texto>
+                    </Enlace>
+                </div>
+            </div>
+        </CardBody>
+    </Card>   
+}
+
+@code {
+
+    [Parameter] public int PromocionId { get; set; }
+    private bool Procesando = true;
+    private Promocion PromoDetalles;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        var responseHttp = await repositorio.Get<Promocion>($"api/Promocion/{PromocionId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            PromoDetalles = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+}

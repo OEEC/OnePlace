@@ -1,0 +1,25 @@
+﻿@page "/crear-evento"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioEvento OnValidSubmit="Crear" Evento="Evento" Titulo="Crear Evento" />
+
+@code {
+    private Evento Evento = new Evento();
+
+    async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/Evento", Evento);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());            
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Evento Creado");
+            navigationManager.NavigateTo("indice-eventos");
+        }
+    }
+}

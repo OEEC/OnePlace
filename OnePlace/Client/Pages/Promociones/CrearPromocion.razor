@@ -1,0 +1,26 @@
+﻿@page "/crear-promocion"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioPromociones OnValidSubmit="Crear" Promocion="Promocion" Titulo="Crear Promoción" />
+
+@code {
+
+    private Promocion Promocion = new Promocion();
+
+    async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/Promocion", Promocion);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Promoción Creada");
+            navigationManager.NavigateTo("indice-promociones");
+        }
+    }
+}

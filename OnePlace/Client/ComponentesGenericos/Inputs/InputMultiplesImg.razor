@@ -1,0 +1,89 @@
+﻿<div>
+    <label for="imagen">@Label</label>
+    <div>
+        <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnChange" accept=".jpg,.jpeg,.png" multiple />
+    </div>
+</div>
+
+<br />
+
+@if (ListadodeImagenes != null && ListadodeImagenes.Count > 0)
+{
+    <div class="row light">
+        @foreach (var item in ListadodeImagenes)
+        {
+            <div class="col-sm-6 col-lg-4 mb-4">
+                <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
+                    <div class="card-img-top"><img class="img-fluid" src="@item" alt="Card image" /></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@*aqui recibimos las imagenes cuando ya estan almacenadas es en modo de edicion*@
+@if (ImagenesURL != null && ImagenesURL.Count > 0)
+{
+    <div class="row light">
+        @foreach (var item in ImagenesURL)
+        {
+            <div class="col-sm-6 col-lg-4 mb-4">
+                <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
+                    <div class="card-img-top"><img class="img-fluid" src="@item" alt="Card image" /></div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+
+    //nombre que va en el label por defecto es imagen
+    [Parameter] public string Label { get; set; } = "Imagen";
+
+    //este parametro recibira la url de las imagenes cuando vayamos a editar
+    [Parameter] public List<string> ImagenesURL { get; set; }
+
+    //devolvemos la representacion de las imagenes en base64
+    [Parameter] public EventCallback<List<string>> ImagenesSeleccionadas { get; set; }
+
+    private string imagenBase64;
+
+    //lista de imagenes al guardar, no al editar
+    private List<string> ListadodeImagenes = new List<string>();
+
+    //el evento se ejecuta cuando el usuario selecciona una imagen
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var fileFormat = "image/png";
+
+        //esta variable recibe la imagen seleccionada, aqui puedes recibir multiples imagenes, por el momento solo recibes una !!!
+        var imagenes = e.GetMultipleFiles();
+
+        //recorremos las imagenes seleccionadas
+        foreach (var imagen in imagenes)
+        {
+            //inicializamos un arreglo de bytes y le pasamos el tamaño de la imagen
+            var arrbytes = new byte[imagen.Size];
+
+            //transferimos los bytes al arreglo de bytes limite 5MB
+            await imagen.OpenReadStream(5242880).ReadAsync(arrbytes);
+
+            //NOTA: no solo se convirtio a base 64, sino que se puso toda la ruta con la cual se almacena en la bd
+            //utilizaremos base64 para la representacion de la imagen, convertimos el arreglo de bytes a base64
+            imagenBase64 = $"data: {fileFormat}; base64,{Convert.ToBase64String(arrbytes)}";
+
+            //cuando el usuario seleccione unas nuevas imagenes se pone en null para que no se muestren ambas imagenes las de antes con las nuevas seleccionadas
+            ImagenesURL = null;
+
+            //añadimos la imagen en base64 a un listado de imagenes (string)
+            ListadodeImagenes.Add(imagenBase64);
+        }
+
+        //invocamos el metodo y le pasamos las imagenes en base64
+        await ImagenesSeleccionadas.InvokeAsync(ListadodeImagenes);
+
+        //este metodo nos ayuda a visualizar las imagenes una vez ejecutado el eventcallback
+        StateHasChanged();
+    }
+}

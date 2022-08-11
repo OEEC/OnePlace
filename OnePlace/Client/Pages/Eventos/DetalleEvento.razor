@@ -1,0 +1,90 @@
+﻿@page "/detalles-evento/{EventoId:int}"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject NavigationManager navigationManager
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+
+@if (DetallesEvento == null)
+{
+    <text>Cargando...</text>
+}
+else
+{
+    <div class="card mb-3">
+        <img class="card-img-top" src="@DetallesEvento.ImgEvento" alt="" style="height:300px">
+        <div class="card-body">
+            <div class="row justify-content-between align-items-center">
+                <div class="col">
+                    <div class="d-flex">
+                        <div class="calendar me-2">
+                            <span class="calendar-month">@DetallesEvento.FechaEvento.Value.ToString("MMM")</span>
+                            <span class="calendar-day">@DetallesEvento.FechaEvento.Value.ToString("dd")</span>
+                        </div>
+                        <div class="flex-1 fs--1">
+                            <h5 class="fs-0">@DetallesEvento.NombreEvento</h5>
+                            <p class="mb-0 tonogris">by
+                              <span class="text-primary">Grupo Simsa</span>
+                            </p>
+                            @*<span class="fs-0 text-warning fw-semi-bold">$49.99 – $89.99</span>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-auto mt-4 mt-md-0">
+                    @*<button class="btn btn-outline-dark btn-sm me-2" type="button">hola</button>*@
+                    <span class="badge border link-secondary me-1 text-decoration-none text-primary">
+                        @DetallesEvento.TipoEventos.GetDescription()
+                    </span>
+                </div>               
+            </div>
+            <br />
+            <p class="tonogris" style="text-align:justify">@DetallesEvento.DescripcionEvento</p>
+        </div>
+    </div>
+    <br />
+
+    @*<div class="card mb-3">
+        <div class="card-body">
+            <h5 class="fs-0 mb-3">New Year's Eve on the Waterfront</h5>
+            <p class="tonogris">@DetallesEvento.DescripcionEvento</p>
+            <h5 class="fs-0 mt-5 mb-2">Tipo de Evento</h5>
+            <span class="badge border link-secondary me-1 text-decoration-none text-primary">
+                @DetallesEvento.TipoEventos.GetDescription();
+            </span>          
+        </div>
+    </div>*@
+}
+
+@code {
+
+    [Parameter] public int EventoId { get; set; }
+    public Evento DetallesEvento { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await CargarDetalles();
+    }
+
+    private async Task CargarDetalles()
+    {
+        var responseHttp = await repositorio.Get<Evento>($"api/Evento/{EventoId}");
+
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            DetallesEvento = responseHttp.Response;
+        }
+    }
+}
+

@@ -242,3 +242,76 @@ a, .btn-link {
     background-repeat: no-repeat;
     z-index: 0;
 }
+
+/*css del tooltip info de herramientas*/
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.toolspan {
+    visibility: hidden;
+    position: absolute;
+    width: 120px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+    background-color: #363636;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    z-index: 1;
+}
+
+    .toolspan::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+
+.tooltip-wrapper:hover .toolspan {
+    visibility: visible;
+}
+
+/*detalles eventos*/
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+.flex-1 {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+}
+
+.fs--1 {
+    font-size: .8333333333rem !important;
+}
+
+.fs-0 {
+    font-size: 1rem !important;
+}
+
+h5, .h5 {
+    margin-bottom: 0.25rem;
+}
+
+.card-img, .card-img-top, .card-img-bottom {
+    width: 100%;
+}
+
+.px-4 {
+    padding-right: 1.8rem !important;
+    padding-left: 1.8rem !important;
+}
+
+.tonogris {
+    color: #5e6e82;
+}

@@ -1,0 +1,54 @@
+﻿@page "/editar-promocion/{PromocionId:int}"
+@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensaje
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Administrador")]
+
+@if (Promocion == null)
+{
+    <LoadingSpinner IsLoading="Procesando" />
+}
+else
+{
+    <FormularioPromociones Promocion="Promocion" OnValidSubmit="Editar" Es_EditarPromocion="true" Titulo="Editar Promoción" />
+}
+
+@code {
+    [Parameter] public int PromocionId { get; set; }
+    Promocion Promocion;
+    private bool Procesando = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var httpResponse = await repositorio.Get<Promocion>($"api/Promocion/{PromocionId}");
+        if (httpResponse.Error)
+        {
+            if (httpResponse.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("indice-promociones");
+            }
+            else
+            {
+                await mostrarMensaje.MostrarMensajeError(await httpResponse.GetBody());
+            }
+        }
+        else
+        {
+            Promocion = httpResponse.Response;
+            Procesando = false;
+        }
+    }
+
+    private async Task Editar()
+    {
+        var httpResponse = await repositorio.Put("api/Promocion", Promocion);
+        if (httpResponse.Error)
+        {
+            await mostrarMensaje.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo("indice-promociones");
+        }
+    }
+}
