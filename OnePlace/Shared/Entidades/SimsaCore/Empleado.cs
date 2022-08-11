@@ -33,5 +33,6 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idpuesto { get; set; }
         [NotMapped]
         public virtual Puesto Puesto { get; set; }
+        public int? ZonaId { get; set; }        
     }
 }

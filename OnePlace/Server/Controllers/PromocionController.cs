@@ -36,7 +36,8 @@ namespace OnePlace.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> Post(Promocion promocion)
         {
-            if(promocion.Zona != null)
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            if (promocion.Zona != null)
             {
                 promocion.ZonaId = promocion.Zona.ZonaId;
                 promocion.Zona = null;
@@ -50,7 +51,7 @@ namespace OnePlace.Server.Controllers
             promocion.Activo = true;
             promocion.LugardeVisualizacion = LugardeVisualizacion.PantallaPrincipal;
             context.Add(promocion);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(user.Id);
             return promocion.PromocionId;
         }
 
@@ -212,8 +213,11 @@ namespace OnePlace.Server.Controllers
         [Route("ListaPromocionSencilla")]
         [HttpGet]
         public async Task<ActionResult<List<Promocion>>> GetPromo()
-        {           
-            var carrusel = await context.Promociones.Where(x => x.Activo == true)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
+
+            var carrusel = await context.Promociones.Where(x => x.Activo == true && x.ZonaId == empleado.ZonaId)
                 .Include(x => x.Imagenes).ToListAsync();
             if (carrusel == null) { return NotFound(); }
             return carrusel;

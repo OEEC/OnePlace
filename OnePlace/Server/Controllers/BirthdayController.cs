@@ -22,11 +22,11 @@ namespace OnePlace.Server.Controllers
     public class BirthdayController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;      
+        private readonly UserManager<ApplicationUser> _userManager;
         public BirthdayController(oneplaceContext context, UserManager<ApplicationUser> userManager)
         {
             this.context = context;
-            _userManager = userManager;            
+            _userManager = userManager;
         }
 
         [Route("listadecumpleaneros")]
@@ -55,17 +55,17 @@ namespace OnePlace.Server.Controllers
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
                                             Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
-                                        }).ToList();           
+                                        }).ToList();
 
             List<EmpleadoPersonaDTO> listadoempleadosconcumple = new List<EmpleadoPersonaDTO>();
 
             //fijar una fecha en este caso una fecha de inicio
             DateTime FechaActual = DateTime.Now;
             DateTime FechaInicio = new DateTime(FechaActual.Year, FechaActual.Month, 1);
-           
+
             //obtener el total de dias de un mes en este caso el actual
             int DiaFinMes = DateTime.DaysInMonth(FechaActual.Year, FechaActual.Month);
-            DateTime FechaFinal = new DateTime(FechaActual.Year, FechaActual.Month, DiaFinMes);           
+            DateTime FechaFinal = new DateTime(FechaActual.Year, FechaActual.Month, DiaFinMes);
 
             //recorremos el listado de empleados para extraer su fecha de nacimiento 
             foreach (var item in empleados)
@@ -79,15 +79,15 @@ namespace OnePlace.Server.Controllers
 
                 if (string.IsNullOrEmpty(item.Img))
                 {
-                    if(item.Persona.Sexo == "M")
+                    if (item.Persona.Sexo == "M")
                     {
                         // Aquí colocas la URL de la imagen por defecto
                         item.Img = "Img" + "/" + "hombre3d.jpg";
                     }
                     else
-                    {                        
+                    {
                         item.Img = "Img" + "/" + "mujer3d.jpg";
-                    }                    
+                    }
                 }
 
                 var model = new EmpleadoPersonaDTO();
@@ -101,8 +101,8 @@ namespace OnePlace.Server.Controllers
                 if (model.ProximoCumpleTodoMes >= FechaInicio && model.ProximoCumpleTodoMes <= FechaFinal)
                 {
                     listadoempleadosconcumple.Add(model);
-                }                
-            }         
+                }
+            }
 
             return listadoempleadosconcumple;
         }
@@ -115,7 +115,7 @@ namespace OnePlace.Server.Controllers
 
             //buscamos el empleado por medio del usuario logueado
             var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
-            
+
             //buscamos la persona por medio del empleado que pertenece al usuario logueado
             var persona = await context.Personas.Where(x => x.Idpersona == empleado.Idpersona).FirstOrDefaultAsync();
 
@@ -124,7 +124,7 @@ namespace OnePlace.Server.Controllers
             DateTime myDateTime = DateTime.Parse(fechadenacimiento);
             int dia = Convert.ToInt32(myDateTime.Day);
             int mes = Convert.ToInt32(myDateTime.Month);
-            int ano = Convert.ToInt32(myDateTime.Year);           
+            int ano = Convert.ToInt32(myDateTime.Year);
 
             var model = new EmpleadoPersonaDTO();
             model.Empleado = empleado;
@@ -133,7 +133,7 @@ namespace OnePlace.Server.Controllers
             //almacenamos el resultado del metodo proximocumpleaños en el dto
             model.ProximoCumple = ProximoCumple(dia, mes, ano);
 
-            return model;           
+            return model;
         }
         public string ProximoCumple(int diaCumple, int mesCumple, int anioCumple)
         {
@@ -158,7 +158,7 @@ namespace OnePlace.Server.Controllers
             else
             {
                 proximoCumple = new DateTime(DateTime.Now.Year, mesCumple, diaCumple);
-            }  
+            }
 
             //Definiremos los dias faltantes para el proximo cumple
             TimeSpan faltan = proximoCumple.Subtract(DateTime.Today);
@@ -198,7 +198,7 @@ namespace OnePlace.Server.Controllers
             TimeSpan faltan = proximoCumple.Subtract(DateTime.Today);
 
             var fechaARetornar = DateTime.Today.AddDays(faltan.Days);
-            
+
             return fechaARetornar;
         }
     }

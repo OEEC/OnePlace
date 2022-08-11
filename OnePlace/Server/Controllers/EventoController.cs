@@ -32,9 +32,10 @@ namespace OnePlace.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> Post(Evento evento)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
             evento.Activo = true;
             context.Add(evento);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(user.Id);
             return evento.EventoId;
         }
 
