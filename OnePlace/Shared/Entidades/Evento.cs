@@ -18,11 +18,22 @@ namespace OnePlace.Shared.Entidades
         public DateTime? FechaRegistro { get; set; }
         public bool Activo { get; set; }
         public TipoEvento TipoEventos { get; set; }
+        public string TituloEventoExtra { get; set; }
+        public string DescripcionEventoExtra { get; set; }
+
+        //propiedades de navegacion
+        public List<ImagenesCarruselEvento> Imagenes { get; set; }
     }
     public enum TipoEvento
     {
         Efemerides,
         [Description("Evento Social")]
         EventoSocial
+    }
+    public class ImagenesCarruselEvento
+    {
+        public int ImagenesCarruselEventoId { get; set; }
+        public string Imagen { get; set; }
+        public int EventoId { get; set; }
     }
 }

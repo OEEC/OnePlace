@@ -34,7 +34,8 @@ namespace OnePlace.Shared.Entidades
     {
         public int ImagenesCarruselId { get; set; }
         public string Imagen { get; set; }
-        public int PromocionId { get; set; }//propiedad de navegacion   
+        //propiedad de navegacion       
+        public int PromocionId { get; set; }   
     }
     public enum LugardeVisualizacion
     {

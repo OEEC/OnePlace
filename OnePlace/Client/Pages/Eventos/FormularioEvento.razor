@@ -15,7 +15,7 @@
             </div>
         </CardHeader>
         <CardBody Class="card-body border-top">
-            <div class="form-row">             
+            <div class="form-row">
                 <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="nombreevento">Nombre del Evento</InputLabel>
@@ -72,14 +72,45 @@
                 }
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" Label="Imagen" />
+                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" Label="Imagen Principal" />
                     </div>
                 </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <br />
+                        <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="MasImagenes"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Añadir más Imagenes</Boton>
+                    </div>
+                </div>
+
+                @if (AñadirMas == true)
+                {
+                    <div class="form-row col-sm-12" style="border-style: dashed; border-width: 1px; border-color: rgba(136, 204, 255, 0.47);">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <InputLabel for="tituloextra">Título</InputLabel>
+                                <InputText class="form-control form-control-sm" id="tituloextra" placeholder="Título" @bind-Value="@Evento.TituloEventoExtra" />
+                                <ValidationMessage For="@(() => Evento.TituloEventoExtra)" />
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <InputLabel for="descripcionextra">Descripción</InputLabel>
+                                <InputText class="form-control form-control-sm" id="descripcionextra" placeholder="Descripción" @bind-Value="@Evento.DescripcionEventoExtra" />
+                                <ValidationMessage For="@(() => Evento.DescripcionEventoExtra)" />
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" Label="Imagenes" />
+                            </div>
+                        </div>
+                    </div>                        
+                }                    
             </div>
         </CardBody>
         <CardFooter Class="card-footer border-top text-right bg-transparent">
             <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
-        </CardFooter>
+        </CardFooter>        
     </Card>
 </EditForm>
 <br />
@@ -104,12 +135,30 @@
         {
             Evento.FechaRegistro = DateTime.Now;
         }
+        else
+        {
+            AñadirMas = true;
+        }
 
         //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
         if (!string.IsNullOrWhiteSpace(Evento.ImgEvento))
         {
             imagenURL = Evento.ImgEvento;
             Evento.ImgEvento = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+        }
+
+        if (Evento.Imagenes != null && Evento.Imagenes.Count > 0)
+        {
+            foreach (var item in Evento.Imagenes)
+            {
+                //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+                if (!string.IsNullOrWhiteSpace(item.Imagen))
+                {
+                    imagenURL2 = item.Imagen;//guardar imagen en la variable
+                    listadeimagenesURL.Add(imagenURL2);//esto solo se hace para enviar una lista de imagenes al componente inputmultipleimg
+                    item.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+                }
+            }
         }
     }
 
@@ -119,4 +168,45 @@
         Evento.ImgEvento = imagenBase64;
         imagenURL = null;
     }
+
+    #region MasInformacion
+
+    public bool AñadirMas = false;
+
+    public void MasImagenes()
+    {
+        AñadirMas = !AñadirMas;
+    }
+
+    public List<ImagenesCarruselEvento> listadeimagenes = new List<ImagenesCarruselEvento>();
+
+    //para editar
+    private string imagenURL2;
+    public List<string> listadeimagenesURL = new List<string>();
+
+    //este metodo actualiza las imagenes con las nuevas imagenes seleccionadas
+    private void ImagenesSeleccionadas(List<string> imagenesBase64)
+    {
+        //recorremos el listado de string que nos envio el componente
+        foreach (var item in imagenesBase64)
+        {
+            //por cada iteracion creamos un new imagencarrusel, y le asignamos el string a la propiedad imagen del objecto
+            ImagenesCarruselEvento imagen = new ImagenesCarruselEvento()
+            {
+                Imagen = item
+            };
+
+            //cada nuevo objecto imagencarrusel lo guardamos en una lista
+            listadeimagenes.Add(imagen);
+        }
+
+        //la lista llena de objetos imagenescarrusel la igualamos a la lista de imagenes en el objeto carrusel
+        Evento.Imagenes = listadeimagenes;
+
+        //hacemos null las propiedades
+        imagenURL2 = null;
+        listadeimagenesURL = null;
+    }
+
+    #endregion
 }

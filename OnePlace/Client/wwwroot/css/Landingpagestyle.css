@@ -558,16 +558,6 @@ h6,
     height: auto !important;
 }
 
-.swiper {
-    width: 100%;
-    height: auto;
-}
-
-    .swiper img {
-        width: 100%;
-        display: block;
-    }
-
 .eventos:hover {
     color: #efd233;
     text-decoration-line: underline;
@@ -671,5 +661,4 @@ h6 {
 }
 
 /*estilos puestos por jasiel*/
-
 

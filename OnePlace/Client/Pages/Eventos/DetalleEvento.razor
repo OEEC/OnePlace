@@ -7,58 +7,72 @@
 
 @if (DetallesEvento == null)
 {
-    <text>Cargando...</text>
+   <LoadingSpinner IsLoading="Procesando" />
 }
 else
 {
-    <div class="card mb-3">
-        <img class="card-img-top" src="@DetallesEvento.ImgEvento" alt="" style="height:300px">
-        <div class="card-body">
-            <div class="row justify-content-between align-items-center">
-                <div class="col">
-                    <div class="d-flex">
-                        <div class="calendar me-2">
-                            <span class="calendar-month">@DetallesEvento.FechaEvento.Value.ToString("MMM")</span>
-                            <span class="calendar-day">@DetallesEvento.FechaEvento.Value.ToString("dd")</span>
+    <CardDoble>
+        <CardDobleIzquierda>
+            <Card Class="card mb-3">
+                <Imagen Class="card-img-top" Src="@DetallesEvento.ImgEvento" alt="" Style="height:300px"/>
+                <CardBody Class="card-body">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col">
+                            <div class="d-flex">
+                                <div class="calendar me-2">
+                                    <Texto Typo="Typo.normal" Class="calendar-month">@DetallesEvento.FechaEvento.Value.ToString("MMM")</Texto>
+                                    <Texto Typo="Typo.normal" Class="calendar-day">@DetallesEvento.FechaEvento.Value.ToString("dd")</Texto>
+                                </div>
+                                <div class="flex-1 fs--1">
+                                    <Texto Typo="Typo.h5" Class="fs-0">@DetallesEvento.NombreEvento</Texto>
+                                    <Texto Typo="Typo.body2" Class="mb-0 tonogris">
+                                        by
+                                    <Texto Typo="Typo.normal" Class="text-primary">Grupo Simsa</Texto>
+                                    </Texto>
+                                    @*<span class="fs-0 text-warning fw-semi-bold">$49.99 – $89.99</span>*@
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex-1 fs--1">
-                            <h5 class="fs-0">@DetallesEvento.NombreEvento</h5>
-                            <p class="mb-0 tonogris">by
-                              <span class="text-primary">Grupo Simsa</span>
-                            </p>
-                            @*<span class="fs-0 text-warning fw-semi-bold">$49.99 – $89.99</span>*@
+                        <div class="col-md-auto mt-4 mt-md-0">
+                            @*<button class="btn btn-outline-dark btn-sm me-2" type="button">hola</button>*@
+                            <Texto Typo="Typo.normal" Class="badge border link-secondary me-1 text-decoration-none text-primary">
+                                @DetallesEvento.TipoEventos.GetDescription()
+                            </Texto>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-auto mt-4 mt-md-0">
-                    @*<button class="btn btn-outline-dark btn-sm me-2" type="button">hola</button>*@
-                    <span class="badge border link-secondary me-1 text-decoration-none text-primary">
-                        @DetallesEvento.TipoEventos.GetDescription()
-                    </span>
-                </div>               
-            </div>
-            <br />
-            <p class="tonogris" style="text-align:justify">@DetallesEvento.DescripcionEvento</p>
-        </div>
-    </div>
-    <br />
-
-    @*<div class="card mb-3">
-        <div class="card-body">
-            <h5 class="fs-0 mb-3">New Year's Eve on the Waterfront</h5>
-            <p class="tonogris">@DetallesEvento.DescripcionEvento</p>
-            <h5 class="fs-0 mt-5 mb-2">Tipo de Evento</h5>
-            <span class="badge border link-secondary me-1 text-decoration-none text-primary">
-                @DetallesEvento.TipoEventos.GetDescription();
-            </span>          
-        </div>
-    </div>*@
+                    <br />
+                    <Texto Typo="Typo.body2" Class="tonogris" Style="text-align:justify">@DetallesEvento.DescripcionEvento</Texto>
+                </CardBody>
+            </Card>         
+        </CardDobleIzquierda>
+        <CardDobleDerecha>
+            <Card Class="card mb-3 fs--1">
+                <CardBody Class="card-body">
+                    <Texto Typo="Typo.h6">@DetallesEvento.TituloEventoExtra</Texto>
+                    <Texto Typo="Typo.body2" Class="mb-1 tonogris" Style="text-align:justify">
+                        @DetallesEvento.DescripcionEventoExtra
+                    </Texto>
+                    <div class="row light">
+                        @foreach (var item in DetallesEvento.Imagenes)
+                        {
+                            <div class="col-sm-6 col-lg-4 mb-4">
+                                <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
+                                    <div class="card-img-top"><img class="img-fluid" src="@item.Imagen" alt="Card image" /></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </CardBody>
+            </Card>
+        </CardDobleDerecha>
+    </CardDoble>
 }
 
 @code {
 
     [Parameter] public int EventoId { get; set; }
     public Evento DetallesEvento { get; set; }
+    private bool Procesando = true;
 
     protected async override Task OnInitializedAsync()
     {
@@ -84,6 +98,7 @@ else
         else
         {
             DetallesEvento = responseHttp.Response;
+            Procesando = false;
         }
     }
 }

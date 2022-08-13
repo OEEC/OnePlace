@@ -13,6 +13,10 @@ namespace OnePlace.Server.Helpers
         public AutomapperPerfiles()
         {
             CreateMap<Promocion, Promocion>().ForMember(x => x.Imagenes, option => option.Ignore());
+
+            CreateMap<Evento, Evento>()
+                .ForMember(x => x.Imagenes, option => option.Ignore())
+                .ForMember(x => x.ImgEvento, option => option.Ignore());
         }
     }
 }

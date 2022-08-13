@@ -74,7 +74,7 @@ namespace OnePlace.Server
             services.AddAutoMapper(typeof(Startup));
 
             //servicio para guardar imagen de manera local 
-            services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+            services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();         
 
             //agremaos el servicios de addhttpcontextaccesor
             services.AddHttpContextAccessor();

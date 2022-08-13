@@ -113,7 +113,9 @@
                     @foreach (var imagen in item.Imagenes)
                     {
                         <div class="swiper-slide">
-                            <img class="rounded-1 img-fluid" src="@imagen.Imagen" alt="" />
+                            <a href="promocioninfoextra/@item.PromocionId">
+                                <img class="rounded-1 img-fluid" src="@imagen.Imagen" alt="" />
+                            </a>                            
                         </div>
                     }
                 }
@@ -122,7 +124,8 @@
                 <div class="swiper-pagination"></div>
             </div>
         </div>
-    }
+    }  
+
     <!-- Ofertas End -->
     <!--Cursos-->
     <div class="container-xxl py-5" id="cursos">
@@ -384,8 +387,12 @@
                                     <div class="card-body">
                                         <h5 class="card-title">@TituloModalEvento</h5>
                                         <p class="card-text" style="text-align:justify">
-                                           @DescripcionModalEvento
-                                        </p>
+                                            @DescripcionModalEvento<br />
+                                            <a class="btn btn-sm btn-warning" href="eventoinfoextra/@IdModalEvento">
+                                                <i class="fa fa-info" aria-hidden="true"></i>
+                                            Leer Más
+                                            </a>
+                                        </p>                                     
                                     </div>
                                 </div>
                             </div>
@@ -398,6 +405,18 @@
             </div>
         </div>
     }   
+
+    <style>
+        .swiper {
+            width: 100%;
+            height: auto;
+        }
+
+       .swiper img {
+           width: 100%;
+           display: block;
+       }  
+    </style>
 }
 else
 {
@@ -497,6 +516,7 @@ else
     public List<EmpleadoPersonaDTO> ListadodeCumpleñeros { get; set; }
     public DateTime FechadeHoy;
 
+    public int IdModalEvento { get; set; }
     public string ImgModalEvento { get; set; }
     public string TituloModalEvento { get; set; }
     public string DescripcionModalEvento { get; set; }
@@ -569,14 +589,14 @@ else
         }
     }
 
-    #endregion
+    #endregion    
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await CargarListadodeCumpleañeros();
-            await CargarCarrusel();
+            await CargarCarrusel();           
 
             await JS.InvokeVoidAsync("Animacion");
             firstRender = false;
@@ -644,6 +664,7 @@ else
     {
         foreach (var item in listadeeventos.Where(x =>x.EventoId == Id))
         {
+            IdModalEvento = item.EventoId;
             ImgModalEvento = item.ImgEvento;
             TituloModalEvento = item.TituloEvento;
             DescripcionModalEvento = item.DescripcionEvento;

@@ -48,7 +48,7 @@ namespace OnePlace.Client
             services.AddScoped<IJsApiService, JsApiService>();
 
             //servicio para boton de quitar navmenu
-            services.AddSingleton<ViewOptionService>();
+            services.AddSingleton<ViewOptionService>();       
 
             //agregar las funciondes de Microsoft.AspNetCore.Components.Authorization
             services.AddAuthorizationCore();

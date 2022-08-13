@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="BarcodeLib" Version="2.4.0" />
     <PackageReference Include="BlazorInputFile" Version="0.2.0" />

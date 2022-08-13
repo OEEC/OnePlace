@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,10 +24,12 @@ namespace OnePlace.Server.Controllers
     {
         private readonly oneplaceContext context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public EventoController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        private readonly IMapper mapper;
+        public EventoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             this.context = context;
             _userManager = userManager;
+            this.mapper = mapper;
         }
 
         [HttpPost]
@@ -43,7 +46,8 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<Evento>> Get(int id)
         {
             var evento = await context.Eventos
-               .Where(x => x.EventoId == id)              
+               .Where(x => x.EventoId == id)
+               .Include(x => x.Imagenes)
                .FirstOrDefaultAsync();
             if (evento == null) { return NotFound(); }
 
@@ -60,20 +64,34 @@ namespace OnePlace.Server.Controllers
         [HttpPut]
         public async Task<ActionResult> Put(Evento evento)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);          
+            var user = await _userManager.GetUserAsync(HttpContext.User);
 
-            var oldevento = await context.Eventos.FindAsync(evento.EventoId);
+            var eventoDB = await context.Eventos
+                .Include(x => x.Imagenes)
+                .FirstOrDefaultAsync(x => x.EventoId == evento.EventoId);
 
-            if (string.IsNullOrWhiteSpace(evento.ImgEvento))
+            if (eventoDB == null) { return NotFound(); }
+
+            eventoDB = mapper.Map(evento, eventoDB);
+
+            if (!string.IsNullOrWhiteSpace(evento.ImgEvento))
             {
-                evento.ImgEvento = oldevento.ImgEvento;
+                eventoDB.ImgEvento = evento.ImgEvento;
             }
 
-            context.Entry(oldevento).CurrentValues.SetValues(evento);         
+            //recorremos las imagenes 
+            foreach (var item in evento.Imagenes)
+            {
+                //si viene una imagen el usuario quiso editarla sino viene el usuario no quiso editar la imagen solo lo demas, y aplicamos el ignore de automapper
+                if (!string.IsNullOrWhiteSpace(item.Imagen))
+                {
+                    eventoDB.Imagenes = evento.Imagenes;
+                }
+            }
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
-        }
+        }       
 
         //utilizamos fromquery para traer los parametros de busqueda
         [HttpGet("filtrar")]

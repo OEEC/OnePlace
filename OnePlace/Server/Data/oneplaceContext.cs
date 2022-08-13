@@ -704,6 +704,7 @@ namespace OnePlace.Server.Data
         public DbSet<Evento> Eventos { get; set; }
         public DbSet<Promocion> Promociones { get; set; }
         public DbSet<ImagenesCarrusel> ImagenesCarruseles { get; set; }
+        public DbSet<ImagenesCarruselEvento> ImagenesCarruselEventos { get; set; }
 
         #endregion
     }
