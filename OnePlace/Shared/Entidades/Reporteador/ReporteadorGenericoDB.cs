@@ -53,7 +53,8 @@ namespace OnePlace.Shared.Entidades.Reporteador
         Politicas,
         Pagare,
         OrdendeServicio,
-        Dictamen
+        Dictamen,
+        TarjetadeCumple
         //TicketVenta,
         //TicketNomina,
         //TransaccionAlmacen,       

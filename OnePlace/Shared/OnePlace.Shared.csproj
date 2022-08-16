@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="BarcodeLib" Version="2.4.0" />
     <PackageReference Include="BlazorInputFile" Version="0.2.0" />
@@ -28,6 +27,7 @@
     <PackageReference Include="NEvaldas.Blazor.Select2" Version="0.1.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
     <PackageReference Include="QRCodeEncoderLibrary" Version="2.0.1" />
+    <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />

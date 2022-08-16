@@ -13,5 +13,6 @@ namespace OnePlace.Shared.DTOs
         public Persona Persona { get; set; }
         public string ProximoCumple { get; set; }
         public DateTime ProximoCumpleTodoMes { get; set; }
+        public string CodigoQR { get; set; }
     }
 }
