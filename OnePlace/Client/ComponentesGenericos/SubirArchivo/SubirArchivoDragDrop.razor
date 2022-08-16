@@ -1,61 +1,61 @@
-﻿@page "/dragdrop"
-@inject HttpClient Http
+﻿@inject HttpClient Http
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject IMostrarMensaje mostrarMensajes
 
-<div class="drag-drop-zone">
-    <BlazorInputFile.InputFile multiple OnChange="HandleSelection" />
-    @status
+@*<div class="drag-drop-zone">
+        <BlazorInputFile.InputFile multiple OnChange="HandleSelection" />
+        @status
+    </div>*@
+
+<div>
+    <label for="pdf">@Label</label>
+    <div>
+        <BlazorInputFile.InputFile multiple OnChange="HandleSelection" />
+    </div>
 </div>
 
 @if (selectedFiles != null)
 {
-    <div class="pre">
+    <div>
         @if (progress.HasValue)
         {
             @if (progress < 100)
             {
-                <div class="progress" style="height:30px;">
-                    <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:@(progress)%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">
-                        <h6 style="margin-bottom: .1rem;">@status2 @progress%</h6>                       
-                    </div>
+                @*<div class="progress" style="height:30px;">
+                        <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:@(progress)%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">
+                            <h6 style="margin-bottom: .1rem;">@status2 @progress%</h6>
+                        </div>
+                    </div>*@
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width:@(progress)%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@progress%</div>
                 </div>
             }
             else
             {
-                <div class="progress" style="height:30px;">
-                    <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                        <h6 style="margin-bottom: .1rem;">@status2</h6>
-                    </div>
-                </div>
-                <br />
-                @if(status3 != null)
-                {
-                    <div class="d-inline-flex flex-column">
-                         <div class="border px-2 rounded-3 d-flex flex-between-center bg-white text-200 my-1 fs--1">
-                             <span class="fa fa-file"></span>
-                             <span class="ms-2">
-                             @status3.NombreArchivo (@(status3.Tamaño.ToSize(GetSizeFile.SizeUnits.KB)+"KB"))
-                             </span>
-                         </div>
-                    </div>
-                 }                
+                @*<div class="progress" style="height:30px;">
+                        <div class="progress-bar progress-bar-striped bg-info progress-bar-animated" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            <h6 style="margin-bottom: .1rem;">@status2</h6>
+                        </div>
+                    </div>*@
+                <span class="text-success">@status2</span>
             }
         }
-    </div>  
+    </div>
 }
 
 @code {
     //parametro de tipo eventcallback, que espera devolverte una propiedad de tipo int
     [Parameter] public EventCallback<int> SubidaExitosa { get; set; }
 
+    [Parameter] public string Label { get; set; } = "Pdf";
+
     public int ArchivoId { get; set; }//variable donde se guardara la respuesta de la peticion http
 
-    const string DefaultStatus = "Suelte los archivos aquí o haga clic para cargar.";   
-    string status = DefaultStatus;
+    //const string DefaultStatus = "Suelte los archivos aquí o haga clic para cargar.";
+    //const string listo = "Archivos Almacenados";
+    //string status = DefaultStatus;
     string status2 = "";
-    ArchivoAdjunto status3;
     public int? progress;
 
     IFileListEntry[] selectedFiles;
@@ -67,8 +67,8 @@
         {
             if (files != null)
             {
-                status = "";
-                status2 = "Cargando...";
+                //status = "";
+                //status2 = "Cargando...";
 
                 var ms = new MemoryStream();//inicializamos el memorystream
 
@@ -92,21 +92,21 @@
 
                 ArchivoAdjunto archivo = new ArchivoAdjunto();//inicializamos el objeto
                 archivo.ArchivoEnBytes = ms.GetBuffer();//convertimos el memorystream en array se podria usar tambien ToArray()
-                archivo.NombreArchivo = selectedFiles.Name;//obtenemos el nombre del archivo               
+                archivo.NombreArchivo = selectedFiles.Name;//obtenemos el nombre del archivo
                 archivo.Tamaño = selectedFiles.Size;
+
                 //enviamos un objeto y nos regresa un int
                 var httpResponse = await repositorio.Post<ArchivoAdjunto, int>("api/Upload", archivo);
                 if (httpResponse.Error)
                 {
-                    status = DefaultStatus;
+                    //status = DefaultStatus;
                     var body = await httpResponse.GetBody();
                     status2 = body;
                 }
                 else
                 {
-                    status = DefaultStatus;
-                    status2 = "Archivo Almacenado";
-                    status3 = archivo;
+                    //status = DefaultStatus;
+                    status2 = selectedFiles.Name + "|" + "Archivo Almacenado";
 
                     ArchivoId = httpResponse.Response;
                     await SubidaExitosa.InvokeAsync(ArchivoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api

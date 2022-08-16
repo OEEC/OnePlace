@@ -1,0 +1,235 @@
+﻿@page "/detalles-tema/{TemaId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+@if (Tema == null)
+{
+    <LoadingSpinner IsLoading="Procesando" />
+}
+else
+{
+    <Card Class="card mb-3">
+        <CardBody Class="card-body">
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="position-relative contenedordelaimg">
+                        <Imagen Class="rounded-1 h-100 w-100" Src="@Tema.Imagen" />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <Texto Typo="Typo.h5">@Tema.Nombre</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1">@Tema.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">
+                        @Tema.Descripcion
+                    </Texto>
+                    @if (Tema.ArchivoId > 0)
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1">
+                            Acciones para pdf:&nbsp;
+                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="()=>MostrarPdf(Tema.ArchivoId)" />&nbsp;
+                            @if (user.IsInRole("Administrador"))
+                            {
+                                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(Tema.ArchivoId, Tema))" />
+                            }
+                        </Texto>
+                    }
+                    @if (Tema.Activo == true)
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
+                    }
+                    @if (user.IsInRole("Administrador"))
+                    {
+                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-tema/" + Tema.TemaId)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Tema</Texto></Enlace>
+                    }
+                </div>
+            </div>
+        </CardBody>
+    </Card>
+
+    @if (ArchivoAdjunto != null && Tema.VideoId > 0)
+    {
+        <Card Class="card mb-3">
+            <CardBody Class="card-body bg-light">
+                <div class="form-row">
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-8">
+                        <Card Class="card overflow-hidden">
+                            <Card Class="card-img-top">
+                                <video controls width="100%" controlslist="nodownload">
+                                    <source src="@ArchivoAdjunto.UrlLocal" type="audio/mp4" />
+                                </video>
+                            </Card>
+                            <CardBody Class="card-body">
+                                <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
+                                @if (Tema.VideoId > 0)
+                                {
+                                    <Texto Typo="Typo.body1" Class="fs--1">
+                                        Acciones para video:&nbsp;
+                                        @if (user.IsInRole("Administrador"))
+                                        {
+                                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(Tema.VideoId, Tema))" />
+                                        }
+                                    </Texto>
+                                }
+                            </CardBody>
+                        </Card>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>             
+            </CardBody>
+        </Card>
+        <br />
+    }
+
+    <ModalContent EsVisible="VerPdf" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalPdf">
+        <IFrame Id="myFrame" Src="@("api/Upload/Mostrarpdf/"+Id+"#toolbar=0")" Style="width:100%; height:400px;"></IFrame>
+    </ModalContent>
+    <br />
+
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public int TemaId { get; set; }
+    private bool Procesando = true;
+    private Tema Tema;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        await Cargar();
+
+        if (Tema.VideoId > 0)
+        {
+            await MostrarVideo(Tema.VideoId);
+        }
+    }
+
+    private async Task Cargar()
+    {
+        var responseHttp = await repositorio.Get<Tema>($"api/Tema/{TemaId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("inicio");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            Tema = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    #region BorrarArchivos
+
+    private async Task BorrarArchivo(int Id, Tema tema)
+    {
+        string mensajeconfirmacion = $"¿Desea borrar este archivo?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            var responseHttp = await repositorio.Delete($"api/Upload/{Id}");
+            if (responseHttp.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await responseHttp.GetBody());
+            }
+            else
+            {
+                await ActualizarIdRelacionado(Id, tema);
+            }
+        }
+    }
+
+    //volver a 0 el id del archivo si fue eliminado de la bd
+    private async Task ActualizarIdRelacionado(int id, Tema tema)
+    {
+        //este if es para evauluar que id se mando si de video o pdf y no editar ese campo sino se selecciono para borrar
+        if (Tema.ArchivoId == id)
+        {
+            tema.ArchivoId = 0;
+        }
+        else
+        {
+            tema.VideoId = 0;
+        }
+
+        var httpResponse = await repositorio.Put("api/Tema/Desactivar", tema);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo($"detalles-tema/{Tema.TemaId}");
+            await Cargar();
+            await MostrarVideo(Tema.VideoId);//refrescar el card del video y quitarlo
+        }
+    }
+
+    #endregion
+
+    #region VisualizarPdf
+    private Boolean VerPdf = false;
+    private int Id;
+
+    public async Task MostrarPdf(int id)
+    {
+        Id = id;
+        VerPdf = true;
+    }
+
+    private void closeModalPdf()
+    {
+        VerPdf = false;
+    }
+
+    #endregion
+
+    #region VisualizarVideo
+
+    private int IdVideo;
+    private ArchivoAdjunto ArchivoAdjunto;
+
+    public async Task MostrarVideo(int id)
+    {
+        IdVideo = id;
+
+        var responseHttp = await repositorio.Get<ArchivoAdjunto>($"api/Upload/{IdVideo}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
+                navigationManager.NavigateTo($"detalles-tema/{Tema.TemaId}");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            ArchivoAdjunto = responseHttp.Response;
+        }
+    }
+
+    #endregion
+}
+

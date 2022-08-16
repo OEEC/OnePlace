@@ -1,0 +1,99 @@
+﻿@inject IRepositorio repositorio
+@using System.Security.Claims
+
+<EditForm Model="@Curso" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">@Titulo</Texto><br>
+                </div>
+                <div class="col-auto d-none d-sm-block">
+                    <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="@Curso.FechaRegistro" disabled />
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="nombre">Nombre</InputLabel>
+                        <InputText class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-Value="@Curso.Nombre" />
+                        <ValidationMessage For="@(() => Curso.Nombre)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="descripcion">Descripción</InputLabel>
+                        <InputTextArea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind-Value="@Curso.Descripcion" />
+                        <ValidationMessage For="@(() => Curso.Descripcion)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+                    </div>
+                </div>
+                @if (Es_EditarCurso == true)
+                {
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <br />
+                            <ToolTip Delay="1000">
+                                <ChildContent>
+                                    <CasillaVerificacion @bind-Checked="@Curso.Activo" ManejarEstados="true" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
+                                </TooltipContent>
+                            </ToolTip>
+                        </div>
+                    </div>
+                }
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+
+@code{
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public Curso Curso { get; set; }
+    [Parameter] public bool Es_EditarCurso { get; set; }
+    [Parameter] public string Titulo { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private string imagenURL;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        if (Es_EditarCurso == false)
+        {
+            Curso.FechaRegistro = DateTime.Now;
+        }
+
+        //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+        if (!string.IsNullOrWhiteSpace(Curso.Imagen))
+        {
+            imagenURL = Curso.Imagen;
+            Curso.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+        }
+    }
+
+    //este metodo actualiza la imagen con la nueva imagen seleccionada
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        Curso.Imagen = imagenBase64;
+        imagenURL = null;
+    }
+}
+

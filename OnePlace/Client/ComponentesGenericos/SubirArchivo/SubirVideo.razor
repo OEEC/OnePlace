@@ -1,0 +1,96 @@
+﻿@inject IRepositorio repositorio
+@inject IMostrarMensaje mostrarMensajes
+@inject NavigationManager navigationManager
+
+<div>
+    <label for="video">@Label</label>
+    <div>
+        <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnChange" multiple />
+    </div>
+</div>
+
+<div>
+    @*si es diferente de nulo mostramos el video*@
+    @if (progress.HasValue)
+    {
+        @if (progress < 100)
+        {
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width:@(progress)%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@progress%</div>
+            </div>
+        }
+        else
+        {
+            <span class="text-success">@Message</span>
+        }
+    }
+</div>
+
+@code {
+    //parametro de tipo eventcallback, que espera devolverte una propiedad de tipo int
+    [Parameter] public EventCallback<int> SubidaExitosa { get; set; }
+
+    [Parameter] public string Label { get; set; } = "Video";
+
+    public int ArchivoId { get; set; }//variable donde se guardara la respuesta de la peticion http
+
+    string Message;
+    IReadOnlyList<IBrowserFile> selectedFiles;
+    public int? progress;
+
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        selectedFiles = e.GetMultipleFiles();
+        this.StateHasChanged();
+
+        foreach (var file in selectedFiles)
+        {
+            int countSize = 0;
+
+            //codigo pra subir archivo
+            //Stream stream = file.OpenReadStream(52428800);//50MB
+            Stream stream = file.OpenReadStream(524288000);//500MB
+            MemoryStream ms = new MemoryStream();
+
+            #region Proggress
+            var bufferSize = 524288; //512 mitad de 1024
+            var buffer = new byte[bufferSize];
+            int count;
+            while ((count = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+            {
+                ms.Write(buffer, 0, count);
+                countSize += count;
+                progress = (int)(((decimal)countSize / file.Size) * 100);
+                this.StateHasChanged();
+                await Task.Delay(1000);
+
+                Console.WriteLine(progress);
+            }
+            #endregion
+
+            await stream.CopyToAsync(ms);
+            stream.Close();
+
+            //codigo para enviar datos en el modelo archivo
+            ArchivoAdjunto uploadedFile = new ArchivoAdjunto();
+            uploadedFile.NombreArchivo = file.Name;
+            uploadedFile.ArchivoEnBytes = ms.ToArray();
+            uploadedFile.Tamaño = file.Size;
+            ms.Close();
+
+            var httpResponse = await repositorio.Post<ArchivoAdjunto, int>("api/Upload/Video", uploadedFile);
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                ArchivoId = httpResponse.Response;
+                await SubidaExitosa.InvokeAsync(ArchivoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api
+            }
+            Message = $"Archivo Almacenado {file.Size} bytes de {file.Name}";
+        }
+
+        this.StateHasChanged();
+    }
+}

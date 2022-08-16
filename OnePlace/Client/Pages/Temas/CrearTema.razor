@@ -1,0 +1,29 @@
+﻿@page "/crear-temas/{CursoId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioTema OnValidSubmit="Crear" Tema="Tema" Titulo="Crear Tema"></FormularioTema>
+
+@code {
+
+    [Parameter] public int CursoId { get; set; }
+    private Tema Tema = new Tema();
+  
+    private async Task Crear()
+    {
+        Tema.CursoId = CursoId;
+        var httpResponse = await repositorio.Post("api/Tema", Tema);
+        @if (httpResponse.Error)
+        {
+            var body = await httpResponse.GetBody();
+            await mostrarMensajes.MostrarMensajeError(body);
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Tema Creado");
+            navigationManager.NavigateTo($"detalles-curso/{CursoId}");
+        }
+    }
+}

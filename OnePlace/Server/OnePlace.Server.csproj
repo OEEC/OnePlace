@@ -42,5 +42,9 @@
     <ProjectReference Include="..\Shared\OnePlace.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\VideoServer\" />
+  </ItemGroup>
+
 
 </Project>

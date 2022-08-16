@@ -13,9 +13,10 @@ namespace OnePlace.Shared.Entidades
         public int ArchivoAdjuntoId { get; set; }
         public string NombreArchivo { get; set; }
         public string ExtensionArchivo { get; set; }
-        public long Tamaño { get; set; }
         public byte[] ArchivoEnBytes { get; set; }
-        public DateTime FechaDeSubida { get; set; }
+        public string UrlLocal { get; set; }
+        public long Tamaño { get; set; }
+        public DateTime? FechaDeSubida { get; set; }
         private Dictionary<string, string> GetMimeTypes()
         {
             return new Dictionary<string, string>

@@ -1,0 +1,27 @@
+﻿@page "/crear-curso"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioCurso OnValidSubmit="Crear" Curso="Curso" Titulo="Crear Curso" />
+
+@code {
+    private Curso Curso = new Curso();
+
+    async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/Curso", Curso);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Curso Creado");
+            navigationManager.NavigateTo("indice-cursos");
+        }
+    }
+}
+
+

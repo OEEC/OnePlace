@@ -292,7 +292,7 @@ namespace OnePlace.Server.Reportes
             address.Alignment = Element.ALIGN_CENTER;
 
             var footerTbl = new PdfPTable(3) { TotalWidth = 520f, HorizontalAlignment = Element.ALIGN_CENTER, LockedWidth = true };
-            float[] widths = { 180f, 280f, 60f }; //original 150f, 220f, 150f
+            float[] widths = { 180f, 290f, 50f }; //original 150f, 220f, 150f
             footerTbl.SetWidths(widths);
             var footerCell1 = new PdfPCell(new Phrase(""));
             var footerCell2 = new PdfPCell();
