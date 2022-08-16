@@ -365,3 +365,12 @@ h5, .h5 {
     height: 300px;
     width: 100%
 }
+
+/*css tabla de inicio cursos*/
+.text-600 {
+    color: #748194 !important;
+}
+
+.text-900 {   
+    color: rgba( 52, 64, 80) !important;
+}

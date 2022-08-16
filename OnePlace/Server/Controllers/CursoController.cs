@@ -152,5 +152,25 @@ namespace OnePlace.Server.Controllers
                 return await context.Cursos.Where(x => x.Nombre.ToLower().Contains(textoBusqueda)).Take(5).ToListAsync();
             }
         }
+
+        //endpoint para cursos en la pagina de inicio
+        [HttpGet]
+        public async Task<ActionResult<List<Curso>>> Get([FromQuery] PaginacionDTO paginacion)
+        {
+            var queryable = context.Cursos.Where(x => x.Activo == true).AsQueryable();
+
+            foreach (var item in queryable)
+            {
+                //si el usuario no subio imagen poner una por defecto
+                if (string.IsNullOrEmpty(item.Imagen))
+                {
+                    // Aquí colocas la URL de la imagen por defecto
+                    item.Imagen = "Img" + "/" + "Imagenotfound.jpg";
+                }
+            }
+
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros);
+            return await queryable.Paginar(paginacion).ToListAsync();
+        }
     }
 }
