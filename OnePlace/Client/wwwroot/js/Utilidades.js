@@ -254,6 +254,15 @@ function SwiperChido2() {
 
 };
 
+/*ocultar boton derecho para evitar descargar archivos*/
+function BloquearBotonDerecho() {
+
+    $(document).bind("contextmenu", function (e) {
+        return false;
+    });
+};
+
+
 
 
 

@@ -1,0 +1,343 @@
+﻿@page "/temainfoextra/{TemaId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@*todas las paginas necesitan este atributo para que no se puedan ver sino estas logueado*@
+@attribute [Authorize]
+@using System.Security.Claims
+
+@if (user.IsInRole("Usuario"))
+{
+    <div class="container-landingpage bg-white p-0 text-heebo">
+
+        <!-- Navbar & Hero Start -->
+        <div class="container-xxl position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+                <a href="" class="navbar-brand p-0">
+                    <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
+                    <img src="img/oneplace.png" alt="Logo">
+                </a>
+                <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
+                    <div class="navbar-nav ml-auto py-0">
+                        @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
+                        <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
+                        <a onclick="document.getElementById('temas').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Temas</a>
+                        <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
+                    </div>
+                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
+                </div>
+            </nav>
+
+            <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
+                <div class="container my-5 py-5 px-lg-5">
+                    <div class="row g-5 py-5">
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
+                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
+                            @if(Tema != null)
+                            {
+                                <a href="cursoinfoextra/@Tema.CursoId" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Regresar al Curso</a>
+                            }
+                            <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
+                        </div>
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Navbar & Hero End -->
+
+        <!--Temas-->
+
+        <div class="container-xxl py-5" id="temas">
+            <div class="container px-lg-5">
+                <div class="row g-5">
+                    <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s" data-wow-iteration="1" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                        <div class="section-title position-relative mb-4 pb-2">
+                            <h6 class="position-relative text-primarysimsa pl-4">Temas</h6>
+                            <h2 class="mt-2">Aumenta tu perfil profesional</h2>
+                        </div>
+                        @if (Tema == null)
+                        {
+                            <LoadingSpinner IsLoading="Procesando" />
+                        }
+                        else
+                        {
+                            <Card Class="card mb-3">
+                                <CardBody Class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6 mb-4 mb-lg-0">
+                                            <div class="position-relative contenedordelaimg">
+                                                <Imagen Class="rounded-1 h-100 w-100" Src="@Tema.Imagen" />
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <Texto Typo="Typo.h5">@Tema.Nombre</Texto>
+                                            <Texto Typo="Typo.body1" Class="fs--1">@Tema.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
+                                            <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">
+                                                @Tema.Descripcion
+                                            </Texto>
+                                            @if (Tema.ArchivoId > 0)
+                                            {
+                                                <Texto Typo="Typo.body1" Class="fs--1">
+                                                    Acciones para pdf:&nbsp;
+                                                    <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="()=>MostrarPdf(Tema.ArchivoId)" />&nbsp;
+                                                </Texto>
+                                            }
+                                            @if (Tema.Activo == true)
+                                            {
+                                                <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
+                                            }
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+
+                            @if (ArchivoAdjunto != null && Tema.VideoId > 0)
+                            {
+                                <Card Class="card mb-3">
+                                    <CardBody Class="card-body bg-light">
+                                        <div class="form-row">
+                                            <div class="col-sm-2"></div>
+                                            <div class="col-sm-8">
+                                                <Card Class="card overflow-hidden">
+                                                    <Card Class="card-img-top">
+                                                        <video controls width="100%" controlslist="nodownload">
+                                                            <source src="@ArchivoAdjunto.UrlLocal" type="audio/mp4" />
+                                                        </video>
+                                                    </Card>
+                                                    <CardBody Class="card-body">
+                                                        <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
+                                                    </CardBody>
+                                                </Card>
+                                            </div>
+                                            <div class="col-sm-2"></div>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                                <br />
+                            }
+                            
+                            @if (VerPdf)
+                            {
+                                <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content" style="background-color: rgba(10,10,10,.8); border: none;">
+                                            <div class="modal-header border-0">
+                                                <button type="button" class="btn bg-simsa" data-bs-dismiss="modal" aria-label="Close"
+                                                        style="margin: -0.5rem -0.5rem -0.5rem auto;" @onclick="closeModalPdf">
+                                                    <span class="fas fa-times" aria-hidden="true"></span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+
+                                                <div class="row light">
+                                                    <div class="col-sm-6 col-lg-3 mb-3"></div>
+                                                    <div class="col-sm-6 col-lg-6 mb-3">
+                                                        <iframe id="myFrame" src="@("api/Upload/Mostrarpdf/"+Id+"#toolbar=0")" style="width:100%; height:500px;"></iframe>
+                                                    </div>
+                                                    <div class="col-sm-6 col-lg-3 mb-3"></div>
+                                                </div>
+                                               
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Temas End-->
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
+            <div class="container px-lg-5">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-5">
+                            <p>
+                                <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
+                            </p>
+                            <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
+                            <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
+                        </div>
+                        <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <span class="border-bottom">One Place</span>, All Right Reserved.<br />
+                            Designed By <span class="border-bottom">Innovación</span>
+                            <br>Distributed By: <span class="border-bottom">Simsa</span>
+                        </div>
+                        <div class="col-md-3 text-center text-md-end">
+                            <div class="d-flex pt-2">
+                                <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
+    </div>
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] public App MyApp { get; set; }
+
+    [Parameter] public int TemaId { get; set; }
+    private bool Procesando = true;
+    private Tema Tema;    
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        @if (user.IsInRole("Usuario"))
+        {
+            //cambiar el diseño dependiendo del rol del usuario logueado
+            MyApp.SetLayout(typeof(UserLayout));
+            await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
+            StateHasChanged();
+
+            //esto se puso para desactivar el clic derecho en toda la pagina
+            await JS.InvokeVoidAsync("BloquearBotonDerecho");          
+            StateHasChanged();
+
+            await Cargar();
+
+            if (Tema.VideoId > 0)
+            {
+                await MostrarVideo(Tema.VideoId);
+            }
+        }
+        else
+        {
+            MyApp.SetLayout(typeof(MainLayout));
+        }
+    }
+
+    private async Task Cargar()
+    {
+        var responseHttp = await repositorio.Get<Tema>($"api/Tema/{TemaId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("inicio");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            Tema = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    #region VisualizarPdf
+
+    private Boolean VerPdf = false;
+    private int Id;
+
+    public async Task MostrarPdf(int id)
+    {
+        Id = id;
+        VerPdf = true;
+    }
+
+    private void closeModalPdf()
+    {
+        VerPdf = false;
+    }
+
+    #endregion
+
+    #region VisualizarVideo
+
+    private int IdVideo;
+    private ArchivoAdjunto ArchivoAdjunto;
+
+    public async Task MostrarVideo(int id)
+    {
+        IdVideo = id;
+
+        var responseHttp = await repositorio.Get<ArchivoAdjunto>($"api/Upload/{IdVideo}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
+                navigationManager.NavigateTo($"temainfoextra/{Tema.TemaId}");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            ArchivoAdjunto = responseHttp.Response;
+        }
+    }
+
+    #endregion
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("Animacion");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("BotonUP");
+            firstRender = false;
+            StateHasChanged();
+
+            await JS.InvokeVoidAsync("Sticky");
+            firstRender = false;
+            StateHasChanged();
+        }
+    }
+
+    #region ColapsarMenu
+
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    void CollapseNavMenu()
+    {
+        collapseNavMenu = true;
+    }
+
+    #endregion
+}

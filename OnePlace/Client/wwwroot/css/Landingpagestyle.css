@@ -660,5 +660,14 @@ h6 {
     margin-left: auto;
 }
 
+/*css para las card de cursos en el usuario*/
+.zoom {
+    transition: transform .2s;
+}
+
+.zoom:hover {
+   transform: scale(1.1)
+}  
+
 /*estilos puestos por jasiel*/
 
