@@ -22,8 +22,11 @@ namespace OnePlace.Client.Auth
             this.httpClient = httpClient;
         }
 
+        public static readonly string ShowModal = "ShowModal";//nombre de la key que se necesita para guardar datos en localstorage
+        public string FlagShowModal = "true";// value que se necesita para guardar en localstorage, en este caso se guarda un string ya que no se pueden guardar bool
+
         //le pasamos una llave a localstorage
-        public static readonly string TOKENKEY = "TOKENKEY";
+        public static readonly string TOKENKEY = "TOKENKEY";       
         private readonly IJSRuntime js;
         private readonly HttpClient httpClient;
 
@@ -98,6 +101,9 @@ namespace OnePlace.Client.Auth
         //aqui implementamos la interfaz de loginservice
         public async Task Login(string token)
         {
+            //guardar un valor en localstorage (para que al loguearse me guarde un string que funcionara como bool en el modal de cumpleaños)
+            await js.SetInLocalStorage(ShowModal, FlagShowModal);
+
             await js.SetInLocalStorage(TOKENKEY, token);//guardamos el token en localstorage
             var authState = ConstruirAuthenticationState(token);//construimos el estado de autenticacion
             //con esto notificamos a blazor que el estado de autenticacion del usuario a cambiado
@@ -106,6 +112,7 @@ namespace OnePlace.Client.Auth
 
         public async Task Logout()
         {
+            await js.RemoveItem(ShowModal);//eliminamos la variable showmodal para cuando el usuario administrador se desloguie ya que la variable se quedaria por no tener un boton close modal
             await js.RemoveItem(TOKENKEY);//eliminamos el token de localstorage
             httpClient.DefaultRequestHeaders.Authorization = null;//quitamos de la cabecera http el token
             NotifyAuthenticationStateChanged(Task.FromResult(Anonimo));//notificamos a blazor que hubo un cambio en el estado

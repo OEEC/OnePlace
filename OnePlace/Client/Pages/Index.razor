@@ -565,6 +565,9 @@ else
             await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
             StateHasChanged();
 
+            //antes de cargar el metodo cargar cumple obtenemos la variable que viene del localstorage
+            await ReadFlag();
+
             await CargarCumple();
             await CargarEventos();
         }
@@ -588,7 +591,7 @@ else
             EmpleadoPersonaDTO = responseHttp.Response;
 
             //si la fecha de cumple es igual a la fecha de hoy ismodal es true abre modal
-            if (EmpleadoPersonaDTO.ProximoCumple == FechadeHoy.ToString("dd/MM/yyyy"))
+            if (Flag == "true" && EmpleadoPersonaDTO.ProximoCumple == FechadeHoy.ToString("dd/MM/yyyy"))
             {
                 isModal = true;
             }
@@ -678,13 +681,33 @@ else
     #endregion
 
     #region ModalCumple
-    private Boolean isModal = false;    
+    private Boolean isModal = false;
 
-    private void closeModal()
+    private async Task closeModal()
     {
-        this.isModal = false;       
+        this.isModal = false;
+        //al cerrar el modal borramos la variable showmodal del localstorage
+        await DeleteFlag();
         StateHasChanged();
     }
+
+    #region MostrarSoloUnaVezModal
+
+    public string Flag;
+
+    public async Task ReadFlag()
+    {
+        //Flag = await JS.InvokeAsync<string>("localStorage.getItem", "ShowModal"); //sin metodo perzonalizado
+        Flag = await JS.GetFromLocalStorage("ShowModal");
+    }
+
+    public async Task DeleteFlag()
+    {
+        //await JS.InvokeAsync<string>("localStorage.removeItem", "ShowModal"); //sin metodo perzonalizado
+        await JS.RemoveItem("ShowModal");
+    }
+
+    #endregion
 
     #endregion
 
@@ -768,5 +791,5 @@ else
         }
     }
 
-    #endregion
+    #endregion  
 }
