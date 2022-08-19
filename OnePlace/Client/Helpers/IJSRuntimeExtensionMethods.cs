@@ -39,6 +39,9 @@ namespace OnePlace.Client.Helpers
         //con remove eliminamos contenido
         public static ValueTask<object> RemoveItem(this IJSRuntime js, string key)
             => js.InvokeAsync<object>("localStorage.removeItem", key);
-       
+        public static async ValueTask<bool> PlayVideo(this IJSRuntime JS)
+        {           
+            return await JS.InvokeAsync<bool>("GetEventVideo");           
+        }
     }
 }

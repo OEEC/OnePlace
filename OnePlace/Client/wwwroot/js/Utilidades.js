@@ -254,11 +254,18 @@ function SwiperChido2() {
 
 };
 
-/*ocultar boton derecho para evitar descargar archivos*/
-function BloquearBotonDerecho() {
+function GetEventVideo() {
 
-    $(document).bind("contextmenu", function (e) {
-        return false;
+    //devuelve una promesa con valor bool en true, solo si se le da play al video
+    return new Promise(resolve => {
+
+            var media = document.getElementById('myVideo');
+
+            //detecta si se le dio play al boton de la etiqueta html video
+            media.addEventListener("playing", function () {
+               /* alert("hola jasiel");*/
+                resolve(true);
+            });
     });
 };
 

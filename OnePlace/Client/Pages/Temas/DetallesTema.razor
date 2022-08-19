@@ -30,7 +30,7 @@ else
                     {
                         <Texto Typo="Typo.body1" Class="fs--1">
                             Acciones para pdf:&nbsp;
-                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="()=>MostrarPdf(Tema.ArchivoId)" />&nbsp;
+                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="() => MostrarPdf(Tema.ArchivoId)" />&nbsp;
                             @if (user.IsInRole("Administrador"))
                             {
                                 <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(Tema.ArchivoId, Tema))" />
@@ -59,9 +59,10 @@ else
                     <div class="col-sm-8">
                         <Card Class="card overflow-hidden">
                             <Card Class="card-img-top">
-                                <video controls width="100%" controlslist="nodownload">
-                                    <source src="@ArchivoAdjunto.UrlLocal" type="audio/mp4" />
+                                <video id="myVideo" controls width="100%" controlslist="nodownload">
+                                    <source src="@ArchivoAdjunto.UrlLocal" type="video/mp4" />
                                 </video>
+                                <span class="text-success">@PlayVideo_Start</span>
                             </Card>
                             <CardBody Class="card-body">
                                 <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
@@ -79,17 +80,17 @@ else
                         </Card>
                     </div>
                     <div class="col-sm-2"></div>
-                </div>             
+                </div>
             </CardBody>
         </Card>
         <br />
+
     }
 
     <ModalContent EsVisible="VerPdf" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalPdf">
-        <IFrame Id="myFrame" Src="@("api/Upload/Mostrarpdf/"+Id+"#toolbar=0")" Style="width:100%; height:400px;"></IFrame>
+        <IFrame Id="myFrame" Src="@("api/Upload/Mostrarpdf/" + Id + "#toolbar=0")" Style="width:100%; height:400px;"></IFrame>
     </ModalContent>
-    <br />
-
+    <br />   
 }
 
 @code {
@@ -100,6 +101,9 @@ else
     [Parameter] public int TemaId { get; set; }
     private bool Procesando = true;
     private Tema Tema;
+
+    //se pondra una bandera para asegurarnos que la carga del objeto tema esta completa
+    private bool FullLoad = false;
 
     protected async override Task OnInitializedAsync()
     {
@@ -133,6 +137,7 @@ else
         {
             Tema = responseHttp.Response;
             Procesando = false;
+            FullLoad = true;
         }
     }
 
@@ -231,5 +236,32 @@ else
     }
 
     #endregion
+
+    private bool PlayVideo_Start = false;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        //PROBLEMA: el objeto tema es nulo en el primer renderizado, por lo tanto no se dibuja nada de html y la funcion js,
+        //se ejecuta en el primer render y necesita un id que debe estar en el html el cual aun no existe por eso marca error,
+        //al llamar a la funcion
+
+        //SOLUCION1: seria ejecutar el metodo en una renderizacion posterior, pero
+        //dispararé múltiples controladores de eventos a medida que se acumulan durante los renderizados.
+        //if (!firstRender)
+        //{
+        //    await JS.InvokeVoidAsync("GetEventVideo");
+        //}
+
+        //SOLUCIONFINAL: poner una bandera que indique que el objeto ya no es null ya cargo completo y una vez cargado ahora si ejecutar la funcion js
+
+        if (FullLoad)
+        {
+            PlayVideo_Start = await JS.PlayVideo(); 
+            StateHasChanged();
+            FullLoad = false;
+
+            //PlayVideo_Start = await JS.InvokeAsync<bool>("GetEventVideo"); //sin metodo perzonalizado
+        }
+    }
 }
 
