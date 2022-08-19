@@ -259,13 +259,26 @@ function GetEventVideo() {
     //devuelve una promesa con valor bool en true, solo si se le da play al video
     return new Promise(resolve => {
 
-            var media = document.getElementById('myVideo');
+            //codigo que se ejecuta cuando se termina de reproducir un video
+            document.getElementById('myVideo').addEventListener('ended', myHandler, false);
+            function myHandler(e) {
+                resolve(true);
+            }
+
+            //codigo funcional es para controlar si se pone play o pause 
+
+            //var media = document.getElementById('myVideo');
 
             //detecta si se le dio play al boton de la etiqueta html video
-            media.addEventListener("playing", function () {
-               /* alert("hola jasiel");*/
-                resolve(true);
-            });
+            //media.addEventListener("playing", function () {
+            //   /* alert("hola jasiel");*/
+            //    resolve(true);
+            //});
+
+            // Pause event
+            //media.addEventListener("pause", function () {
+            //    resolve(false);
+            //});
     });
 };
 
