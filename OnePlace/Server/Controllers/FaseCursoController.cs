@@ -65,8 +65,17 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<int>> Post(ActividadUsuario actividad)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            context.Add(actividad);
-            await context.SaveChangesAsync(user.Id);
+
+            //ver si en la bd ya existe una actividad con el temaid y fasecursoid pasado por parametro
+            var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == actividad.TemaId && x.FaseCursoId == actividad.FaseCursoId);
+
+            //sino exite una actividad con esos id, agregala 
+            if (!siexisteactividad)
+            {                
+                context.Add(actividad);
+                await context.SaveChangesAsync(user.Id);
+            }   
+            
             return actividad.ActividadUsuarioId;
         }
     }

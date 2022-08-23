@@ -15,7 +15,7 @@
         <!-- Navbar & Hero Start -->
         <div class="container-xxl position-relative p-0">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
+                <a href="inicio" class="navbar-brand p-0">
                     <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
                     <img src="img/oneplace.png" alt="Logo">
                 </a>
@@ -70,8 +70,8 @@
                         }
                         else
                         {
-                            <Card Class="card card-timeline px-2 border-none mb-3">
-                                <Lista Class="bs4-order-tracking">
+                            <div class="card card-timeline px-2 border-none mb-3">
+                                <ul class="bs4-order-tracking">
                                     @*
                                         1-Recorre la lista de fases para dibujar los <li>. 
                                         2-Despues Recorre la lista de actividades, coparando contra la lista de fases por su fasecursoid,
@@ -83,6 +83,10 @@
                                         4-La compraracion por fasecursoid se hace en el where, ya que si solo se recorre el listado de actividades
                                         y luego en un if se hace la compracion, se dibujaran mas <li> de los que vienen de la bd por que se estaran recorrriendo
                                         dos foreach, por eso es mejor filtrar la lista antes de recorrerla.
+                                        5-Si la variable FaseCompleta se pone de manera global no se actualizan los colores,
+                                        necesitarias un statehaschanged, pero si lo pones se queda ciclado
+                                        6-Con el componente Lista ListaItem no se actualizan las variables globales,
+                                        por eso mejor se quito y se uso un <ul><li> puro de html.
                                     *@
                                     @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
                                     {
@@ -94,25 +98,26 @@
 
                                         @if (FaseCompleta == true)
                                         {
-                                            <ListaItem Class="step active">
+                                            MostrarBotonQuiz = true;
+                                            <li class="step active">
                                                 <div>
-                                                    <Icono Icon="@faseitem.Icono" />
+                                                    <i class="@faseitem.Icono" />
                                                 </div>
                                                 @faseitem.FaseNombre
-                                            </ListaItem>
+                                            </li>
                                         }
                                         else
                                         {
-                                            <ListaItem Class="step">
+                                            <li class="step">
                                                 <div>
-                                                    <Icono Icon="@faseitem.Icono" />
+                                                    <i class="@faseitem.Icono" />
                                                 </div>
                                                 @faseitem.FaseNombre
-                                            </ListaItem>
+                                            </li>
                                         }
                                     }
-                                </Lista>
-                            </Card>
+                                </ul>
+                            </div>
 
                             <Card Class="card mb-3">
                                 <CardBody Class="card-body">
@@ -139,6 +144,13 @@
                                             {
                                                 <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
                                             }
+                                            @if (MostrarBotonQuiz == true)
+                                            {
+                                                <Enlace Class="btn btn-dark btn-sm" Href="quizinfoextra">
+                                                    <Icono Icon="oi oi-pencil" />
+                                                    Responder Cuestionario
+                                                </Enlace>
+                                            }
                                         </div>
                                     </div>
                                 </CardBody>
@@ -155,8 +167,7 @@
                                                     <Card Class="card-img-top">
                                                         <video id="myVideo" controls width="100%" controlslist="nodownload">
                                                             <source src="@ArchivoAdjunto.UrlLocal" type="video/mp4" />
-                                                        </video>
-                                                        @*<span class="text-success">@PlayVideo_Start</span>*@
+                                                        </video>                                                       
                                                     </Card>
                                                     <CardBody Class="card-body">
                                                         <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
@@ -378,6 +389,8 @@
     #endregion
 
     #region ObtenerEventodelVideo
+
+    public bool MostrarBotonQuiz = false;
 
     //se pondra una bandera para asegurarnos que la carga del objeto tema esta completa
     private bool FullLoad = false;

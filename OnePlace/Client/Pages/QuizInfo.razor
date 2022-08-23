@@ -1,4 +1,4 @@
-﻿@page "/eventoinfoextra/{EventoId:int}"
+﻿@page "/quizinfoextra"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
@@ -26,7 +26,7 @@
                 <div class="navbar-nav ml-auto py-0">
                     @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
                     <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
-                    <a onclick="document.getElementById('eventos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Eventos</a>                 
+                    <a onclick="document.getElementById('cuestionario').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cuestionario</a>
                     <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
                 </div>
                 <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
@@ -51,43 +51,56 @@
     </div>
     <!-- Navbar & Hero End -->
 
-    <!--Eventos-->
+    <!--Quiz-->
 
-    @if (DetallesEvento != null)
-    {
-        <div class="container-xxl py-5" id="eventos">
-            <div class="container px-lg-5">
-                <div class="row g-5">
-                    <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
-                        <div class="section-title position-relative mb-4 pb-2">
-                            <h6 class="position-relative text-primarysimsa pl-4">Información</h6>
-                            <h2 class="mt-2">@DetallesEvento.TituloEventoExtra</h2>
-                        </div>
-                        <p class="mb-4 colorgris" style="text-align:justify">
-                            @DetallesEvento.DescripcionEventoExtra
-                        </p>
+    <div class="container-xxl py-5" id="cuestionario">
+        <div class="container px-lg-5">
+            <div class="row g-5">
+                <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s" data-wow-iteration="1" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                    <div class="section-title position-relative mb-4 pb-2">
+                        <h6 class="position-relative text-primarysimsa pl-4">Cuestionario</h6>
+                        <h2 class="mt-2">Pon a Prueba tu Aprendizaje</h2>
                     </div>
-                    <div class="swiper mySwiper">
-                        <div class="swiper-wrapper">
-                            @foreach (var imagen in DetallesEvento.Imagenes)
-                            {
-                                <div class="swiper-slide">
-                                    <img src="@imagen.Imagen" />
-                                </div>
-                            }
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    Pregunta 1<br />
+                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
+                                </li>
+                                <li class="list-group-item">
+                                    Pregunta 2
+                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
+                                </li>
+                                <li class="list-group-item">
+                                    Pregunta 3
+                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
+                                </li>
+                                <li class="list-group-item">
+                                    Pregunta 4
+                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
+                                </li>
+                                <li class="list-group-item">
+                                    Pregunta 5
+                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
+                                </li>
+                            </ul>
                         </div>
-                        <div class="swiper-pagination"></div>
+                        <div class="card-footer border-top text-right bg-transparent">
+                            <button class="btn btn-secondary btn-sm mr-2" type="submit"><i class="fas fa-check fs--2 mr-1"></i>Guardar</button>
+                        </div>
                     </div>
 
                 </div>
             </div>
         </div>
-    }
+    </div>
 
-    <!--Eventos End-->
+    <!--Quiz End-->
 
     <!-- Footer Start -->
-    <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">        
+    <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
         <div class="container px-lg-5">
             <div class="copyright">
                 <div class="row">
@@ -119,47 +132,19 @@
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
-</div>
-
-    <style>
-        .swiper {
-            width: 100%;
-            padding-top: 50px;
-            padding-bottom: 50px;
-        }
-
-        .swiper-slide {
-            background-position: center;
-            background-size: cover;
-            width: 300px;
-            height: 300px;
-        }
-
-            .swiper-slide img {
-                display: block;
-                width: 100%;
-            }
-    </style>
+</div>    
 }
-
-
 
 @code {
 
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     [CascadingParameter] public App MyApp { get; set; }
-
-    [Parameter] public int EventoId { get; set; }
-    public Evento DetallesEvento { get; set; }
-    private bool Procesando = true;
-
+   
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
-        user = authState.User;
-
-        await CargarDetalles();
+        user = authState.User;       
 
         @if (user.IsInRole("Usuario"))
         {
@@ -178,12 +163,6 @@
     {
         if (firstRender)
         {
-            await CargarDetalles();
-
-            await JS.InvokeVoidAsync("SwiperChido");
-            firstRender = false;
-            StateHasChanged();
-
             await JS.InvokeVoidAsync("Animacion");
             firstRender = false;
             StateHasChanged();
@@ -196,17 +175,7 @@
             firstRender = false;
             StateHasChanged();
         }
-    }
-
-    private async Task CargarDetalles()
-    {
-        var responseHttp = await repositorio.Get<Evento>($"api/Evento/{EventoId}");
-        if (!responseHttp.Error)
-        {
-            DetallesEvento = responseHttp.Response;
-            Procesando = false;
-        }
-    }
+    }   
 
     #region ColapsarMenu
 
