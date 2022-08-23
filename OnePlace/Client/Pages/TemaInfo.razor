@@ -70,6 +70,36 @@
                         }
                         else
                         {
+                            <Card Class="card card-timeline px-2 border-none mb-3">
+                                <Lista Class="bs4-order-tracking">
+                                    @*compara dos listas donde los id de fasecurso sean iguales, pregunta si ya esta completo y si es true la clase active se ingresa en el li, sin el where se duplican los li*@
+                                    @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
+                                    {
+                                        @foreach (var item in TemaFaseDTO.ListaTemaFase.Where(x => x.FaseCursoId == faseitem.FaseCursoId))
+                                        {
+                                            @if (item.IsComplete)
+                                            {
+                                                <ListaItem Class="step active">
+                                                    <div>
+                                                        <Icono Icon="@faseitem.Icono" />
+                                                    </div>
+                                                    @faseitem.FaseNombre
+                                                </ListaItem>
+                                            }
+                                            else
+                                            {
+                                                <ListaItem Class="step">
+                                                    <div>
+                                                        <Icono Icon="@faseitem.Icono" />
+                                                    </div>
+                                                    @faseitem.FaseNombre
+                                                </ListaItem>
+                                            }
+                                        }
+                                    }
+                                </Lista>
+                            </Card>
+
                             <Card Class="card mb-3">
                                 <CardBody Class="card-body">
                                     <div class="row">
@@ -109,9 +139,10 @@
                                             <div class="col-sm-8">
                                                 <Card Class="card overflow-hidden">
                                                     <Card Class="card-img-top">
-                                                        <video controls width="100%" controlslist="nodownload">
-                                                            <source src="@ArchivoAdjunto.UrlLocal" type="audio/mp4" />
+                                                        <video id="myVideo" controls width="100%" controlslist="nodownload">
+                                                            <source src="@ArchivoAdjunto.UrlLocal" type="video/mp4" />
                                                         </video>
+                                                        <span class="text-success">@PlayVideo_Start</span>
                                                     </Card>
                                                     <CardBody Class="card-body">
                                                         <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
@@ -124,7 +155,7 @@
                                 </Card>
                                 <br />
                             }
-                            
+
                             @if (VerPdf)
                             {
                                 <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
@@ -145,7 +176,7 @@
                                                     </div>
                                                     <div class="col-sm-6 col-lg-3 mb-3"></div>
                                                 </div>
-                                               
+
                                             </div>
                                         </div>
                                     </div>
@@ -218,7 +249,7 @@
             StateHasChanged();
 
             //esto se puso para desactivar el clic derecho en toda la pagina
-            await JS.InvokeVoidAsync("BloquearBotonDerecho");          
+            await JS.InvokeVoidAsync("BloquearBotonDerecho");
             StateHasChanged();
 
             await Cargar();
@@ -227,6 +258,8 @@
             {
                 await MostrarVideo(Tema.VideoId);
             }
+
+            await ObtenerFases();
         }
         else
         {
@@ -300,10 +333,40 @@
         else
         {
             ArchivoAdjunto = responseHttp.Response;
+            FullLoad = true;
         }
     }
 
     #endregion
+
+    #region ColapsarMenu
+
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    void CollapseNavMenu()
+    {
+        collapseNavMenu = true;
+    }
+
+    #endregion
+
+    #region ObtenerEventodelVideo
+
+    //se pondra una bandera para asegurarnos que la carga del objeto tema esta completa
+    private bool FullLoad = false;
+
+    private bool PlayVideo_Start = false;
+
+    public TemaFase TemaFase = new TemaFase();
+
+    public TemaFaseDTO TemaFaseDTO = new TemaFaseDTO();
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -321,22 +384,57 @@
             firstRender = false;
             StateHasChanged();
         }
+
+        //PROBLEMA: el objeto tema es nulo en el primer renderizado, por lo tanto no se dibuja nada de html y la funcion js,
+        //se ejecuta en el primer render y necesita un id que debe estar en el html el cual aun no existe por eso marca error,
+        //al llamar a la funcion
+
+        //SOLUCION1: seria ejecutar el metodo en una renderizacion posterior, pero
+        //dispararé múltiples controladores de eventos a medida que se acumulan durante los renderizados.
+        //if (!firstRender)
+        //{
+        //    await JS.InvokeVoidAsync("GetEventVideo");
+        //}
+
+        //SOLUCIONFINAL: poner una bandera que indique que el objeto ya no es null ya cargo completo y una vez cargado ahora si ejecutar la funcion js
+
+        if (FullLoad)
+        {
+            PlayVideo_Start = await JS.PlayVideo();
+            FullLoad = false;
+            //PlayVideo_Start = await JS.InvokeAsync<bool>("GetEventVideo"); //sin metodo perzonalizado
+
+            //actualizar las fases del tema
+            if (PlayVideo_Start == true)
+            {
+                //le pasamos un nuevo objeto de tipo TemaFase que solo actualice el objeto con el id coicidente,en este caso fase de video
+                TemaFase.TemaId = TemaId;
+                TemaFase.FaseCursoId = 1;
+                TemaFase.IsComplete = true;
+
+                var httpResponse = await repositorio.Put("api/FaseCurso/FaseCompleta", TemaFase);
+                if (httpResponse.Error)
+                {
+                    await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+                }
+                else
+                {
+                    navigationManager.NavigateTo($"temainfoextra/{TemaId}");
+                    await Cargar();
+                    await ObtenerFases();
+                    StateHasChanged();
+                }
+            }
+        }
     }
 
-    #region ColapsarMenu
-
-    bool collapseNavMenu = true;
-
-    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    void ToggleNavMenu()
+    public async Task ObtenerFases()
     {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
-    void CollapseNavMenu()
-    {
-        collapseNavMenu = true;
+        var responseHttp = await repositorio.Get<TemaFaseDTO>($"api/FaseCurso/{TemaId}");
+        if (!responseHttp.Error)
+        {
+            TemaFaseDTO = responseHttp.Response;
+        }
     }
 
     #endregion
