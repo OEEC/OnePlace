@@ -713,6 +713,7 @@ namespace OnePlace.Server.Data
         public DbSet<ArchivoAdjunto> ArchivoAdjuntos { get; set; }
         public DbSet<FaseCurso> FaseCursos { get; set; }
         public DbSet<TemaFase> TemaFases { get; set; }
+        public DbSet<ActividadUsuario> ActividadUsuarios { get; set; }
 
         #endregion
     }

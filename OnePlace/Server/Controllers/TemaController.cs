@@ -46,8 +46,10 @@ namespace OnePlace.Server.Controllers
             context.Add(tema);
             await context.SaveChangesAsync(user.Id);
 
-            //por cada fase se crea un nuevo objeto temafase, para insertarlo en la tabla TemaFases y relacionarlo con temas
+            //traemos un listado de fases
             var listadodefases = await context.FaseCursos.ToListAsync();
+
+            //recorremos el listado de fases y por cada fase se va a crear un objeto de tipo TemaFase, con el fin de que cada tema tenga varias fases
             foreach(var item in listadodefases)
             {
                 TemaFase temaFase = new TemaFase();

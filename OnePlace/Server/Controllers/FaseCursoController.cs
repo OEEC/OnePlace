@@ -29,42 +29,45 @@ namespace OnePlace.Server.Controllers
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TemaFaseDTO>> Get(int id)
-        {
+        {       
+            //obtenemos el id del usuario que inicio sesion
+            var user = await _userManager.GetUserAsync(HttpContext.User); 
+
             //buscamos un listado de temasfases que coincida con el id del tema enviado
             var listadodetemasyfases = await context.TemaFases.Where(x => x.TemaId == id).ToListAsync();
 
             List<FaseCurso> listadefases = new List<FaseCurso>();          
        
-            //recorremos el listado de temasfases relacionados
+            //recorremos el listado de temasfases relacionados al id del tema
             foreach(var item in listadodetemasyfases)
             {
-                //creamos un listado de fases solo con las fases que pertenecen a un tema en especifico
+                //creamos un listado de fases, solo con las fases que pertenecen a un tema en especifico
                 var fasecurso = await context.FaseCursos.Where(x => x.FaseCursoId == item.FaseCursoId).FirstOrDefaultAsync();
                 listadefases.Add(fasecurso);      
             }
 
+            //obtenemos un listado de actividades que pertenezcan al id del tema enviado y ademas que solo sean del usuario logueado
+            //esto para evitar que otro usuario vea el avance de otros usuarios en su perfil
+            var actividades = await context.ActividadUsuarios
+                .Where(x => x.TemaId == id && x.UserId == user.Id)
+                .ToListAsync();
+
+            //retornamos un dto con ambas listas para ser usadas en el timeline de progreso
             var model = new TemaFaseDTO();
             model.ListadodeFases = listadefases;
-            model.ListaTemaFase = listadodetemasyfases;            
+            model.ListadeActividades = actividades;
 
             return model;
-        }       
+        }      
 
-        //actualizar de false a true para decir que ya se completo una fase
-        [Route("FaseCompleta")]
-        [HttpPut]
-        public async Task<ActionResult> PutFaseCompleta(TemaFase fase)
+        //cuando el usuario termina una actividad dentro del curso se crea una nueva actividad en la base de datos
+        [HttpPost]
+        public async Task<ActionResult<int>> Post(ActividadUsuario actividad)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-
-            //obtener el registro original usando el método FindAsync (para un key o llave compuesta se necesita pasar los dos id en el metodo find, con uno marca error)
-            var oldfase = await context.TemaFases.FindAsync(fase.TemaId,fase.FaseCursoId);
-
-            //las propiedades sin cambios se ignoran y solo los valores de cambios se incluyen en la consulta de actualización
-            context.Entry(oldfase).CurrentValues.SetValues(fase);
-
+            context.Add(actividad);
             await context.SaveChangesAsync(user.Id);
-            return NoContent();
+            return actividad.ActividadUsuarioId;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace OnePlace.Shared.DTOs
         //Contiene todas las fases existentes
         public List<FaseCurso> ListadodeFases { get; set; }
 
-        //se necesita ya que de aqui se optiene el valor bool iscomplete
-        public List<TemaFase> ListaTemaFase { get; set; }        
+        //se necesita ya que de aqui se optiene el valor bool iscomplete, que se usa en la razor page TemaInfo
+        public List<ActividadUsuario>  ListadeActividades { get; set; }
     }
 }
