@@ -85,12 +85,125 @@ else
         </Card>
         <br />
 
+        <Card Class="card card-timeline px-2 border-none mb-3">
+            <Lista Class="bs4-order-tracking">
+                @*compara dos listas donde los id de fasecurso sean iguales, pregunta si ya esta completo y si es true la clase active se ingresa en el li, sin el where se duplican los li*@
+                @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
+                {
+                    @foreach (var item in TemaFaseDTO.ListaTemaFase.Where(x => x.FaseCursoId == faseitem.FaseCursoId))
+                    {
+                        @if (item.IsComplete)
+                        {
+                            <ListaItem Class="step active">
+                                <div>
+                                    <Icono Icon="@faseitem.Icono" />
+                                </div>
+                                @faseitem.FaseNombre
+                            </ListaItem>
+                        }
+                        else
+                        {
+                            <ListaItem Class="step">
+                                <div>
+                                    <Icono Icon="@faseitem.Icono" />
+                                </div>
+                                @faseitem.FaseNombre
+                            </ListaItem>
+                        }
+                    }
+                }
+            </Lista>
+        </Card>
     }
+
+    <style>
+        .bs4-order-tracking {
+            margin-bottom: 30px;
+            overflow: hidden;
+            color: #878788;
+            padding-left: 0px;
+            margin-top: 30px
+        }
+
+            .bs4-order-tracking li {
+                list-style-type: none;
+                font-size: 13px;
+                width: 25%;
+                float: left;
+                position: relative;
+                font-weight: 400;
+                color: #878788;
+                text-align: center
+            }
+
+                .bs4-order-tracking li:first-child:before {
+                    margin-left: 15px !important;
+                    padding-left: 11px !important;
+                    text-align: left !important
+                }
+
+                .bs4-order-tracking li:last-child:before {
+                    margin-right: 5px !important;
+                    padding-right: 11px !important;
+                    text-align: right !important
+                }
+
+                .bs4-order-tracking li > div {
+                    color: #fff;
+                    width: 29px;
+                    text-align: center;
+                    line-height: 29px;
+                    display: block;
+                    font-size: 12px;
+                    background: #878788;
+                    border-radius: 50%;
+                    margin: auto
+                }
+
+                .bs4-order-tracking li:after {
+                    content: '';
+                    width: 150%;
+                    height: 2px;
+                    background: #878788;
+                    position: absolute;
+                    left: 0%;
+                    right: 0%;
+                    top: 15px;
+                    z-index: -1
+                }
+
+                .bs4-order-tracking li:first-child:after {
+                    left: 50%
+                }
+
+                .bs4-order-tracking li:last-child:after {
+                    left: 0% !important;
+                    width: 0% !important
+                }
+
+                .bs4-order-tracking li.active {
+                    font-weight: bold;
+                    color: #efd233
+                }
+
+                    .bs4-order-tracking li.active > div {
+                        background-color: rgb(239,210,51);
+                    }
+
+                    .bs4-order-tracking li.active:after {
+                        background-color: rgb(239,210,51);
+                    }
+
+        .card-timeline {
+            background-color: #fff;
+            z-index: 0
+        }
+    </style>
 
     <ModalContent EsVisible="VerPdf" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalPdf">
         <IFrame Id="myFrame" Src="@("api/Upload/Mostrarpdf/" + Id + "#toolbar=0")" Style="width:100%; height:400px;"></IFrame>
     </ModalContent>
-    <br />   
+    <br />
 }
 
 @code {
@@ -116,6 +229,8 @@ else
         {
             await MostrarVideo(Tema.VideoId);
         }
+
+        await ObtenerFases();
     }
 
     private async Task Cargar()
@@ -137,7 +252,6 @@ else
         {
             Tema = responseHttp.Response;
             Procesando = false;
-            FullLoad = true;
         }
     }
 
@@ -232,12 +346,19 @@ else
         else
         {
             ArchivoAdjunto = responseHttp.Response;
+            FullLoad = true;
         }
     }
 
     #endregion
 
+    #region ObtenerEventodelVideo
+
     private bool PlayVideo_Start = false;
+
+    public TemaFase TemaFase = new TemaFase();
+
+    public TemaFaseDTO TemaFaseDTO = new TemaFaseDTO();
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -254,14 +375,45 @@ else
 
         //SOLUCIONFINAL: poner una bandera que indique que el objeto ya no es null ya cargo completo y una vez cargado ahora si ejecutar la funcion js
 
-        if (FullLoad)
+        if(FullLoad)
         {
-            PlayVideo_Start = await JS.PlayVideo(); 
-            StateHasChanged();
+            PlayVideo_Start = await JS.PlayVideo();
             FullLoad = false;
-
             //PlayVideo_Start = await JS.InvokeAsync<bool>("GetEventVideo"); //sin metodo perzonalizado
+
+            //actualizar las fases del tema
+            if (PlayVideo_Start == true)
+            {
+                //le pasamos un nuevo objeto de tipo TemaFase que solo actualice el objeto con el id coicidente,en este caso fase de video
+                TemaFase.TemaId = TemaId;
+                TemaFase.FaseCursoId = 1;
+                TemaFase.IsComplete = true;
+
+                var httpResponse = await repositorio.Put("api/FaseCurso/FaseCompleta", TemaFase);
+                if (httpResponse.Error)
+                {
+                    await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+                }
+                else
+                {
+                    navigationManager.NavigateTo($"detalles-tema/{TemaId}");
+                    await Cargar();
+                    await ObtenerFases();
+                    StateHasChanged();
+                }
+            }
         }
     }
+
+    public async Task ObtenerFases()
+    {
+        var responseHttp = await repositorio.Get<TemaFaseDTO>($"api/FaseCurso/{TemaId}");
+        if (!responseHttp.Error)
+        {
+            TemaFaseDTO = responseHttp.Response;
+        }
+    }
+
+    #endregion
 }
 

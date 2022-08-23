@@ -116,5 +116,6 @@ namespace OnePlace.Shared.Entidades
                 }
             }
         }
+        public List<FaseCurso> FaseCurso { get; set; } = new List<FaseCurso>();
     }
 }

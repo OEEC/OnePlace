@@ -40,11 +40,26 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<int>> Post(Tema tema)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            tema.Activo = true;
-            //tema.CursoId = tema.Curso.CursoId;
-            //tema.Curso = null;          
 
+            //guardamos el tema
+            tema.Activo = true;
             context.Add(tema);
+            await context.SaveChangesAsync(user.Id);
+
+            //por cada fase se crea un nuevo objeto temafase, para insertarlo en la tabla TemaFases y relacionarlo con temas
+            var listadodefases = await context.FaseCursos.ToListAsync();
+            foreach(var item in listadodefases)
+            {
+                TemaFase temaFase = new TemaFase();
+                temaFase.TemaId = tema.TemaId;
+                temaFase.FaseCursoId = item.FaseCursoId;
+
+                temaFase.Tema = null;
+                temaFase.FaseCurso = null;
+
+                context.Add(temaFase);
+            }
+
             await context.SaveChangesAsync(user.Id);
             return tema.TemaId;
         }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace OnePlace.Shared.Entidades
+namespace OnePlace.Client.ComponentesGenericos.ToDoList
 {
     public class TaskModel
     {
