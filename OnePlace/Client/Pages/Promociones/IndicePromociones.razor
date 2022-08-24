@@ -87,9 +87,15 @@
                     @item.Zona.Zona1
                 </td>
                 <td>
-                    @if (item.FechadeTermino != null)
+                    @if (item.FechadeTermino != null && FechadeHoy >= item.FechadeTermino)
                     {
                         <span class="text-danger">
+                            @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-success">
                             @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
                         </span>
                     }
@@ -125,9 +131,11 @@
     //incluir mas parametros si se requieren
     string promocionseleccionada = "0";
     private bool Activo = false;
+    public DateTime FechadeHoy;
 
     protected async override Task OnInitializedAsync()
     {
+        FechadeHoy = DateTime.Now;
         var authState = await authenticationStateTask;
         user = authState.User;
 

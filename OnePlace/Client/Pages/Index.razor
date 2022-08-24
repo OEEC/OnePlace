@@ -15,7 +15,7 @@
         <!-- Navbar & Hero Start -->
         <div class="container-xxl position-relative p-0">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
+                <a href="inicio" class="navbar-brand p-0">
                     <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
                     <img src="img/oneplace.png" alt="Logo">
                 </a>
@@ -384,10 +384,13 @@
                                         <h5 class="card-title">@TituloModalEvento</h5>
                                         <p class="card-text" style="text-align:justify">
                                             @DescripcionModalEvento<br />
-                                            <a class="btn btn-sm btn-warning" href="eventoinfoextra/@IdModalEvento">
-                                                <i class="fa fa-info" aria-hidden="true"></i>
-                                                Leer Más
-                                            </a>
+                                            @if (!string.IsNullOrEmpty(TituloEventoExtra))
+                                            {
+                                                <a class="btn btn-sm btn-warning" href="eventoinfoextra/@IdModalEvento">
+                                                    <i class="fa fa-info" aria-hidden="true"></i>
+                                                    Leer Más
+                                                </a>
+                                            }
                                         </p>
                                     </div>
                                 </div>
@@ -549,6 +552,7 @@ else
     public string ImgModalEvento { get; set; }
     public string TituloModalEvento { get; set; }
     public string DescripcionModalEvento { get; set; }
+    public string TituloEventoExtra { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -722,6 +726,7 @@ else
             ImgModalEvento = item.ImgEvento;
             TituloModalEvento = item.TituloEvento;
             DescripcionModalEvento = item.DescripcionEvento;
+            TituloEventoExtra = item.TituloEventoExtra;
         }
 
         this.isModalEvento = true;
