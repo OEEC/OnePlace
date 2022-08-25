@@ -67,7 +67,7 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             //ver si en la bd ya existe una actividad con el temaid y fasecursoid pasado por parametro
-            var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == actividad.TemaId && x.FaseCursoId == actividad.FaseCursoId);
+            var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == actividad.TemaId && x.FaseCursoId == actividad.FaseCursoId && x.UserId == actividad.UserId);
 
             //sino exite una actividad con esos id, agregala 
             if (!siexisteactividad)
