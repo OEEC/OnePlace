@@ -1,14 +1,358 @@
-﻿@inject IRepositorio repositorio
+﻿@page "/crear-temas/{CursoId:int}"
+@page "/editar-tema/{TemaId:int}/{Es_EditarTema:bool}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
 
-<EditForm Model="@Tema" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator />
+@*si es editar usaremos un formulario con dto ya que en el dto se almacena amba data de los objetos tema y quiz*@
+@if (Es_EditarTema == true)
+{
+    //como es editar se tiene que evaluar si el objeto dto no viene vacio para no tener error de object reference null
+    @if (EditartemaquizDTO != null)
+    {
+        //como tema damos por hecho que nunca va a venir null no evaluamos la data tema dentro del dto
+        <Card Class="card mb-3">
+            <CardHeader Class="card-header">
+                <div class="row">
+                    <div class="col">
+                        <Texto Typo="Typo.h5" Class="mb-0">Editar Tema</Texto><br>
+                    </div>
+                    <div class="col-auto d-none d-sm-block">
+                        <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="EditartemaquizDTO.Tema.FechaRegistro" disabled />
+                    </div>
+                </div>
+            </CardHeader>
+            <CardBody Class="card-body border-top">
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombrecontacto" placeholder="Nombre" class="form-control form-control-sm" @bind-value="@EditartemaquizDTO.Tema.Nombre" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="descripcion">Descripción</label>
+                            <textarea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind="@EditartemaquizDTO.Tema.Descripcion" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <SubirArchivoDragDrop SubidaExitosa="SeSubioelArchivo" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <SubirVideo SubidaExitosa="SeSubioelVideo"></SubirVideo>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="descripcionvideo">Descripción del Video</label>
+                            <textarea class="form-control form-control-sm" id="descripcionvideo" placeholder="Descripción" rows="1" @bind="@EditartemaquizDTO.Tema.DescripcionVideo" />
+                        </div>
+                    </div>
+                    @if (user.IsInRole("Administrador"))
+                    {
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <br />
+                                <ToolTip Delay="1000">
+                                    <ChildContent>
+                                        <CasillaVerificacion @bind-Checked="@EditartemaquizDTO.Tema.Activo" ManejarEstados="true" />
+                                    </ChildContent>
+                                    <TooltipContent>
+                                        <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
+                                    </TooltipContent>
+                                </ToolTip>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </CardBody>
+            <CardFooter Class="card-footer border-top text-right bg-transparent">
+                <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@VerCrearQuiz">
+                    <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Crear Quiz
+                </Boton>
+                <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@EditarTema">
+                    <Icono Icon="fas fa-check fs--2 mr-1"></Icono>
+                    Guardar
+                </Boton>
+            </CardFooter>
+        </Card>
 
+        /*como la data del quiz puede venir vacia evaluamos si es diferente de null, sino es null la mostramos en el dto.quiz
+        pero si es null la card del quiz que viene dentro del dto nunca se mostrara por lo cual no nos permitira guardar valores,
+        por eso se tuvo que poner un formulario diferente con el objeto quiz original y no con el dto para asi poder guardar nuevos valores en modo edicion*/
+        @if (EditartemaquizDTO.Quiz != null)
+        {
+            @if (VerCardQuiz)
+            {
+                <Card Class="card mb-3">
+                    <CardHeader Class="card-header">
+                        <div class="row">
+                            <div class="col">
+                                <Texto Typo="Typo.h5" Class="mb-0">Cuestionario</Texto><br>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardBody Class="card-body border-top">
+                        <div class="form-row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre</label>
+                                    <input type="text" class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-value="@EditartemaquizDTO.Quiz.Nombre" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <label for="descripcion">Descripción</label>
+                                    <textarea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind="@EditartemaquizDTO.Quiz.Descripcion" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                                </div>
+                            </div>
+                            @if (user.IsInRole("Administrador"))
+                            {
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <br />
+                                        <ToolTip Delay="1000">
+                                            <ChildContent>
+                                                <CasillaVerificacion @bind-Checked="@EditartemaquizDTO.Quiz.Activo" ManejarEstados="true" />
+                                            </ChildContent>
+                                            <TooltipContent>
+                                                <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
+                                            </TooltipContent>
+                                        </ToolTip>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => EditartemaquizDTO.Quiz.LisadePreguntas.Add(new Pregunta()))">
+                                        <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
+                                    </Boton>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br />
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-light text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Pregunta</th>
+                                        <th>Respuesta</th>
+                                        @if (user.IsInRole("Administrador"))
+                                        {
+                                            <th>Activo</th>
+                                        }
+                                        <th>Remover</th>
+                                        <th>KeyWord</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (var i = 0; i < EditartemaquizDTO.Quiz.LisadePreguntas.Count; i++)
+                                    {
+                                        var indice = i;
+                                        var pregunta = EditartemaquizDTO.Quiz.LisadePreguntas[i];
+
+                                        <tr>
+                                            <td>@(i + 1)</td>
+                                            <td>
+                                                <textarea id="pregunta" placeholder="Pregunta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.NombrePregunta" />
+                                            </td>
+                                            <td>
+                                                <textarea id="respuesta" placeholder="Respuesta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.PreguntaRespuesta" />
+                                            </td>
+                                            @if (user.IsInRole("Administrador"))
+                                            {
+                                                <td>
+                                                    <ToolTip Delay="1000">
+                                                        <ChildContent>
+                                                            <CasillaVerificacion @bind-Checked="@pregunta.Activo" ManejarEstados="true" />
+                                                        </ChildContent>
+                                                        <TooltipContent>
+                                                            <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
+                                                        </TooltipContent>
+                                                    </ToolTip>
+                                                </td>
+                                            }
+                                            <td>
+                                                @*para evitar que en editar aparezca el boton quitar de la lista, solo debe aparecer cuando vas agregar una pregunta*@
+                                                @if (pregunta.NombrePregunta == null)
+                                                {
+                                                    <BotonIcono Class="btn btn-danger btn-sm mr-1 mb-1" ButtonType="ButtonType.Button" @onclick="@(() => EditartemaquizDTO.Quiz.LisadePreguntas.RemoveAt(indice))" Icon="fas fa-trash mr-1" />
+                                                }
+                                            </td>
+                                            <td>
+                                                <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.Add(new PalabrasClave()))">
+                                                    <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>
+                                                </Boton>
+                                            </td>
+                                            <td>
+                                                @for (var x = 0; x < pregunta.PalabrasClave.Count; x++)
+                                                {
+                                                    var indice2 = x;
+                                                    var keyword = pregunta.PalabrasClave[x];
+
+                                                    <div class="input-group mb-3">
+                                                        <input type="text" class="form-control form-control-sm" placeholder="Palabra Clave" @bind-value="@keyword.Palabra">
+                                                        <div class="input-group-append">
+                                                            @if (keyword.Palabra == null)
+                                                            {
+                                                                <BotonIcono Class="btn btn-outline-danger btn-sm" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.RemoveAt(indice2))" Icon="fas fa-trash mr-1" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <ToolTip Delay="1000">
+                                                        <ChildContent>
+                                                            <CasillaVerificacion @bind-Checked="@keyword.Activo" ManejarEstados="true" />
+                                                        </ChildContent>
+                                                        <TooltipContent>
+                                                            <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
+                                                        </TooltipContent>
+                                                    </ToolTip>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </CardBody>
+                    <CardFooter Class="card-footer border-top text-right bg-transparent" />
+                </Card>
+                <br />
+            }
+        }
+        else
+        {
+            <Card Class="card mb-3">
+                <CardHeader Class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <Texto Typo="Typo.h5" Class="mb-0">Cuestionario</Texto><br>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardBody Class="card-body border-top">
+
+                    <div class="form-row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-value="@Quiz.Nombre" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="descripcion">Descripción</label>
+                                <textarea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind="@Quiz.Descripcion" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new Pregunta()))">
+                                    <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
+                                </Boton>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-light text-center">
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Pregunta</th>
+                                    <th>Respuesta</th>
+                                    <th>Remover</th>
+                                    <th>KeyWord</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Quiz.LisadePreguntas.Count; i++)
+                                {
+                                    var indice = i;
+                                    var pregunta = Quiz.LisadePreguntas[i];
+
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>
+                                            <textarea id="pregunta" placeholder="Pregunta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.NombrePregunta" />
+                                        </td>
+                                        <td>
+                                            <textarea id="respuesta" placeholder="Respuesta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.PreguntaRespuesta" />
+                                        </td>
+                                        <td>
+                                            @*para evitar que en editar aparezca el boton quitar de la lista, solo debe aparecer cuando vas agregar una pregunta*@
+                                            @if (pregunta.NombrePregunta == null)
+                                            {
+                                                <BotonIcono Class="btn btn-danger btn-sm mr-1 mb-1" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.RemoveAt(indice))" Icon="fas fa-trash mr-1" />
+                                            }
+                                        </td>
+                                        <td>
+                                            <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.Add(new PalabrasClave()))">
+                                                <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>
+                                            </Boton>
+                                        </td>
+                                        <td>
+                                            @for (var x = 0; x < pregunta.PalabrasClave.Count; x++)
+                                            {
+                                                var indice2 = x;
+                                                var keyword = pregunta.PalabrasClave[x];
+
+                                                <div class="input-group mb-3">
+                                                    <input type="text" class="form-control form-control-sm" placeholder="Palabra Clave" @bind-value="@keyword.Palabra">
+                                                    <div class="input-group-append">
+                                                        @if (keyword.Palabra == null)
+                                                        {
+                                                            <BotonIcono Class="btn btn-outline-danger btn-sm" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.RemoveAt(indice2))" Icon="fas fa-trash mr-1" />
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </CardBody>
+                <CardFooter Class="card-footer border-top text-right bg-transparent" />
+            </Card>
+            <br />
+        }
+    }
+}
+else
+{
     <Card Class="card mb-3">
         <CardHeader Class="card-header">
             <div class="row">
                 <div class="col">
-                    <Texto Typo="Typo.h5" Class="mb-0">@Titulo</Texto><br>
+                    <Texto Typo="Typo.h5" Class="mb-0">Crear Tema</Texto><br>
                 </div>
                 <div class="col-auto d-none d-sm-block">
                     <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="@Tema.FechaRegistro" disabled />
@@ -19,16 +363,14 @@
             <div class="form-row">
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <InputLabel for="nombre">Nombre</InputLabel>
-                        <InputText id="nombrecontacto" placeholder="Nombre" class="form-control form-control-sm" @bind-Value="@Tema.Nombre" />
-                        <ValidationMessage For="@(() => Tema.Nombre)" />
+                        <label for="nombre">Nombre</label>
+                        <input type="text" id="nombrecontacto" placeholder="Nombre" class="form-control form-control-sm" @bind-value="@Tema.Nombre" />
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <InputLabel for="descripcion">Descripción</InputLabel>
-                        <InputTextArea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind-Value="@Tema.Descripcion" />
-                        <ValidationMessage For="@(() => Tema.Descripcion)" />
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind="@Tema.Descripcion" />
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -48,47 +390,146 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <InputLabel for="descripcionvideo">Descripción del Video</InputLabel>
-                        <InputTextArea class="form-control form-control-sm" id="descripcionvideo" placeholder="Descripción" rows="1" @bind-Value="@Tema.DescripcionVideo" />
-                        <ValidationMessage For="@(() => Tema.DescripcionVideo)" />
+                        <label for="descripcionvideo">Descripción del Video</label>
+                        <textarea class="form-control form-control-sm" id="descripcionvideo" placeholder="Descripción" rows="1" @bind="@Tema.DescripcionVideo" />
                     </div>
                 </div>
-                @if (Es_EditarTema == true)
-                {
-                    if (user.IsInRole("Administrador"))
-                    {
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <br />
-                                <ToolTip Delay="1000">
-                                    <ChildContent>
-                                        <CasillaVerificacion @bind-Checked="@Tema.Activo" ManejarEstados="true" />
-                                    </ChildContent>
-                                    <TooltipContent>
-                                        <Texto Typo="Typo.body2">Si esta activo no realizar ninguna acción!</Texto>
-                                    </TooltipContent>
-                                </ToolTip>
-                            </div>
-                        </div>
-                    }
-                }
             </div>
         </CardBody>
         <CardFooter Class="card-footer border-top text-right bg-transparent">
-            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+            <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@VerCrearQuiz">
+                <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Crear Quiz
+            </Boton>
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@CrearTema">
+                <Icono Icon="fas fa-check fs--2 mr-1"></Icono>
+                Guardar
+            </Boton>
         </CardFooter>
     </Card>
-</EditForm>
+
+    @if (VerCardQuiz)
+    {
+        <Card Class="card mb-3">
+            <CardHeader Class="card-header">
+                <div class="row">
+                    <div class="col">
+                        <Texto Typo="Typo.h5" Class="mb-0">Cuestionario</Texto><br>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardBody Class="card-body border-top">
+
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-value="@Quiz.Nombre" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="descripcion">Descripción</label>
+                            <textarea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind="@Quiz.Descripcion" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new Pregunta()))">
+                                <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
+                            </Boton>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-light text-center">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Pregunta</th>
+                                <th>Respuesta</th>
+                                <th>Remover</th>
+                                <th>KeyWord</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Quiz.LisadePreguntas.Count; i++)
+                            {
+                                var indice = i;
+                                var pregunta = Quiz.LisadePreguntas[i];
+
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>
+                                        <textarea id="pregunta" placeholder="Pregunta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.NombrePregunta" />
+                                    </td>
+                                    <td>
+                                        <textarea id="respuesta" placeholder="Respuesta" type="text" class="form-control form-control-sm" rows="1" @bind="@pregunta.PreguntaRespuesta" />
+                                    </td>
+                                    <td>
+                                        @*para evitar que en editar aparezca el boton quitar de la lista, solo debe aparecer cuando vas agregar una pregunta*@
+                                        @if (pregunta.NombrePregunta == null)
+                                        {
+                                            <BotonIcono Class="btn btn-danger btn-sm mr-1 mb-1" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.RemoveAt(indice))" Icon="fas fa-trash mr-1" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <Boton Class="btn btn-primary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.Add(new PalabrasClave()))">
+                                            <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>
+                                        </Boton>
+                                    </td>
+                                    <td>
+                                        @for (var x = 0; x < pregunta.PalabrasClave.Count; x++)
+                                        {
+                                            var indice2 = x;
+                                            var keyword = pregunta.PalabrasClave[x];
+
+                                            <div class="input-group mb-3">
+                                                <input type="text" class="form-control form-control-sm" placeholder="Palabra Clave" @bind-value="@keyword.Palabra">
+                                                <div class="input-group-append">
+                                                    @if (keyword.Palabra == null)
+                                                    {
+                                                        <BotonIcono Class="btn btn-outline-danger btn-sm" ButtonType="ButtonType.Button" @onclick="@(() => pregunta.PalabrasClave.RemoveAt(indice2))" Icon="fas fa-trash mr-1" />
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </CardBody>
+            <CardFooter Class="card-footer border-top text-right bg-transparent" />
+        </Card>
+        <br />
+    }
+}
 
 @code{
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    [Parameter] public Tema Tema { get; set; }
-    [Parameter] public bool Es_EditarTema { get; set; }
-    [Parameter] public string Titulo { get; set; }
-    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    // el curso id es para saber a que curso pertenece el tema
+    [Parameter] public int CursoId { get; set; }
+
+    //propiedades para crear un tema y un quiz
+    public Tema Tema = new Tema();
     private string imagenURL;
+    private Quiz Quiz = new Quiz();
+    private string imagenquizURL;
+
+    //propiedades para editar un tema
+    [Parameter] public int TemaId { get; set; }
+    [Parameter] public bool Es_EditarTema { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -98,30 +539,113 @@
         if (Es_EditarTema == false)
         {
             Tema.FechaRegistro = DateTime.Now;
+            Quiz.FechaRegistro = DateTime.Now;
+        }
+        else
+        {
+            //cuando es editar se ejecutara el metodo obtener y la card de quiz se mostrara en automatico
+            await ObtenerTema();
+            VerCardQuiz = true;
         }
 
-        //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+        #region GuardarImagenes
+
+        //metodos usados al crear tema
         if (!string.IsNullOrWhiteSpace(Tema.Imagen))
         {
             imagenURL = Tema.Imagen;
-            Tema.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
         }
+
+        if (!string.IsNullOrWhiteSpace(Quiz.Imagen))
+        {
+            imagenquizURL = Quiz.Imagen;
+            Quiz.Imagen = null;
+        }
+
+        //metodos que se ejecutaran solo cuando sea editar tema
+        if (Es_EditarTema == true)
+        {
+            //se repite este metodo para el formulario editar y cuando se usa el dto
+            if (!string.IsNullOrWhiteSpace(EditartemaquizDTO.Tema.Imagen))
+            {
+                imagenURL = EditartemaquizDTO.Tema.Imagen;
+                EditartemaquizDTO.Tema.Imagen = null;
+            }
+
+            //este if se pone ya que hay veces que el quiz no trae nada de informacion y la app pide que se evalue si es null
+            if(EditartemaquizDTO.Quiz != null)
+            {
+                if (!string.IsNullOrWhiteSpace(EditartemaquizDTO.Quiz.Imagen))
+                {
+                    imagenquizURL = EditartemaquizDTO.Quiz.Imagen;
+                    EditartemaquizDTO.Quiz.Imagen = null;
+                }
+            }
+        }
+
+        #endregion
     }
+
+    #region GuardarImagenes2
 
     //este metodo actualiza la imagen con la nueva imagen seleccionada
     private void ImagenSeleccionada(string imagenBase64)
     {
-        Tema.Imagen = imagenBase64;
-        imagenURL = null;
+        //si es editar se usa el dto sino el objeto original
+        @if (Es_EditarTema == true)
+        {
+            EditartemaquizDTO.Tema.Imagen = imagenBase64;
+            imagenURL = null;
+        }
+        else
+        {
+            Tema.Imagen = imagenBase64;
+            imagenURL = null;
+        }
     }
+
+    private void ImagenSeleccionadaQuiz(string imagenBase64)
+    {
+        //si es editar se usa el dto sino el objeto original
+        @if (Es_EditarTema == true)
+        {
+            //aveces el dto viene con el quiz vacio sin informacion y la app pide que se evalue si es null,
+            //si es diferetne de null usa el dto sino el objeto original
+            if (EditartemaquizDTO.Quiz != null)
+            {
+                EditartemaquizDTO.Quiz.Imagen = imagenBase64;
+                imagenquizURL = null;
+            }
+            else
+            {
+                Quiz.Imagen = imagenBase64;
+                imagenquizURL = null;
+            }
+        }
+        else
+        {
+            Quiz.Imagen = imagenBase64;
+            imagenquizURL = null;
+        }          
+    }
+
+    #endregion
 
     #region SubirArchivo
 
     //metodo que recibe la respuesta del evento callback
     private async Task SeSubioelArchivo(int Id)
     {
-        //aqui relacionamos las tablas por medio del id
-        Tema.ArchivoId = Id;
+        //si es editar usamos el dto sino el objeto origial
+        @if (Es_EditarTema == true)
+        {
+            EditartemaquizDTO.Tema.ArchivoId = Id;
+        }
+        else
+        {
+            //aqui relacionamos las tablas por medio del id
+            Tema.ArchivoId = Id;
+        }
     }
 
     #endregion
@@ -131,8 +655,97 @@
     //metodo que recibe la respuesta del evento callback
     private async Task SeSubioelVideo(int id)
     {
-        //aqui relacionamos las tablas por medio del id
-        Tema.VideoId = id;
+        //si es editar se usa el dto sino el objeto original
+        @if (Es_EditarTema == true)
+        {
+            EditartemaquizDTO.Tema.VideoId = id;
+        }
+        else
+        {
+            //aqui relacionamos las tablas por medio del id
+            Tema.VideoId = id;
+        }
+    }
+
+    #endregion
+
+    #region CrearTema
+
+    private async Task CrearTema()
+    {
+        //para crear un tema con un quiz tuvimos que juntar ambos objetos en un dto para poder enviarlos al mismo tiempo por url
+        Tema.CursoId = CursoId;
+        var temaquiz = new TemaQuizDTO
+        {
+            Tema = Tema,
+            Quiz = Quiz
+        };
+
+        var httpResponse = await repositorio.Post("api/Tema", temaquiz);
+        @if (httpResponse.Error)
+        {
+            var body = await httpResponse.GetBody();
+            await mostrarMensajes.MostrarMensajeError(body);
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Tema Creado");
+            navigationManager.NavigateTo($"detalles-curso/{CursoId}");
+        }
+    }
+
+    //metodo para mostrar y ocultar la card del quiz
+    public bool VerCardQuiz = false;
+    public void VerCrearQuiz()
+    {
+        VerCardQuiz = !VerCardQuiz;
+    }
+
+    #endregion
+
+    #region EditarTema
+
+    public TemaQuizDTO EditartemaquizDTO;
+
+    public async Task ObtenerTema()
+    {
+        var httpResponse = await repositorio.Get<TemaQuizDTO>($"api/Tema/{TemaId}");
+        if (httpResponse.Error)
+        {
+            if (httpResponse.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo($"detalles-curso/{Tema.CursoId}");
+            }
+            else
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+        }
+        else
+        {
+            EditartemaquizDTO = httpResponse.Response;
+        }
+    }
+
+    private async Task EditarTema()
+    {
+        /*como debemos enviar un dto por url para que tenga ambos objetos,
+        y a la hora de llenar el formulario el que se llenara es un formulario con el objeto original quiz
+        el dto quiz no tendra informacion por eso aqui llenamos el dto quiz con la data del objeto original*/
+        @if(EditartemaquizDTO.Quiz == null)
+        {            
+            EditartemaquizDTO.Quiz = Quiz;
+        }      
+
+        var httpResponse = await repositorio.Put("api/Tema", EditartemaquizDTO);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo($"detalles-curso/{EditartemaquizDTO.Tema.CursoId}");
+        }
     }
 
     #endregion

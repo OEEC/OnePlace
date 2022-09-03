@@ -244,6 +244,8 @@
         {
             MyApp.SetLayout(typeof(MainLayout));
         }
+
+        await CargarActividadesTerminadas();
     }
 
     private async Task Cargar()
@@ -400,6 +402,45 @@
     void CollapseNavMenu()
     {
         collapseNavMenu = true;
+    }
+
+    #endregion
+
+    #region MonitorearFasesCompletadas
+
+    ActividadesFasesTerminadasDTO ActividadesFasesTerminadasDTO = new ActividadesFasesTerminadasDTO();
+    public ActividadUsuario Actividad = new ActividadUsuario();
+
+    private async Task CargarActividadesTerminadas()
+    {
+        //se revisara cada que se entre al modulo de cursos, si ya se completaron las 3 fases de los temas del curso
+        var responseHttp = await repositorio.Get<ActividadesFasesTerminadasDTO>($"api/Quiz/ListadeActividadesTerminadas/{CursoId}");
+        if (!responseHttp.Error)
+        {
+            ActividadesFasesTerminadasDTO = responseHttp.Response;
+        }
+
+        //con la bandera resivida desde el backend indicamos si se termino todas las fases del curso, sino entonces pasamos a ejecutar el siguente codigo
+        if (ActividadesFasesTerminadasDTO.Terminado != true)
+        {
+            //si ya se completaron las fases entonces se agregara a cada tema la ultima fase para asi obtener el certificado del curso
+            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Count == 3)
+            {
+                //le pasamos un nuevo objeto de tipo actividad, la cual se registrara en la base de datos e indica que todas las fases terminaron
+                Actividad.IsComplete = true;
+                Actividad.FaseCursoId = 4;
+
+                var httpResponse2 = await repositorio.Post($"api/Quiz/TerminarFases/{CursoId}", Actividad);
+                if (httpResponse2.Error)
+                {
+                    await mostrarMensajes.MostrarMensajeError(await httpResponse2.GetBody());
+                }
+                else
+                {
+                    navigationManager.NavigateTo($"cursoinfoextra/{CursoId}");
+                }
+            }
+        }
     }
 
     #endregion

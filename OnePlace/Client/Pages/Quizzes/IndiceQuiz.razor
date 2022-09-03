@@ -1,0 +1,216 @@
+﻿@page "/indice-quiz"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@using System.Security.Claims
+
+@if (ListadeActividades != null)
+{
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header bg-light">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-sm-auto">
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Texto Typo="Typo.h5" Class="mb-0">Avance de Usuarios</Texto>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <BlazoredTypeahead SearchMethod="BuscarEmpleados"
+                                               Context="empleado"
+                                               TValue="Empleado"
+                                               TItem="Empleado"
+                                               ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                               Value="@EmpleadoSeleccionado"
+                                               ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                               placeholder="Buscar Empleados">
+                                <SelectedTemplate>
+                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                </SelectedTemplate>
+                                <ResultTemplate>
+                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                </ResultTemplate>
+                                <NotFoundTemplate>
+                                    Lo sentimos, no hay registros con esos datos.
+                                </NotFoundTemplate>
+                            </BlazoredTypeahead>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-dark btn-sm" @onclick="Cargar">
+                                <Icono Icon="oi oi-magnifying-glass" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Filtrar</Texto>
+                            </Boton>
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-danger btn-sm" @onclick="LimpiarOnClick">
+                                <Icono Icon="oi oi-reload" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Limpiar</Texto>
+                            </Boton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="text-center">
+                        <tr>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Tema</th>
+                            <th scope="col">Fase</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var item in ListadeActividades)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-primary">
+                                        @item.Empleado.Persona.Nombre @item.Empleado.Persona.ApePat @item.Empleado.Persona.ApeMat
+                                    </span>                               
+                                </td>
+                                <td>@item.Tema.Nombre</td>
+                                <td>@item.FaseCurso.FaseNombre</td>
+                                @if (item.IsComplete == true)
+                                {
+                                    <td class="text-success">Completada</td>
+                                }
+                                else
+                                {
+                                    <td class="text-danger">Sin Completadar</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+            <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
+        </CardFooter>
+    </Card>
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
+    List<ActividadUsuario> ListadeActividades { get; set; }
+    private int paginaActual = 1;
+    private int paginasTotales;
+
+    //incluir mas parametros si se requieren
+    string empleadoseleccionado = "0";
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        var url = navigationManager.Uri;//aqui aplicamos el diccionario de string
+        var queries = navigationManager.ObtenerQueryStrings(url);
+        //si es la primera vez que el usuario entra esto estaria a nulo
+        if (queries == null)
+        {
+            await RealizarBusqueda(string.Empty);//le pasamos un string vacio
+        }
+        else
+        {
+            queryStringsDict = queries;
+            LlenarCampos();
+            var queryStrings = url.Split(new string[] { "?" }, StringSplitOptions.None)[1];//obtenemos los querystring atravez de la url
+            await RealizarBusqueda(queryStrings);
+        }
+    }
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        //la pagina actual va hacer igual a la pagina que me envie el componente
+        paginaActual = pagina;
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        var queryStrings = GenerarQueryString();
+        navigationManager.NavigateTo("indice-quiz?" + queryStrings);
+        await RealizarBusqueda(queryStrings);
+    }
+
+    #region Filtrar
+
+    //este metodo me permite llenar los campos del formulario apartir del querystring
+    private void LlenarCampos()
+    {
+        //toma los campos del diccionario y los coloca en los campos correspondientes
+        if (queryStringsDict.ContainsKey("empleadoid"))
+        {
+            empleadoseleccionado = queryStringsDict["empleadoid"];
+        }
+        if (queryStringsDict.ContainsKey("pagina"))
+        {
+            int.TryParse(queryStringsDict["pagina"], out paginaActual);
+        }
+    }
+
+    private async Task RealizarBusqueda(string queryStrings)
+    {
+        var httpResponse = await repositorio.Get<List<ActividadUsuario>>("api/Quiz/filtrar?" + queryStrings);
+        paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+        ListadeActividades = httpResponse.Response;
+    }
+
+    private string GenerarQueryString()
+    {
+        //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
+        if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["empleadoid"] = empleadoseleccionado;
+        queryStringsDict["pagina"] = paginaActual.ToString();
+
+        //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
+        var valoresporDefecto = new List<string>() { "false", "", "0" };
+
+        //construir ruta para compartir categoria=7&titulo=lenovo...
+        //en el where exluimos los valores por defecto
+        //en select le pasamos la llave y el valor y con encode codificamos el valor como por ejemplo espacion en blanco y evitar inyeccion sql
+        return string.Join("&", queryStringsDict
+            .Where(x => !valoresporDefecto.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+    }
+
+    private async Task LimpiarOnClick()
+    {
+        empleadoseleccionado = "0";
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    #endregion
+
+    #region FiltroporEmpleado
+
+    public Empleado EmpleadoSeleccionado { get; set; }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleados(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private void CargarEmpleadosFiltro(Empleado item)
+    {
+        @if (item != null)
+        {
+            EmpleadoSeleccionado = item;
+            empleadoseleccionado = EmpleadoSeleccionado.Idempleado.ToString();
+        }
+    }
+
+    #endregion
+}

@@ -1,4 +1,4 @@
-﻿@page "/crear-temas/{CursoId:int}"
+﻿@*@page "/crear-temas/{CursoId:int}"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject IMostrarMensaje mostrarMensajes
@@ -26,4 +26,4 @@
             navigationManager.NavigateTo($"detalles-curso/{CursoId}");
         }
     }
-}
+}*@

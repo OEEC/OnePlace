@@ -1,4 +1,4 @@
-﻿@page "/quizinfoextra"
+﻿@page "/quizinfoextra/{QuizId:int}"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
@@ -10,129 +10,216 @@
 
 @if (user.IsInRole("Usuario"))
 {
-<div class="container-landingpage bg-white p-0 text-heebo">
+    <div class="container-landingpage bg-white p-0 text-heebo">
 
-    <!-- Navbar & Hero Start -->
-    <div class="container-xxl position-relative p-0">
-        <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-            <a href="inicio" class="navbar-brand p-0">
-                <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
-                <img src="img/oneplace.png" alt="Logo">
-            </a>
-            <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
-                <span class="fa fa-bars"></span>
-            </button>
-            <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
-                <div class="navbar-nav ml-auto py-0">
-                    @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
-                    <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
-                    <a onclick="document.getElementById('cuestionario').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cuestionario</a>
-                    <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
+        <!-- Navbar & Hero Start -->
+        <div class="container-xxl position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+                <a href="inicio" class="navbar-brand p-0">
+                    <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
+                    <img src="img/oneplace.png" alt="Logo">
+                </a>
+                <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
+                    <div class="navbar-nav ml-auto py-0">
+                        @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
+                        <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
+                        <a onclick="document.getElementById('cuestionario').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cuestionario</a>
+                        <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
+                    </div>
+                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
                 </div>
-                <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
-            </div>
-        </nav>
+            </nav>
 
-        <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
-            <div class="container my-5 py-5 px-lg-5">
-                <div class="row g-5 py-5">
-                    <div class="col-lg-6 text-center text-lg-start">
-                        <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
-                        <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
-                        <a href="inicio" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Página Principal</a>
-                        <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
-                    </div>
-                    <div class="col-lg-6 text-center text-lg-start">
-                        <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Navbar & Hero End -->
+            <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
+                <div class="container my-5 py-5 px-lg-5">
+                    <div class="row g-5 py-5">
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
+                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
+                            @if (Quiz != null)
+                            {
+                                <a href="temainfoextra/@Quiz.TemaId" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Regresar al Tema</a>
+                            }
 
-    <!--Quiz-->
-
-    <div class="container-xxl py-5" id="cuestionario">
-        <div class="container px-lg-5">
-            <div class="row g-5">
-                <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s" data-wow-iteration="1" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
-                    <div class="section-title position-relative mb-4 pb-2">
-                        <h6 class="position-relative text-primarysimsa pl-4">Cuestionario</h6>
-                        <h2 class="mt-2">Pon a Prueba tu Aprendizaje</h2>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                    Pregunta 1<br />
-                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
-                                </li>
-                                <li class="list-group-item">
-                                    Pregunta 2
-                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
-                                </li>
-                                <li class="list-group-item">
-                                    Pregunta 3
-                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
-                                </li>
-                                <li class="list-group-item">
-                                    Pregunta 4
-                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
-                                </li>
-                                <li class="list-group-item">
-                                    Pregunta 5
-                                    <input type="text" class="form-control form-control-sm" placeholder="Respuesta" />
-                                </li>
-                            </ul>
+                            <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
                         </div>
-                        <div class="card-footer border-top text-right bg-transparent">
-                            <button class="btn btn-secondary btn-sm mr-2" type="submit"><i class="fas fa-check fs--2 mr-1"></i>Guardar</button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!--Quiz End-->
-
-    <!-- Footer Start -->
-    <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
-        <div class="container px-lg-5">
-            <div class="copyright">
-                <div class="row">
-                    <div class="col-md-6 col-lg-5">
-                        <p>
-                            <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
-                        </p>
-                        <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
-                        <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
-                    </div>
-                    <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
-                        &copy; <span class="border-bottom">One Place</span>, All Right Reserved.<br />
-                        Designed By <span class="border-bottom">Innovación</span>
-                        <br>Distributed By: <span class="border-bottom">Simsa</span>
-                    </div>
-                    <div class="col-md-3 text-center text-md-end">
-                        <div class="d-flex pt-2">
-                            <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
-                            <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                            <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
-                            <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Footer End -->
+        <!-- Navbar & Hero End -->
+        <!--Quiz-->      
 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
-</div>    
+        <div class="container-xxl py-5" id="cuestionario">
+            <div class="container px-lg-5">
+                <div class="row g-5">
+                    <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s" data-wow-iteration="1" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+                        <div class="section-title position-relative mb-4 pb-2">
+                            <h6 class="position-relative text-primarysimsa pl-4">Cuestionario</h6>
+                            <h2 class="mt-2">Pon a Prueba tu Aprendizaje</h2>
+                        </div>
+
+                        @if (resultadoquiz != null)
+                        {
+                            if (resultadoquiz.EstadosdelQuiz != null && resultadoquiz.EstadosdelQuiz.EstadoQuiz == EstadoQuiz.Terminado)
+                            {
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <div class="row">
+                                            <div class="col">
+                                                <h5 class="mb-2 text-primarysimsa">Cuestionario Terminado</h5>                                               
+                                            </div>
+                                            <div class="col-auto d-none d-sm-block">
+                                                @if (resultadoquiz.EstadosdelQuiz.Evaluacion == Evaluacion.Aprobado)
+                                                {
+                                                    <h6 class="text-uppercase text-success">
+                                                         Aprobado
+                                                        <i class="fas fa-check"></i>
+                                                    </h6>
+                                                }
+                                                else
+                                                {
+                                                    <h6 class="text-uppercase text-danger">
+                                                        Reprobado
+                                                        <i class="fas fa-times"></i>
+                                                    </h6>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body border-top">
+                                        <div class="d-flex">
+                                            <i class="fas fa-user me-2 text-600"></i>
+                                            <div class="flex-1">
+                                                <p class="mb-0 colorgris">Resultados</p>
+                                                <p class="fs--1 mb-0 text-600">Porcentaje: @resultadoquiz.Porcentaje%</p>
+                                                <p class="fs--1 mb-0 text-600">Total de Preguntas: @resultadoquiz.TotaldePreguntas</p>
+                                                <p class="fs--1 mb-0 text-600">Respuestas Correctas: @resultadoquiz.TotalRespuestasCorrectas</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                               
+                            }
+                            else
+                            {
+                                @if (Quiz == null)
+                                {
+                                    <LoadingSpinner IsLoading="Procesando" />
+                                }
+                                else
+                                {
+                                    <Card Class="card mb-3">
+                                        <CardMedia Class="bg-holder d-none d-lg-block bg-card" Image="Img/corner-4.png"></CardMedia>
+                                        <CardBody Class="card-body position-relative">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <Texto Typo="Typo.h3">@Quiz.Nombre</Texto>
+                                                    <Texto Typo="Typo.body2" Class="mt-2">
+                                                        @Quiz.Descripcion
+                                                    </Texto>
+                                                </div>
+                                            </div>
+                                        </CardBody>
+                                    </Card>
+                                }
+
+                                @if (ListadePreguntas != null)
+                                {
+                                    <Card Class="card mb-3">
+                                        <CardHeader Class="card-header bg-light">
+                                            <div class="row justify-content-between align-items-center">
+                                                <div class="col-sm-auto">
+                                                    <div class="d-inline-block mr-3">
+                                                        <div class="input-group input-group-sm d-flex align-items-center">
+                                                            <Texto Typo="Typo.h5" Class="mb-0">Cuestionario</Texto>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-auto">
+                                                    <div class="d-inline-block mr-3">
+                                                        <div class="input-group input-group-sm d-flex align-items-center">
+                                                            <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardBody Class="card-body border-top">
+                                            @for (var item = 0; item < ListadePreguntas.Count(); item++)
+                                            {
+                                                //Nota si se ponen componentes marca error de Index was out of range. Must be non-negative and less than the size of the collection parameter name:index , usar solo html puro
+                                                var num = item;
+                                                <div style="background-color:white;" class="notification">
+                                                    <div>
+                                                        <div class="notification-body">
+                                                            <p class="mb-1">
+                                                                <span class="me-2" role="img" aria-label="Emoji">📝</span>
+                                                                <strong>@ListadePreguntas[item].NombrePregunta</strong>
+                                                            </p>
+                                                            <span class="notification-time">
+                                                                <textarea type="text" id="@item" class="form-control form-control-sm"
+                                                                  @bind="@ListadeRespuestas[num].NombreRespuesta" rows="1"/>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br />
+                                            }
+                                        </CardBody>
+                                        <CardFooter Class="card-footer border-top text-right bg-transparent">
+                                            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="EnivarRespuestas"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+                                        </CardFooter>
+                                    </Card>
+                                    <br />
+                                }
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Quiz End-->
+        <!-- Footer Start -->
+        <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
+            <div class="container px-lg-5">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-5">
+                            <p>
+                                <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
+                            </p>
+                            <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
+                            <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
+                        </div>
+                        <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <span class="border-bottom">One Place</span>, All Right Reserved.<br />
+                            Designed By <span class="border-bottom">Innovación</span>
+                            <br>Distributed By: <span class="border-bottom">Simsa</span>
+                        </div>
+                        <div class="col-md-3 text-center text-md-end">
+                            <div class="d-flex pt-2">
+                                <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
+                                <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
+    </div>
 }
 
 @code {
@@ -140,11 +227,29 @@
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
     [CascadingParameter] public App MyApp { get; set; }
-   
+
+    [Parameter] public int QuizId { get; set; }
+    private bool Procesando = true;
+
+    private Quiz Quiz;
+    public List<Pregunta> ListadePreguntas { get; set; }
+
+    private int paginaActual = 1;
+    private int paginasTotales;
+
+    string Nombre = "";
+    private string UserId;  
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
-        user = authState.User;       
+        user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            Nombre = ($"{user.FindFirst(x => x.Type == ClaimTypes.Name)?.Value}");
+            UserId = ($"{user.FindFirst(x => x.Type == ClaimTypes.NameIdentifier)?.Value}");
+        }
 
         @if (user.IsInRole("Usuario"))
         {
@@ -152,12 +257,133 @@
             MyApp.SetLayout(typeof(UserLayout));
             await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
             StateHasChanged();
+
+            await CargarQuiz();
+            await CargarPreguntas();
+            await ObtenerResultadosdelQuiz();
         }
         else
         {
             MyApp.SetLayout(typeof(MainLayout));
         }
     }
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await CargarPreguntas(pagina);
+    }
+
+    private async Task CargarQuiz()
+    {
+        var responseHttp = await repositorio.Get<Quiz>($"api/Quiz/{QuizId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            Quiz = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    private async Task CargarPreguntas(int pagina = 1)
+    {
+        var responseHttp = await repositorio.Get<PaginadorGenerico<Pregunta>>($"api/Quiz/Listado/{QuizId}?pagina={pagina}");
+        if (!responseHttp.Error)
+        {
+            var resultado = responseHttp.Response.Resultado;
+            paginaActual = responseHttp.Response.PaginaActual;
+            paginasTotales = responseHttp.Response.TotalPaginas;
+
+            ListadePreguntas = (List<Pregunta>)resultado;
+
+            //se recorre las preguntas para ir agregando respuestas con dos datos el id de la pregunta y el nombre del usuario,
+            //esto para que se pueda dibujar en el html una lista de respuestas ya que no estara vacia
+            for (int i = 0; i < ListadePreguntas.Count(); i++)
+            {
+                ListadeRespuestas.Add(new Respuesta()
+                {
+                    PreguntaId = ListadePreguntas[i].PreguntaId,
+                    NombreUsuario = Nombre
+                });
+            }
+        }
+    }
+
+    #region EnivarRespuestas
+
+    List<Respuesta> ListadeRespuestas = new List<Respuesta>();
+    public ActividadUsuario Actividad = new ActividadUsuario();
+
+    public async Task EnivarRespuestas()
+    {
+        var httpResponse = await repositorio.Post("api/Quiz/GuardarRespuesta", ListadeRespuestas);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Quiz Terminado!!");
+
+            //al enviar las respuestas tambien se envia la actividad o fase para dar por terminado la fase del quiz
+
+            //le pasamos un nuevo objeto de tipo actividad, la cual se registrara en la base de datos e indica que esa actividad fue terminada
+            Actividad.UserId = UserId;
+            Actividad.IsComplete = true;
+            Actividad.TemaId = Quiz.TemaId;
+            Actividad.FaseCursoId = 2;
+
+            var httpResponse2 = await repositorio.Post("api/FaseCurso", Actividad);
+            if (httpResponse2.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse2.GetBody());
+            }
+            else
+            {
+                navigationManager.NavigateTo($"temainfoextra/{Quiz.TemaId}");
+            }          
+        }
+    }
+
+    #endregion
+
+    #region ObtenerResultados
+
+    ActividadStatusQuizDTO resultadoquiz = new ActividadStatusQuizDTO();
+
+    public async Task ObtenerResultadosdelQuiz()
+    {
+        var responseHttp = await repositorio.Get<ActividadStatusQuizDTO>($"api/Quiz/ObtenerResultados/{QuizId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            resultadoquiz = responseHttp.Response;           
+        }
+    }
+
+    #endregion
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -175,7 +401,7 @@
             firstRender = false;
             StateHasChanged();
         }
-    }   
+    }
 
     #region ColapsarMenu
 
@@ -193,5 +419,5 @@
         collapseNavMenu = true;
     }
 
-    #endregion
+    #endregion   
 }

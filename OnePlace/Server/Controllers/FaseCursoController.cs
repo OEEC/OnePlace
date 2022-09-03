@@ -66,6 +66,9 @@ namespace OnePlace.Server.Controllers
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
+            var empleado = await context.Empleados.Where(x => x.Noemp == user.noemp).FirstOrDefaultAsync();
+            actividad.Idempleado = empleado.Idempleado;
+
             //ver si en la bd ya existe una actividad con el temaid y fasecursoid pasado por parametro
             var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == actividad.TemaId && x.FaseCursoId == actividad.FaseCursoId && x.UserId == actividad.UserId);
 

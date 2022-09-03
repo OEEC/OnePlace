@@ -63,10 +63,11 @@ namespace OnePlace.Shared.Entidades
     {
         public int TemaId { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
+        //se validan desde el server
+        //[Required(ErrorMessage = "El campo {0} es requerido")]
         public string Nombre { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido")]
+        //[Required(ErrorMessage = "El campo {0} es requerido")]
         public string Descripcion { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public int ArchivoId { get; set; }
@@ -117,5 +118,20 @@ namespace OnePlace.Shared.Entidades
             }
         }
         public List<FaseCurso> FaseCurso { get; set; } = new List<FaseCurso>();
+    }
+
+    //guardar el estado del curso por usuario, define si un curso ya fue terminado
+    public class CursoEstado
+    {
+        public int CursoEstadoId { get; set; }
+        public int CursoId { get; set; }
+        public string UserId { get; set; }
+        public EstadoCurso EstadoCurso { get; set; }
+    }
+    public enum EstadoCurso
+    {
+        Comenzado,
+        Terminado,
+        Pendiente        
     }
 }

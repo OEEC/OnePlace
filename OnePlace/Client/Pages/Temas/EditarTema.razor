@@ -1,4 +1,4 @@
-﻿@page "/editar-tema/{TemaId:int}"
+﻿@*@page "/editar-tema/{TemaId:int}"
 @inject IRepositorio repositorio
 @inject IMostrarMensaje mostrarMensaje
 @inject NavigationManager navigationManager
@@ -49,4 +49,4 @@ else
             navigationManager.NavigateTo($"detalles-curso/{Tema.CursoId}");
         }
     }
-}
+}*@

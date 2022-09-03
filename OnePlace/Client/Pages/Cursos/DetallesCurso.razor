@@ -109,7 +109,7 @@ else
                                 </Texto>
                                 @if (user.IsInRole("Administrador"))
                                 {
-                                    <Enlace Class="btn p-0" Href="@("editar-tema/" + item.TemaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                                    <Enlace Class="btn p-0" Href="@("editar-tema/" + item.TemaId + "/" + true)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
                                         <Icono Icon="text-500 fas fa-edit" />
                                     </Enlace>
                                     <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => Desactivar(item))" />
@@ -293,13 +293,13 @@ else
 
     #region BorrarTema
     public async Task Desactivar(Tema tema)
-    {
+    {       
         string mensajeconfirmacion = $"¿Desea borrar este tema: {tema.Nombre}?";
         var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
         if (confirmado)
         {
             tema.Activo = false;
-            var httpResponse = await repositorio.Put("api/Tema/Desactivar", tema);
+            var httpResponse = await repositorio.Put("api/Tema/DesactivarTemaQuiz", tema);
             if (httpResponse.Error)
             {
                 await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());

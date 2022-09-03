@@ -17,6 +17,15 @@ namespace OnePlace.Server.Helpers
             CreateMap<Evento, Evento>()
                 .ForMember(x => x.Imagenes, option => option.Ignore())
                 .ForMember(x => x.ImgEvento, option => option.Ignore());
+
+            CreateMap<Tema, Tema>().ForMember(x => x.Imagen, option => option.Ignore());
+
+            /*Se ignoro el tema por que quiz tiene ligado un objeto tema el cual en la api de update, primero se actualiza el tema 
+            luego el quiz y como quiz tiene tema me pone nuevamente los valores del tema que el trae y no de que se actualizo previamente*/
+            CreateMap<Quiz, Quiz>()
+                .ForMember(x => x.Imagen, option => option.Ignore())
+                .ForMember(x => x.Tema, option => option.Ignore());
+
         }
     }
 }

@@ -6,7 +6,7 @@
 @attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
 
-@if (Tema == null)
+@if (TemaQuizDTO == null)
 {
     <LoadingSpinner IsLoading="Procesando" />
 }
@@ -17,40 +17,40 @@ else
             <div class="row">
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <div class="position-relative contenedordelaimg">
-                        <Imagen Class="rounded-1 h-100 w-100" Src="@Tema.Imagen" />
+                        <Imagen Class="rounded-1 h-100 w-100" Src="@TemaQuizDTO.Tema.Imagen" />
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <Texto Typo="Typo.h5">@Tema.Nombre</Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1">@Tema.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
+                    <Texto Typo="Typo.h5">@TemaQuizDTO.Tema.Nombre</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1">@TemaQuizDTO.Tema.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
                     <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">
-                        @Tema.Descripcion
+                        @TemaQuizDTO.Tema.Descripcion
                     </Texto>
-                    @if (Tema.ArchivoId > 0)
+                    @if (TemaQuizDTO.Tema.ArchivoId > 0)
                     {
                         <Texto Typo="Typo.body1" Class="fs--1">
                             Acciones para pdf:&nbsp;
-                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="() => MostrarPdf(Tema.ArchivoId)" />&nbsp;
+                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="() => MostrarPdf(TemaQuizDTO.Tema.ArchivoId)" />&nbsp;
                             @if (user.IsInRole("Administrador"))
                             {
-                                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(Tema.ArchivoId, Tema))" />
+                                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(TemaQuizDTO.Tema.ArchivoId, TemaQuizDTO))" />
                             }
                         </Texto>
                     }
-                    @if (Tema.Activo == true)
+                    @if (TemaQuizDTO.Tema.Activo == true)
                     {
                         <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
                     }
                     @if (user.IsInRole("Administrador"))
                     {
-                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-tema/" + Tema.TemaId)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Tema</Texto></Enlace>
+                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-tema/" + TemaQuizDTO.Tema.TemaId + "/" + true)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Tema</Texto></Enlace>
                     }
                 </div>
             </div>
         </CardBody>
     </Card>
 
-    @if (ArchivoAdjunto != null && Tema.VideoId > 0)
+    @if (ArchivoAdjunto != null && TemaQuizDTO.Tema.VideoId > 0)
     {
         <Card Class="card mb-3">
             <CardBody Class="card-body bg-light">
@@ -61,17 +61,17 @@ else
                             <Card Class="card-img-top">
                                 <video controls width="100%" controlslist="nodownload">
                                     <source src="@ArchivoAdjunto.UrlLocal" type="video/mp4" />
-                                </video>                                
+                                </video>
                             </Card>
                             <CardBody Class="card-body">
-                                <Texto Typo="Typo.body2" Class="card-title">@Tema.DescripcionVideo</Texto>
-                                @if (Tema.VideoId > 0)
+                                <Texto Typo="Typo.body2" Class="card-title">@TemaQuizDTO.Tema.DescripcionVideo</Texto>
+                                @if (TemaQuizDTO.Tema.VideoId > 0)
                                 {
                                     <Texto Typo="Typo.body1" Class="fs--1">
                                         Acciones para video:&nbsp;
                                         @if (user.IsInRole("Administrador"))
                                         {
-                                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(Tema.VideoId, Tema))" />
+                                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(TemaQuizDTO.Tema.VideoId, TemaQuizDTO))" />
                                         }
                                     </Texto>
                                 }
@@ -82,12 +82,50 @@ else
                 </div>
             </CardBody>
         </Card>
-        <br />      
-    }   
+    }
 
     <ModalContent EsVisible="VerPdf" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalPdf">
         <IFrame Id="myFrame" Src="@("api/Upload/Mostrarpdf/" + Id + "#toolbar=0")" Style="width:100%; height:400px;"></IFrame>
     </ModalContent>
+
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header bg-transparent">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-sm-auto">
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Texto Typo="Typo.h5" Class="mb-0">Cuestionario</Texto>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top bg-light">
+            <div class="form-row">
+                @if (TemaQuizDTO.Quiz != null)
+                {
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-8">
+                        <Card Class="card overflow-hidden">
+                            <Card Class="card-img-top">
+                                <Enlace Class="manita" Href="@("detalles-quiz/" + TemaQuizDTO.Quiz.QuizId)">
+                                    <Imagen Class="img-fluidcustom" Src="@TemaQuizDTO.Quiz.Imagen" />
+                                </Enlace>
+                            </Card>
+                            <CardBody Class="card-body">
+                                <Texto Typo="Typo.body2" Class="card-title">@TemaQuizDTO.Quiz.NombreCortado</Texto>
+                                <Texto Typo="Typo.body2" Class="card-text">
+                                    @TemaQuizDTO.Quiz.DescripcionCortada
+                                </Texto>
+                                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => Desactivar(TemaQuizDTO))" />
+                            </CardBody>
+                        </Card>
+                    </div>
+                    <div class="col-sm-2"></div>
+                }
+            </div>
+        </CardBody>       
+    </Card>
     <br />
 }
 
@@ -98,7 +136,7 @@ else
 
     [Parameter] public int TemaId { get; set; }
     private bool Procesando = true;
-    private Tema Tema;   
+    private TemaQuizDTO TemaQuizDTO;
 
     protected async override Task OnInitializedAsync()
     {
@@ -107,15 +145,15 @@ else
 
         await Cargar();
 
-        if (Tema.VideoId > 0)
+        if (TemaQuizDTO.Tema.VideoId > 0)
         {
-            await MostrarVideo(Tema.VideoId);
-        }        
+            await MostrarVideo(TemaQuizDTO.Tema.VideoId);
+        }
     }
 
     private async Task Cargar()
     {
-        var responseHttp = await repositorio.Get<Tema>($"api/Tema/{TemaId}");
+        var responseHttp = await repositorio.Get<TemaQuizDTO>($"api/Tema/{TemaId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -130,14 +168,14 @@ else
         }
         else
         {
-            Tema = responseHttp.Response;
+            TemaQuizDTO = responseHttp.Response;
             Procesando = false;
         }
     }
 
     #region BorrarArchivos
 
-    private async Task BorrarArchivo(int Id, Tema tema)
+    private async Task BorrarArchivo(int Id, TemaQuizDTO temaquizdto)
     {
         string mensajeconfirmacion = $"¿Desea borrar este archivo?";
         var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
@@ -150,34 +188,34 @@ else
             }
             else
             {
-                await ActualizarIdRelacionado(Id, tema);
+                await ActualizarIdRelacionado(Id, temaquizdto);
             }
         }
     }
 
     //volver a 0 el id del archivo si fue eliminado de la bd
-    private async Task ActualizarIdRelacionado(int id, Tema tema)
+    private async Task ActualizarIdRelacionado(int id, TemaQuizDTO temaquizdto)
     {
         //este if es para evauluar que id se mando si de video o pdf y no editar ese campo sino se selecciono para borrar
-        if (Tema.ArchivoId == id)
+        if (TemaQuizDTO.Tema.ArchivoId == id)
         {
-            tema.ArchivoId = 0;
+            temaquizdto.Tema.ArchivoId = 0;
         }
         else
         {
-            tema.VideoId = 0;
+            temaquizdto.Tema.VideoId = 0;
         }
 
-        var httpResponse = await repositorio.Put("api/Tema/Desactivar", tema);
+        var httpResponse = await repositorio.Put("api/Tema/Desactivar", temaquizdto);
         if (httpResponse.Error)
         {
             await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
         }
         else
         {
-            navigationManager.NavigateTo($"detalles-tema/{Tema.TemaId}");
+            navigationManager.NavigateTo($"detalles-tema/{TemaQuizDTO.Tema.TemaId}");
             await Cargar();
-            await MostrarVideo(Tema.VideoId);//refrescar el card del video y quitarlo
+            await MostrarVideo(TemaQuizDTO.Tema.VideoId);//refrescar el card del video y quitarlo
         }
     }
 
@@ -187,7 +225,7 @@ else
     private Boolean VerPdf = false;
     private int Id;
 
-    public async Task MostrarPdf(int id)
+    public void MostrarPdf(int id)
     {
         Id = id;
         VerPdf = true;
@@ -215,7 +253,7 @@ else
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
-                navigationManager.NavigateTo($"detalles-tema/{Tema.TemaId}");
+                navigationManager.NavigateTo($"detalles-tema/{TemaQuizDTO.Tema.TemaId}");
             }
             else
             {
@@ -225,10 +263,32 @@ else
         }
         else
         {
-            ArchivoAdjunto = responseHttp.Response;          
+            ArchivoAdjunto = responseHttp.Response;
         }
     }
 
-    #endregion   
+    #endregion
+
+    #region BorrarQuiz
+    public async Task Desactivar(TemaQuizDTO temaquizdto)
+    {
+        string mensajeconfirmacion = $"¿Desea borrar este cuestionario: {temaquizdto.Quiz.Nombre}?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            temaquizdto.Quiz.Activo = false;
+            var httpResponse = await repositorio.Put("api/Quiz/Desactivar", temaquizdto);
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                navigationManager.NavigateTo($"detalles-tema/{TemaId}");
+                await Cargar();
+            }
+        }
+    }
+    #endregion    
 }
 
