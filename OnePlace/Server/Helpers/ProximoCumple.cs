@@ -7,7 +7,7 @@ namespace OnePlace.Server.Helpers
 {
     public class ProximoCumple
     {
-        public static string ProximoCumpleaños(int diaCumple, int mesCumple, int anioCumple)
+        public static DateTime ProximoCumpleaños(int diaCumple, int mesCumple, int anioCumple)
         {
             //int diaCumple = 4;//Dia del Cumpleanios
             //int mesCumple = 4;//Mes de Cumple 4=Abril
@@ -48,7 +48,7 @@ namespace OnePlace.Server.Helpers
             //sb.AppendFormat("y {0} Minutos ", faltan.Minutes);           
 
             //retornamos la fecha en formato string sin horas,minutos para no tener problemas con ello, mientras sea el dia correcto
-            return fechaARetornar.ToString("dd/MM/yyyy");
+            return fechaARetornar;
         }
         public static DateTime ProximoCumpleTodoMes(int diaCumple, int mesCumple, int anioCumple)
         {

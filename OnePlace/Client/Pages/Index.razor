@@ -202,8 +202,27 @@
                                 <div class="team-item">
                                     <div class="d-flex">
                                         <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
-                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-gift"></i></span>
+                                            @*si el usuario que cumple años es el mismo que inicio sesion entra al if*@
+                                            @if (item.Empleado.Noemp == NumeroEmpleado)
+                                            {
+                                                /*si la fecha de hoy es mayor o igual a la fecha de cumple del usuario mas 7 dias,
+                                                el boton de descargar tarjeta desaparece, sino aparece el boton de descarga*/
+                                                @if (FechadeHoy >= UltimoDiaParaDescargarCupon)
+                                                {
+                                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="btn btn-square text-primarysimsa bg-white my-1 manita" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))">
+                                                        <i class="fas fa-gift"></i>
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //si el usuario que inicio sesion no es el mismo que cumple años, entonces no hace nada , solo se pone un icono
+                                                <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+                                            }
                                         </div>
                                         <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
                                     </div>
@@ -547,17 +566,22 @@ else
     public EmpleadoPersonaDTO EmpleadoPersonaDTO { get; set; }
     public List<EmpleadoPersonaDTO> ListadodeCumpleñeros { get; set; }
     public DateTime FechadeHoy;
+    public DateTime UltimoDiaParaDescargarCupon;
 
     public int IdModalEvento { get; set; }
     public string ImgModalEvento { get; set; }
     public string TituloModalEvento { get; set; }
     public string DescripcionModalEvento { get; set; }
     public string TituloEventoExtra { get; set; }
+    public string NumeroEmpleado = "";
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
         user = authState.User;
+
+        //obtenemos el name del usuario que inicio sesion esn este caso es el numero de empleado, lo usaremos para el boton de descarga de tarjeta de cumple pasado el dia de cumple
+        NumeroEmpleado = user.Identity.Name;        
 
         FechadeHoy = DateTime.Today;
 
@@ -583,7 +607,7 @@ else
 
         await CargarListadodeCumpleañeros();
         await CargarCarrusel();
-        await CargarCursos();       
+        await CargarCursos();
     }
 
     #region Cumpleaños
@@ -595,8 +619,11 @@ else
         {
             EmpleadoPersonaDTO = responseHttp.Response;
 
+            //al dia de cumple le sumamos 7 dias para que tenga una semana para poder decargar su tajeta y canjear el cupon
+            UltimoDiaParaDescargarCupon = EmpleadoPersonaDTO.ProximoCumple.AddDays(7);           
+
             //si la fecha de cumple es igual a la fecha de hoy ismodal es true abre modal
-            if (Flag == "true" && EmpleadoPersonaDTO.ProximoCumple == FechadeHoy.ToString("dd/MM/yyyy"))
+            if (Flag == "true" && EmpleadoPersonaDTO.ProximoCumple.ToString("dd/MM/yyyy") == FechadeHoy.ToString("dd/MM/yyyy"))
             {
                 isModal = true;
             }
