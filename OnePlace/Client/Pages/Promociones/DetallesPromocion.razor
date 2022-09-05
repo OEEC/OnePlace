@@ -17,7 +17,7 @@ else
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <div class="position-relative">
                         <div class="row light">
-                            @foreach (var item in PromoDetalles.Imagenes)
+                            @foreach (var item in PromoDetalles.Promocion.Imagenes)
                             {
                                 <div class="col-sm-6 col-lg-4 mb-4">
                                     <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
@@ -29,16 +29,30 @@ else
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <Texto Typo="Typo.h5">@PromoDetalles.Nombre (@PromoDetalles.FechadeRegistro.Value.ToString("yyyy"))</Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">@PromoDetalles.Descripcion</Texto>                   
-                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Tipo:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.TipodePromociones.GetDescription()</Texto></Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Zona:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.Zona.Zona1</Texto></Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-danger">@PromoDetalles.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
-                    @if (PromoDetalles.Activo == true)
+                    <Texto Typo="Typo.h5">@PromoDetalles.Promocion.Nombre (@PromoDetalles.Promocion.FechadeRegistro.Value.ToString("yyyy"))</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">@PromoDetalles.Promocion.Descripcion</Texto>                   
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Tipo:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.Promocion.TipodePromociones.GetDescription()</Texto></Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Zona:&nbsp;
+                        <Texto Typo="Typo.strong" Class="text-primary">
+                            @for (int i = 0; i < PromoDetalles.Zonas.Count; i++)
+                            {
+                                if (i < PromoDetalles.Zonas.Count - 1)
+                                {
+                                    @enlaceZona(PromoDetalles.Zonas[i])<text>, </text>
+                                }
+                                else
+                                {
+                                    @enlaceZona(PromoDetalles.Zonas[i])
+                                }
+                            }
+                        </Texto>
+                    </Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-danger">@PromoDetalles.Promocion.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                    @if (PromoDetalles.Promocion.Activo == true)
                     {
                         <Texto Typo="Typo.body1" Class="fs--1 text-500">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
                     }
-                    <Enlace Class="btn btn-sm btn-primary" Href="@("editar-promocion/"+PromoDetalles.PromocionId)">
+                    <Enlace Class="btn btn-sm btn-primary" Href="@("editar-promocion/"+PromoDetalles.Promocion.PromocionId)">
                         <Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono>
                         <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar</Texto>
                     </Enlace>
@@ -50,9 +64,11 @@ else
 
 @code {
 
+    private RenderFragment<Zona> enlaceZona = (zona) =>@<span>@zona.Zona1</span>;
+
     [Parameter] public int PromocionId { get; set; }
     private bool Procesando = true;
-    private Promocion PromoDetalles;
+    private PromocionVisualizarDTO PromoDetalles;
 
     protected async override Task OnInitializedAsync()
     {
@@ -61,7 +77,7 @@ else
 
     private async Task Cargar()
     {
-        var responseHttp = await repositorio.Get<Promocion>($"api/Promocion/{PromocionId}");
+        var responseHttp = await repositorio.Get<PromocionVisualizarDTO>($"api/Promocion/{PromocionId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)

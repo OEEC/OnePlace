@@ -36,18 +36,7 @@ namespace OnePlace.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> Post(Promocion promocion)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            if (promocion.Zona != null)
-            {
-                promocion.ZonaId = promocion.Zona.ZonaId;
-                promocion.Zona = null;
-            }
-            else
-            {
-                string mensajeError = "Debe seleccionar una zona";
-                return BadRequest(mensajeError);
-            }
-          
+            var user = await _userManager.GetUserAsync(HttpContext.User);  
             promocion.Activo = true;
             promocion.LugardeVisualizacion = LugardeVisualizacion.PantallaPrincipal;
             context.Add(promocion);
@@ -80,7 +69,7 @@ namespace OnePlace.Server.Controllers
 
             //query para traer las promociones
             var queryable = context.Promociones.Where(x => x.Activo == mostrar)
-                .Include(x=>x.Zona)
+                .Include(x=>x.PromocionZona).ThenInclude(x=>x.Zona)
                 .OrderBy(x => x.PromocionId).AsQueryable();             
 
             if (parametrosBusqueda.PromocionId != 0)
@@ -91,6 +80,12 @@ namespace OnePlace.Server.Controllers
             {
                 //queryable = queryable.Where(x => x.Activo == false);
                 mostrar = false;
+            }
+            if (parametrosBusqueda.ZonaId != 0)
+            {
+                queryable = queryable
+                    .Where(x => x.PromocionZona.Select(y => y.ZonaId)
+                    .Contains(parametrosBusqueda.ZonaId));
             }
 
             //paginacion
@@ -106,39 +101,45 @@ namespace OnePlace.Server.Controllers
             {
                 get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
             }
+            public int ZonaId { get; set; }
             public int PromocionId { get; set; }
             public bool Activo { get; set; }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Promocion>> GetPromo(int id)
+        [AllowAnonymous]
+        public async Task<ActionResult<PromocionVisualizarDTO>> Get(int id)
         {
-            //Promocion promocion = await (from p in context.Promociones
-            //                             where p.PromocionId == id
-            //                             select new Promocion
-            //                             {
-            //                                 PromocionId = p.PromocionId,
-            //                                 Nombre = p.Nombre,
-            //                                 Descripcion = p.Descripcion,
-            //                                 FechadeRegistro = p.FechadeRegistro,
-            //                                 FechadeTermino = p.FechadeTermino,
-            //                                 TipodePromociones = p.TipodePromociones,
-            //                                 LugardeVisualizacion = p.LugardeVisualizacion,
-            //                                 Activo = p.Activo,
-            //                                 Mostrar = p.Mostrar,
-            //                                 Idzona = p.Idzona,
-            //                                 Zona = context.Zonas.Where(x => x.Idzona == p.Idzona).FirstOrDefault(),
-            //                                 Imagenes = context.ImagenesCarruseles.Where(x => x.PromocionId == p.PromocionId).ToList()
-            //                             }).FirstOrDefaultAsync();
+            var promocion = await context.Promociones.Where(x => x.PromocionId == id)
+                .Include(x => x.Imagenes)
+                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)               
+                .FirstOrDefaultAsync();
 
-            var promocion = await context.Promociones
-               .Where(x => x.PromocionId == id)
-               .Include(x => x.Imagenes)
-               .Include(x => x.Zona)
-               .FirstOrDefaultAsync();
+            if (promocion == null) { return NotFound(); }    
 
-            if (promocion == null) { return NotFound(); }
-            return promocion;
+            var model = new PromocionVisualizarDTO();
+            model.Promocion = promocion;
+            model.Zonas = promocion.PromocionZona.Select(x => x.Zona).ToList();        
+            return model;
+        }
+
+        [HttpGet("Actualizar/{id}")]
+        public async Task<ActionResult<PromocionZonaActualizacionDTO>> PutGet(int id)
+        {
+            var promocionActionResult = await Get(id);
+            if (promocionActionResult.Result is NotFoundResult) { return NotFound(); }
+
+            var promocionVisualizarDTO = promocionActionResult.Value;
+            var zonasSeleccionadasIds = promocionVisualizarDTO.Zonas.Select(x => x.ZonaId).ToList();
+            var zonasNoSeleccionadas = await context.Zonas
+                .Where(x => !zonasSeleccionadasIds.Contains(x.ZonaId))
+                .ToListAsync();
+
+            var model = new PromocionZonaActualizacionDTO();
+            model.Promocion = promocionVisualizarDTO.Promocion;
+            model.ZonasNoSeleccionadas = zonasNoSeleccionadas;
+            model.ZonasSeleccionadas = promocionVisualizarDTO.Zonas;           
+            return model;
         }
 
         [HttpPut]
@@ -147,7 +148,7 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             var promoDB = await context.Promociones
-                .Include(x => x.Imagenes)                
+                .Include(x => x.Imagenes)
                 .FirstOrDefaultAsync(x => x.PromocionId == promo.PromocionId);
 
             if (promoDB == null) { return NotFound(); }
@@ -163,6 +164,11 @@ namespace OnePlace.Server.Controllers
                     promoDB.Imagenes = promo.Imagenes;
                 }
             }
+
+            await context.Database.ExecuteSqlInterpolatedAsync($"delete from PromocionZonas WHERE PromocionId = {promo.PromocionId};");
+
+           
+            promoDB.PromocionZona = promo.PromocionZona;           
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
@@ -217,10 +223,22 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
             var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
 
-            var carrusel = await context.Promociones.Where(x => x.Activo == true && x.ZonaId == empleado.ZonaId)
-                .Include(x => x.Imagenes).ToListAsync();
-            if (carrusel == null) { return NotFound(); }
-            return carrusel;
+            //buscamos las zonas relacionadas al empleado
+            var listapromocionzona = await context.PromocionZonas.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
+
+            List<Promocion> listadepromocionescarrusel = new List<Promocion>();
+
+            //recorremos las zonas ligadas a una promocion, para obtener las promociones por zona
+            foreach(var item in listapromocionzona)
+            {
+                var promocion = await context.Promociones.Where(x => x.PromocionId == item.PromocionId && x.Activo == true)
+                    .Include(x => x.PromocionZona).ThenInclude(x=>x.Zona)
+                    .Include(x => x.Imagenes)
+                    .FirstOrDefaultAsync();
+                listadepromocionescarrusel.Add(promocion);
+            }
+            
+            return listadepromocionescarrusel;
         }
     }
 }

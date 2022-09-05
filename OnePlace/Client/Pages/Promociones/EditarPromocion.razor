@@ -10,7 +10,11 @@
 }
 else
 {
-    <FormularioPromociones Promocion="Promocion" OnValidSubmit="Editar" Es_EditarPromocion="true" Titulo="Editar Promoción" />
+    <FormularioPromociones Promocion="Promocion" OnValidSubmit="Editar" Es_EditarPromocion="true" 
+                            Titulo="Editar Promoción" 
+                            ZonasNoSeleccionadas="ZonasNoSeleccionadas"
+                            ZonasSeleccionadas="ZonaSeleccionadas" />
+                          
 }
 
 @code {
@@ -18,9 +22,12 @@ else
     Promocion Promocion;
     private bool Procesando = true;
 
+    private List<Zona> ZonaSeleccionadas = new List<Zona>();
+    private List<Zona> ZonasNoSeleccionadas = new List<Zona>();
+
     protected async override Task OnInitializedAsync()
     {
-        var httpResponse = await repositorio.Get<Promocion>($"api/Promocion/{PromocionId}");
+        var httpResponse = await repositorio.Get<PromocionZonaActualizacionDTO>($"api/Promocion/Actualizar/{PromocionId}");
         if (httpResponse.Error)
         {
             if (httpResponse.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -34,7 +41,10 @@ else
         }
         else
         {
-            Promocion = httpResponse.Response;
+            var model = httpResponse.Response;
+            ZonasNoSeleccionadas = model.ZonasNoSeleccionadas;
+            ZonaSeleccionadas = model.ZonasSeleccionadas;
+            Promocion = model.Promocion;
             Procesando = false;
         }
     }

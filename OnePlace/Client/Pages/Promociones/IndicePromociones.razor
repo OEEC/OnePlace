@@ -44,6 +44,17 @@
                 </div>
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
+                        <select class="form-control" @bind="zonaSeleccionada">
+                            <option value="0">Seleccionar Zona</option>
+                            @foreach (var item in Zonas)
+                            {
+                                <option value="@item.ZonaId">@item.Zona1</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
                         <div class="custom-control custom-switch">
                             <input class="custom-control-input" id="customSwitch1" type="checkbox" @onchange="e => CheckChanged(e)" checked="@Activo">
                             <label class="custom-control-label" for="customSwitch1">Inactivas</label>
@@ -69,8 +80,7 @@
         <Tabla Items="ListadePromociones" Context="item">
             <Cabecera>
                 <th scope="col">Nombre</th>
-                <th scope="col">Tipo</th>
-                <th scope="col">Zona</th>
+                <th scope="col">Tipo</th>              
                 <th scope="col">Fecha de Vigencia</th>
                 <th class="text-end" scope="col">Acciones</th>
             </Cabecera>
@@ -82,10 +92,7 @@
                 </td>
                 <td>
                     @item.TipodePromociones.GetDescription()
-                </td>
-                <td>
-                    @item.Zona.Zona1
-                </td>
+                </td>               
                 <td>
                     @if (item.FechadeTermino != null && FechadeHoy >= item.FechadeTermino)
                     {
@@ -125,16 +132,19 @@
 
     Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
     public List<Promocion> ListadePromociones { get; set; }
+    private List<Zona> Zonas = new List<Zona>();
     private int paginaActual = 1;
     private int paginasTotales;
 
     //incluir mas parametros si se requieren
     string promocionseleccionada = "0";
+    string zonaSeleccionada = "0";
     private bool Activo = false;
     public DateTime FechadeHoy;
 
     protected async override Task OnInitializedAsync()
     {
+        await ObtenerZonas();
         FechadeHoy = DateTime.Now;
         var authState = await authenticationStateTask;
         user = authState.User;
@@ -173,6 +183,10 @@
     //este metodo me permite llenar los campos del formulario apartir del querystring
     private void LlenarCampos()
     {
+        if (queryStringsDict.ContainsKey("zonaid"))
+        {
+            zonaSeleccionada = queryStringsDict["zonaid"];
+        }
         //toma los campos del diccionario y los coloca en los campos correspondientes
         if (queryStringsDict.ContainsKey("promocionid"))
         {
@@ -199,6 +213,7 @@
     {
         //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
         if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["zonaid"] = zonaSeleccionada;
         queryStringsDict["promocionid"] = promocionseleccionada;
         queryStringsDict["activo"] = Activo.ToString();
         queryStringsDict["pagina"] = paginaActual.ToString();
@@ -216,10 +231,17 @@
 
     private async Task LimpiarOnClick()
     {
+        zonaSeleccionada = "0";
         promocionseleccionada = "";
         Activo = false;
         paginaActual = 1;
         await Cargar();
+    }
+
+    private async Task ObtenerZonas()
+    {
+        var httpResponse = await repositorio.Get<List<Zona>>("api/Promocion/ListaZonaSencilla");
+        Zonas = httpResponse.Response;
     }
 
     #endregion

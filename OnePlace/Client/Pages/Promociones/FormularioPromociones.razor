@@ -1,7 +1,7 @@
 ﻿@inject IRepositorio repositorio
 @using System.Security.Claims
 
-<EditForm Model="@Promocion" OnValidSubmit="OnValidSubmit">
+<EditForm Model="@Promocion" OnValidSubmit="OnDataAnnonationsValidated">
     <DataAnnotationsValidator />
     <Card Class="card mb-3">
         <CardHeader Class="card-header">
@@ -16,21 +16,21 @@
         </CardHeader>
         <CardBody Class="card-body border-top">
             <div class="form-row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="nombre">Nombre</InputLabel>
                         <InputText class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-Value="@Promocion.Nombre" />
                         <ValidationMessage For="@(() => Promocion.Nombre)" />
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="descripcion">Descripción</InputLabel>
                         <InputText class="form-control form-control-sm" id="descripcion" placeholder="Descripción" @bind-Value="@Promocion.Descripcion" />
                         <ValidationMessage For="@(() => Promocion.Descripcion)" />
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="fecha_termino">Vigencia</InputLabel>
                         <InputDate class="form-control form-control-sm" @bind-Value="@Promocion.FechadeTermino" />
@@ -49,16 +49,10 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <div class="form-group">
                         <InputLabel for="zona">Zona</InputLabel>
-                        <Select2 TItem="Zona"
-                                 Placeholder="Seleccionar"
-                                 Id="simple-zona"
-                                 Data="@ListaZonas"
-                                 TextExpression="@(item => item.Zona1)"
-                                 @bind-Value="@Promocion.Zona">
-                        </Select2>
+                        <SelectorMultiple Seleccionados="Seleccionadas" NoSeleccionados="NoSeleccionadas"/>                                          
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -97,14 +91,23 @@
     [Parameter] public string Titulo { get; set; }
     [Parameter] public EventCallback OnValidSubmit { get; set; }
 
+    [Parameter] public List<Zona> ZonasSeleccionadas { get; set; } = new List<Zona>();
+    [Parameter] public List<Zona> ZonasNoSeleccionadas { get; set; } = new List<Zona>();
+
+    private List<SelectorMultipleModel> Seleccionadas { get; set; } = new List<SelectorMultipleModel>();
+    private List<SelectorMultipleModel> NoSeleccionadas { get; set; } = new List<SelectorMultipleModel>();
+
     public List<ImagenesCarrusel> listadeimagenes = new List<ImagenesCarrusel>();
 
     //para editar
     private string imagenURL;
     public List<string> listadeimagenesURL = new List<string>();
 
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        Seleccionadas = ZonasSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
+        NoSeleccionadas = ZonasNoSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
+
         if (Es_EditarPromocion == false)
         {
             Promocion.FechadeRegistro = DateTime.Now;
@@ -123,8 +126,6 @@
                 }
             }
         }
-
-        await CargarZonas();
     }
 
     //este metodo actualiza las imagenes con las nuevas imagenes seleccionadas
@@ -149,14 +150,14 @@
         //hacemos null las propiedades
         imagenURL = null;
         listadeimagenesURL = null;
-    }
+    }   
 
-    private List<Zona> ListaZonas { get; set; } = new List<Zona>();
-
-    public async Task CargarZonas()
+    private async Task OnDataAnnonationsValidated()
     {
-        var responseHttp = await repositorio.Get<List<Zona>>("api/Promocion/ListaZonaSencilla");
-        ListaZonas = responseHttp.Response;
+        Promocion.PromocionZona = Seleccionadas
+            .Select(x => new PromocionZona { ZonaId = int.Parse(x.Llave) }).ToList();
+
+        await OnValidSubmit.InvokeAsync(null);
     }
 }
 

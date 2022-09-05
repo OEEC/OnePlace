@@ -24,11 +24,7 @@ namespace OnePlace.Shared.Entidades
 
         //propiedades de navegacion
         public List<ImagenesCarrusel> Imagenes { get; set; }
-        public int ZonaId { get; set; }
-
-        //no hay fk con zonas por que zonas es MYISAM y Promocion es INNODB
-        //[NotMapped]
-        public virtual Zona Zona { get; set; }
+        public List<PromocionZona> PromocionZona { get; set; } = new List<PromocionZona>();        
     }
     public class ImagenesCarrusel
     {

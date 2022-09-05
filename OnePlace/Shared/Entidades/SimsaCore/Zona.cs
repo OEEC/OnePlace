@@ -13,5 +13,6 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public DateTime? Fchbaja { get; set; }
         public DateTime? Fchmod { get; set; }
         public int? Idusuario { get; set; }
+        public List<PromocionZona> PromocionZona { get; set; }
     }
 }

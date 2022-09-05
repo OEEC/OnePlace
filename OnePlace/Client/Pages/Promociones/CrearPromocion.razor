@@ -4,11 +4,27 @@
 @inject IMostrarMensaje mostrarMensajes
 @attribute [Authorize(Roles = "Administrador")]
 
-<FormularioPromociones OnValidSubmit="Crear" Promocion="Promocion" Titulo="Crear Promoción" />
+@if (MostrarFormulario)
+{
+   <FormularioPromociones OnValidSubmit="Crear" Promocion="Promocion" Titulo="Crear Promoción" ZonasNoSeleccionadas="ZonasNoSeleccionadas"/>
+}
+else
+{
+    <text>Cargando...</text>
+}
 
 @code {
 
+    private bool MostrarFormulario { get; set; } = false;
     private Promocion Promocion = new Promocion();
+    private List<Zona> ZonasNoSeleccionadas = new List<Zona>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<Zona>>("api/Promocion/ListaZonaSencilla");
+        ZonasNoSeleccionadas = responseHttp.Response;
+        MostrarFormulario = true;
+    }
 
     async Task Crear()
     {

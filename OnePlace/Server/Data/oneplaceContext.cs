@@ -667,7 +667,9 @@ namespace OnePlace.Server.Data
             //OnModelCreatingPartial(modelBuilder);
 
             //creamos el modelo entity, creamos un objeto anonimo con new y le pasamos el haskey para crear una llave compuesta con temaid y fasecursoid        
-            modelBuilder.Entity<TemaFase>().HasKey(x => new { x.TemaId, x.FaseCursoId });           
+            modelBuilder.Entity<TemaFase>().HasKey(x => new { x.TemaId, x.FaseCursoId });
+
+            modelBuilder.Entity<PromocionZona>().HasKey(x => new { x.PromocionId, x.ZonaId });
 
             var roleAdmin = new IdentityRole()
             { Id = "f2e8377a-a95f-4e57-ac21-392bb3240cb4", Name = "Administrador", NormalizedName = "Administrador" };
@@ -721,6 +723,7 @@ namespace OnePlace.Server.Data
         public DbSet<EstadosdelQuiz> EstadosdelQuiz { get; set; }        
         public DbSet<ActividadUsuarioQuiz> ActividadUsuarioQuiz { get; set; }
         public DbSet<CursoEstado> CursoEstado { get; set; }
+        public DbSet<PromocionZona> PromocionZonas { get; set; }
 
         #endregion
     }
