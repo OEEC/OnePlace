@@ -49,7 +49,7 @@
                         <div class="col-lg-6 text-center text-lg-start">
                             <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
                             <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
-                            <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Ver Más</a>                          
+                            <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Ver Más</a>
                             <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
                         </div>
                         <div class="col-lg-6 text-center text-lg-start">
@@ -150,18 +150,17 @@
                                     </div>
                                     <h5 class="mb-3">@item.Nombre</h5>
                                     <p class="colorgris">
-                                       @item.DescripcionCortada
+                                        @item.DescripcionCortada
                                     </p>
                                     <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">Capacitate!</a>
                                 </div>
-                           </div>
-                         }
-                     </div>                     
+                            </div>
+                        }
+                    </div>
                 }
-             </div>
+            </div>
         </div>
         <!-- Cursos End -->
-
         <!--Logos Start -->
         <div class="container-xxl bg-simsa testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s">
             <div class="container py-5 px-lg-5">
@@ -185,13 +184,36 @@
             </div>
         </div>
         <!--Logos End -->
-
         <!-- Cumple Start -->
         <div class="container-xxl py-5" id="cumple">
             <div class="container px-lg-5">
                 <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
                     <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
                     <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
+                    @if (FechadeHoy.ToString("dd/MM/yyyy") == FechaDespuesdeCumple.ToString("dd/MM/yyyy"))
+                    {
+                        @*si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada*@
+                        @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
+                        {
+
+                        }
+                        else
+                        {
+                            /*si la fecha de hoy es mayor o igual a la fecha de cumple del usuario mas 7 dias,
+                            el boton de descargar tarjeta desaparece, sino aparece el boton de descarga*/
+                            @if (FechadeHoy > UltimoDiaParaDescargarCupon)
+                            {
+
+                            }
+                            else
+                            {
+                                <span class="text-primarysimsa">Tarjeta de Regalo Descargable</span>
+                                <button class="btn btn-squarealineado text-primarysimsa bg-white my-1 manita" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))">
+                                    <i class="fas fa-gift"></i>
+                                </button>
+                            }
+                        }
+                    }
                 </div>
                 <div class="owl-carousel cumple-carousel wow fadeInUp" data-wow-delay="0.1s">
                     @if (ListadodeCumpleñeros != null)
@@ -202,27 +224,7 @@
                                 <div class="team-item">
                                     <div class="d-flex">
                                         <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                            @*si el usuario que cumple años es el mismo que inicio sesion entra al if*@
-                                            @if (item.Empleado.Noemp == NumeroEmpleado)
-                                            {
-                                                /*si la fecha de hoy es mayor o igual a la fecha de cumple del usuario mas 7 dias,
-                                                el boton de descargar tarjeta desaparece, sino aparece el boton de descarga*/
-                                                @if (FechadeHoy >= UltimoDiaParaDescargarCupon)
-                                                {
-                                                    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="btn btn-square text-primarysimsa bg-white my-1 manita" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))">
-                                                        <i class="fas fa-gift"></i>
-                                                    </span>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                //si el usuario que inicio sesion no es el mismo que cumple años, entonces no hace nada , solo se pone un icono
-                                                <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
-                                            }
+                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>                                          
                                         </div>
                                         <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
                                     </div>
@@ -244,7 +246,6 @@
             </div>
         </div>
         <!-- Cumple End -->
-
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
             <div class="container py-5 px-lg-5">
@@ -315,7 +316,6 @@
             </div>
         </div>
         <!-- Footer End -->
-
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
     </div>
@@ -362,10 +362,16 @@
                                                 Escanea tu código QR, presentalo en una tienda participante y listo a disfrutar!!.<br>
                                                 Válido solo una vez.
                                             </small><br />
-                                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" Icon="text-500 fas fa-download" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))" />
+                                            @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
+                                            {
+
+                                            }
+                                            else
+                                            {
+                                               <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" Icon="text-500 fas fa-download" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))" />
+                                            }
                                         </p>
                                         <img src="@EmpleadoPersonaDTO.CodigoQR" class="text-left" style="width:80px; height:80px;" />
-
                                     </div>
                                 </div>
                             </div>
@@ -484,11 +490,11 @@ else
                     <Texto Typo="Typo.h5" Class="mb-3 mb-md-0">Cursos</Texto>
                 </div>
                 @*<div class="col-md-auto">
-                    <Enlace Class="btn btn-sm btn-outline-secondary border-300 mr-2" Href="lista-producto">
-                        <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
-                    </Enlace>
-                    <Enlace Class="btn btn-sm btn-primary" Href="checkout">Ver Compra</Enlace>
-                </div>*@
+                        <Enlace Class="btn btn-sm btn-outline-secondary border-300 mr-2" Href="lista-producto">
+                            <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
+                        </Enlace>
+                        <Enlace Class="btn btn-sm btn-primary" Href="checkout">Ver Compra</Enlace>
+                    </div>*@
             </div>
         </CardHeader>
         <CardBody Class="card-body p-0">
@@ -497,8 +503,8 @@ else
                 <div class="col-3 col-md-4 px-3">
                     <div class="row">
                         @*<div class="col-12 col-md-4 text-right p-2 px-md-3">Descripción</div>
-                        <div class="col-12 col-md-4 text-right p-2 px-md-3">Precio</div>
-                        <div class="col-12 col-md-4 text-right p-2 px-md-3">Total</div>*@
+                            <div class="col-12 col-md-4 text-right p-2 px-md-3">Precio</div>
+                            <div class="col-12 col-md-4 text-right p-2 px-md-3">Total</div>*@
                     </div>
                 </div>
             </div>
@@ -527,33 +533,34 @@ else
                         <div class="col-4 p-3">
                             <div class="row">
                                 @*<div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">19</div>
-                                <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">16</div>
-                                <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">15</div>*@
+                                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">16</div>
+                                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">15</div>*@
                             </div>
                         </div>
                     </div>
                 }
                 @*<div class="row font-weight-bold px-1">
-                    <div class="col-9 col-md-8 py-2 py-0 px-md-3 text-right text-900">
+                        <div class="col-9 col-md-8 py-2 py-0 px-md-3 text-right text-900">
 
-                    </div>
-                    <div class="col px-3">
-                        <div class="row no-gutters">
-                            <div class="col-md-8 py-2 d-none d-md-block text-center">Total a Pagar</div>
-                            <div class="col-12 col-md-4 text-right py-2 pr-md-3 pl-0">
-                                15
-                                <div class="text-400 font-weight-normal fs--2">Incluye IVA</div>
+                        </div>
+                        <div class="col px-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-8 py-2 d-none d-md-block text-center">Total a Pagar</div>
+                                <div class="col-12 col-md-4 text-right py-2 pr-md-3 pl-0">
+                                    15
+                                    <div class="text-400 font-weight-normal fs--2">Incluye IVA</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>*@
+                    </div>*@
             }
         </CardBody>
         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
             <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
         </CardFooter>
     </Card>
-    <br />  
+    <br />
+
     <br />
 }
 
@@ -567,21 +574,18 @@ else
     public List<EmpleadoPersonaDTO> ListadodeCumpleñeros { get; set; }
     public DateTime FechadeHoy;
     public DateTime UltimoDiaParaDescargarCupon;
+    public DateTime FechaDespuesdeCumple;
 
     public int IdModalEvento { get; set; }
     public string ImgModalEvento { get; set; }
     public string TituloModalEvento { get; set; }
     public string DescripcionModalEvento { get; set; }
     public string TituloEventoExtra { get; set; }
-    public string NumeroEmpleado = "";
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
         user = authState.User;
-
-        //obtenemos el name del usuario que inicio sesion esn este caso es el numero de empleado, lo usaremos para el boton de descarga de tarjeta de cumple pasado el dia de cumple
-        NumeroEmpleado = user.Identity.Name;        
 
         FechadeHoy = DateTime.Today;
 
@@ -596,9 +600,10 @@ else
             //antes de cargar el metodo cargar cumple obtenemos la variable que viene del localstorage
             await ReadFlag();
 
+            await CargarEstadoCumple();
             await CargarCumple();
             await CargarEventos();
-          
+
         }
         else
         {
@@ -619,8 +624,11 @@ else
         {
             EmpleadoPersonaDTO = responseHttp.Response;
 
+            //esta fecha es para comenzar la fecha del UltimoDiaParaDescargarCupon y asi poner el boton de descarga por si no descargaron el dia de su cumple la tarjeta
+            FechaDespuesdeCumple = EmpleadoPersonaDTO.ProximoCumple.AddDays(1);
+
             //al dia de cumple le sumamos 7 dias para que tenga una semana para poder decargar su tajeta y canjear el cupon
-            UltimoDiaParaDescargarCupon = EmpleadoPersonaDTO.ProximoCumple.AddDays(7);           
+            UltimoDiaParaDescargarCupon = EmpleadoPersonaDTO.ProximoCumple.AddDays(5);
 
             //si la fecha de cumple es igual a la fecha de hoy ismodal es true abre modal
             if (Flag == "true" && EmpleadoPersonaDTO.ProximoCumple.ToString("dd/MM/yyyy") == FechadeHoy.ToString("dd/MM/yyyy"))
@@ -785,6 +793,10 @@ else
 
     #region Tarjeta
 
+    public EstadodeCumpleaños SendEstadoCumple = new EstadodeCumpleaños();
+
+    public EstadodeCumpleaños YaseDescargoTarjeta { get; set; }
+
     public byte[] PdfResultado { get; set; }
 
     public async Task DownloadArchivo(int Id, TipoReporte tipoReporte)
@@ -793,6 +805,36 @@ else
         PdfResultado = responseHttp.Response;
 
         await JS.InvokeVoidAsync("saveAsFile", "tarjetadecumpleaños.pdf", PdfResultado);
+
+        //una vez descargada la tarjeta se ejecuta este metodo
+        await EnviarEstadoCumple();
+    }
+
+    //este metodo guardara el estado de la tarjeta en este caso un bool de que ya se descargo en true, para ya no mostrar el boton de descargar
+    public async Task EnviarEstadoCumple()
+    {
+        SendEstadoCumple.TarjetaDescargada = true;
+
+        var httpResponse = await repositorio.Post("api/Birthday", SendEstadoCumple);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await CargarEstadoCumple();
+            StateHasChanged();           
+        }
+    }
+
+    //verificamos si la tarjeta ya fue descargada
+    private async Task CargarEstadoCumple()
+    {
+        var responseHttp = await repositorio.Get<EstadodeCumpleaños>("api/Birthday/EstadoCumple");
+        if (!responseHttp.Error)
+        {
+            YaseDescargoTarjeta = responseHttp.Response;           
+        }
     }
 
     #endregion Tarjeta
@@ -824,5 +866,5 @@ else
         }
     }
 
-    #endregion  
+    #endregion
 }

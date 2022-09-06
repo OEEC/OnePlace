@@ -724,6 +724,7 @@ namespace OnePlace.Server.Data
         public DbSet<ActividadUsuarioQuiz> ActividadUsuarioQuiz { get; set; }
         public DbSet<CursoEstado> CursoEstado { get; set; }
         public DbSet<PromocionZona> PromocionZonas { get; set; }
+        public DbSet<EstadodeCumpleaños> EstadodeCumpleaños { get; set; }
 
         #endregion
     }

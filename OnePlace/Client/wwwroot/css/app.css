@@ -52,7 +52,7 @@ a, .btn-link {
 
 /*css para la card del login*/
 .bg-login-image {
-    background-image: url("../Img/15.jpg");
+    background-image: url("../Img/simsacorp.png");
     background-position: center;
     background-size: cover;
 }

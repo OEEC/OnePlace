@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
@@ -139,6 +140,31 @@ namespace OnePlace.Server.Controllers
             model.CodigoQR = GenerarQR.GenerarCode(codigo);
 
             return model;
-        }       
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Post(EstadodeCumpleaños estado)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            estado.UserId = user.Id;
+
+            var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
+            estado.Idempleado = empleado.Idempleado;
+
+            context.Add(estado);
+            await context.SaveChangesAsync(user.Id);
+            return estado.EstadodeCumpleañosId;
+        }
+
+        [Route("EstadoCumple")]
+        [HttpGet]
+        public async Task<ActionResult<EstadodeCumpleaños>> GetEstadoCumple()
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var estado = await context.EstadodeCumpleaños.Where(x => x.UserId == user.Id).FirstOrDefaultAsync();
+            if (estado == null) { return NotFound(); }
+            return estado;
+        }
     }
 }
