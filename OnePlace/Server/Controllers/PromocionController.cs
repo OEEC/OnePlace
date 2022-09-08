@@ -106,8 +106,7 @@ namespace OnePlace.Server.Controllers
             public bool Activo { get; set; }
         }
 
-        [HttpGet("{id}")]
-        [AllowAnonymous]
+        [HttpGet("{id}")]       
         public async Task<ActionResult<PromocionVisualizarDTO>> Get(int id)
         {
             var promocion = await context.Promociones.Where(x => x.PromocionId == id)
