@@ -30,9 +30,10 @@ else
                 </div>
                 <div class="col-lg-6">
                     <Texto Typo="Typo.h5">@PromoDetalles.Promocion.Nombre (@PromoDetalles.Promocion.FechadeRegistro.Value.ToString("yyyy"))</Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">@PromoDetalles.Promocion.Descripcion</Texto>                   
+                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">@PromoDetalles.Promocion.Descripcion</Texto>
                     <Texto Typo="Typo.body1" Class="fs--1 text-500">Tipo:&nbsp;<Texto Typo="Typo.strong" Class="text-primary">@PromoDetalles.Promocion.TipodePromociones.GetDescription()</Texto></Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Zona:&nbsp;
+                    <Texto Typo="Typo.body1" Class="fs--1 text-500">
+                        Zona:&nbsp;
                         <Texto Typo="Typo.strong" Class="text-primary">
                             @for (int i = 0; i < PromoDetalles.Zonas.Count; i++)
                             {
@@ -47,7 +48,14 @@ else
                             }
                         </Texto>
                     </Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-danger">@PromoDetalles.Promocion.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                    @if (PromoDetalles.Promocion.FechadeTermino != null && FechadeHoy >= PromoDetalles.Promocion.FechadeTermino)
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-danger">@PromoDetalles.Promocion.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                    }
+                    else
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1 text-500">Vigencia:&nbsp;<Texto Typo="Typo.strong" Class="text-success">@PromoDetalles.Promocion.FechadeTermino.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                    }
                     @if (PromoDetalles.Promocion.Activo == true)
                     {
                         <Texto Typo="Typo.body1" Class="fs--1 text-500">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
@@ -69,9 +77,11 @@ else
     [Parameter] public int PromocionId { get; set; }
     private bool Procesando = true;
     private PromocionVisualizarDTO PromoDetalles;
+    public DateTime FechadeHoy;
 
     protected async override Task OnInitializedAsync()
     {
+        FechadeHoy = DateTime.Now;
         await Cargar();
     }
 
