@@ -48,7 +48,7 @@
                                 @curso.Nombre
                             </ResultTemplate>
                             <NotFoundTemplate>
-                                Lo sentimos, no hay estados con esos datos.
+                                Lo sentimos, no hay cursos con esos datos.
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
                     </div>
@@ -79,7 +79,7 @@
                 @foreach (var item in ListadeCursos)
                 {
                     <div class="col-sm-6 col-lg-4 mb-4">
-                        <Card Class="card overflow-hidden" style="width: 20rem; height: 370px;">
+                        <Card Class="card overflow-hidden" style="height: 370px;">
                             <Card Class="card-img-top">
                                 <Enlace Class="manita" Href="@("detalles-curso/"+item.CursoId)">
                                     <Imagen Class="img-fluidcustom" Src="@item.Imagen" alt="Card image cap" />

@@ -60,7 +60,7 @@ else
                                     @tema.Nombre
                                 </ResultTemplate>
                                 <NotFoundTemplate>
-                                    Lo sentimos, no hay estados con esos datos.
+                                    Lo sentimos, no hay temas con esos datos.
                                 </NotFoundTemplate>
                             </BlazoredTypeahead>
                         </div>
@@ -96,7 +96,7 @@ else
                 @foreach (var item in ListadeTemas)
                 {
                     <div class="col-sm-6 col-lg-4 mb-4">
-                        <Card Class="card overflow-hidden" Style="width: 20rem; height: 370px;">
+                        <Card Class="card overflow-hidden" Style="height: 370px;">
                             <Card Class="card-img-top">
                                 <Enlace Class="manita" Href="@("detalles-tema/"+item.TemaId)">
                                     <Imagen Class="img-fluidcustom" Src="@item.Imagen" alt="Card image cap" />

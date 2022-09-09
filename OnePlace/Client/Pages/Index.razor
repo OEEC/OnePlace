@@ -38,9 +38,10 @@
                             </div>
                         </div> -->
                         <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
-                    </div>
-                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
+                    </div>                  
                 </div>
+                @*se saco del div namenu para poder dar clic al boton de deslogueo sin que se esconda el navmenu*@
+                <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
             </nav>
 
             <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
@@ -152,7 +153,7 @@
                                     <p class="colorgris">
                                         @item.DescripcionCortada
                                     </p>
-                                    <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">Capacitate!</a>
+                                    <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
                                 </div>
                             </div>
                         }
