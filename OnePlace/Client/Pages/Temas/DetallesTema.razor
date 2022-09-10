@@ -31,6 +31,7 @@ else
                         <Texto Typo="Typo.body1" Class="fs--1">
                             Acciones para pdf:&nbsp;
                             <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-eye" @onclick="() => MostrarPdf(TemaQuizDTO.Tema.ArchivoId)" />&nbsp;
+                            @*<BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver" Icon="text-500 fas fa-file" @onclick="() => DescargarPDF(TemaQuizDTO.Tema.ArchivoId)" />&nbsp;*@                         
                             @if (user.IsInRole("Administrador"))
                             {
                                 <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(TemaQuizDTO.Tema.ArchivoId, TemaQuizDTO))" />
@@ -235,6 +236,32 @@ else
     {
         VerPdf = false;
     }
+
+    //Ver PDF en otra ventana si sirve pero no lo usamos
+    //private ArchivoAdjunto ArchivoPDF;
+    //public async Task DescargarPDF(int id)
+    //{
+    //    var responseHttp = await repositorio.Get<ArchivoAdjunto>($"api/Upload/{id}");
+    //    if (responseHttp.Error)
+    //    {
+    //        if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+    //        {
+    //            //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
+    //            navigationManager.NavigateTo($"detalles-tema/{TemaQuizDTO.Tema.TemaId}");
+    //        }
+    //        else
+    //        {
+    //            var mensajeError = await responseHttp.GetBody();
+    //            await mostrarMensajes.MostrarMensajeError(mensajeError);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        ArchivoPDF = responseHttp.Response;
+    //    }
+
+    //    await JS.InvokeVoidAsync("OpenPdfNewTab", ArchivoPDF.NombreArchivo, Convert.ToBase64String(ArchivoPDF.ArchivoEnBytes));
+    //}
 
     #endregion
 

@@ -7,3 +7,26 @@ function saveAsFile(filename, bytesBase64) {
     link.click();
     document.body.removeChild(link);
 }
+
+//Ver PDF en otra ventana si sirve pero no lo usamos
+//function OpenPdfNewTab(filename, byteBase64) {
+//    var blob = base64Blob(byteBase64);
+//    var blobURL = URL.createObjectURL(blob);
+//    window.open(blobURL);
+//}
+//function base64Blob(b64Data) {
+//    sliceSize = 512;
+//    var byteCharacters = atob(b64Data);
+//    var byteArrays = [];
+//    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+//        var slice = byteCharacters.slice(offset, offset + sliceSize);
+//        var byteNumbers = new Array(slice.length);
+//        for (var i = 0; i < slice.length; i++) {
+//            byteNumbers[i] = slice.charCodeAt(i);
+//        }
+//        var byteArray = new Uint8Array(byteNumbers);
+//        byteArrays.push(byteArray);
+//    }
+//    var blob = new Blob(byteArrays, { type: 'application/pdf' });
+//    return blob;
+//}
