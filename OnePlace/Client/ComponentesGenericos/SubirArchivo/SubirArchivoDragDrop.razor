@@ -38,7 +38,15 @@
                             <h6 style="margin-bottom: .1rem;">@status2</h6>
                         </div>
                     </div>*@
-                <span class="text-success">@status2</span>
+                @if (!String.IsNullOrEmpty(status2))
+                {
+                    <div class="d-inline-flex flex-column">
+                        <div class="border px-2 rounded-3 d-flex flex-between-center bg-white text-200 my-1 fs--1">
+                            <span class="fas fa-file"></span>
+                            <span class="ms-2">@status2</span>
+                        </div>
+                    </div>
+                }
             }
         }
     </div>
@@ -106,7 +114,7 @@
                 else
                 {
                     //status = DefaultStatus;
-                    status2 = selectedFiles.Name + "|" + "Archivo Almacenado";
+                    status2 = selectedFiles.Name + " " + selectedFiles.Size.ToSize(GetSizeFile.SizeUnits.KB) + "KB";
 
                     ArchivoId = httpResponse.Response;
                     await SubidaExitosa.InvokeAsync(ArchivoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api

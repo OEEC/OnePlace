@@ -21,7 +21,15 @@
         }
         else
         {
-            <span class="text-success">@Message</span>
+            @if (!String.IsNullOrEmpty(Message))
+            {
+                <div class="d-inline-flex flex-column">
+                    <div class="border px-2 rounded-3 d-flex flex-between-center bg-white text-200 my-1 fs--1">
+                        <span class="fas fa-video"></span>
+                        <span class="ms-2">@Message</span>
+                    </div>
+                </div>
+            }
         }
     }
 </div>
@@ -88,7 +96,7 @@
                 ArchivoId = httpResponse.Response;
                 await SubidaExitosa.InvokeAsync(ArchivoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api
             }
-            Message = $"Archivo Almacenado {file.Size} bytes de {file.Name}";
+            Message = $"{file.Name} {file.Size.ToSize(GetSizeFile.SizeUnits.KB) + "KB"}";
         }
 
         this.StateHasChanged();
