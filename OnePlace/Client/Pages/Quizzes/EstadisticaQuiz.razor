@@ -1,0 +1,424 @@
+﻿@page "/estadisticaquiz"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+@if (ListadeCursoEstados != null)
+{
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header bg-light">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-sm-auto">
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Texto Typo="Typo.h5" Class="mb-0">Avance de Usuarios</Texto>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <BlazoredTypeahead SearchMethod="BuscarEmpleados"
+                                               MaximumSuggestions="100"
+                                               Context="empleado"
+                                               TValue="Empleado"
+                                               TItem="Empleado"
+                                               ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                               Value="@EmpleadoSeleccionado"
+                                               ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                               placeholder="Buscar Empleados">
+                                <SelectedTemplate>
+                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                </SelectedTemplate>
+                                <ResultTemplate>
+                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                </ResultTemplate>
+                                <NotFoundTemplate>
+                                    Lo sentimos, no hay empleados con esos datos.
+                                </NotFoundTemplate>
+                            </BlazoredTypeahead>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <BlazoredTypeahead SearchMethod="BuscarCursos"
+                                               MaximumSuggestions="100"
+                                               Context="curso"
+                                               TValue="Curso"
+                                               TItem="Curso"
+                                               ValueExpression="@(()=>CursoSeleccionado)"
+                                               Value="@CursoSeleccionado"
+                                               ValueChanged="@((Curso item) => CargarCursoFiltro(item))"
+                                               placeholder="Buscar Cursos">
+                                <SelectedTemplate>
+                                    @curso.Nombre
+                                </SelectedTemplate>
+                                <ResultTemplate>
+                                    @curso.Nombre
+                                </ResultTemplate>
+                                <NotFoundTemplate>
+                                    Lo sentimos, no hay cursos con esos datos.
+                                </NotFoundTemplate>
+                            </BlazoredTypeahead>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
+                            <select class="form-control form-control-sm" @bind="statusCurso">
+                                <option value="">Seleccione Status</option>
+                                @foreach (var item in Enum.GetValues(typeof(EstadoCurso)).Cast<EstadoCurso>())
+                                {
+                                    <option value="@item.ToString()">@item.GetDescription()</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-dark btn-sm" @onclick="Cargar">
+                                <Icono Icon="oi oi-magnifying-glass" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Filtrar</Texto>
+                            </Boton>
+                            <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-danger btn-sm" @onclick="LimpiarOnClick">
+                                <Icono Icon="oi oi-reload" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Limpiar</Texto>
+                            </Boton>
+                        </div>
+                    </div>
+                    @if (ListadeCursoEstados != null && ListadeCursoEstados.Count > 0)
+                    {
+                        <div class="d-inline-block mr-3">
+                            <div class="input-group input-group-sm d-flex align-items-center">
+                                <Boton Class="btn btn-outline-primary btn-sm" ButtonType="ButtonType.Button" @onclick="ExportExcel"><Icono Icon="fa fa-download" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Exportar a Excel</Texto></Boton>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="text-center">
+                        <tr>
+                            <th scope="col">Empleado</th>
+                            <th scope="col">Curso</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var item in ListadeCursoEstados)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-primary">
+                                        @item.Empleado.Persona.Nombre @item.Empleado.Persona.ApePat @item.Empleado.Persona.ApeMat
+                                    </span>
+                                </td>
+                                <td>@item.Curso.Nombre</td>
+                                @if (item.EstadoCurso == EstadoCurso.Terminado)
+                                {
+                                    <td class="text-success">Completado</td>
+                                }
+                                else
+                                {
+                                    <td class="text-danger">Sin Completar</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (ListadeCursoEstadosExport != null)
+            {
+                <div class="row justify-content-end">
+                    <div class="col-auto">
+                        <table class="table table-sm table-borderless fs--1 text-end">
+                            <tbody>
+                                <tr class="border-top border-top-2 fw-bolder text-900">
+                                    <th>Total:</th>
+                                    <td>@ListadeCursoEstadosExport.Count</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </CardBody>
+        <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+            <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
+        </CardFooter>
+    </Card>
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
+    List<CursoEstado> ListadeCursoEstados { get; set; }
+    List<CursoEstado> ListadeCursoEstadosExport { get; set; }
+    private int paginaActual = 1;
+    private int paginasTotales;
+
+    //incluir mas parametros si se requieren
+    string empleadoseleccionado = "0";
+    string cursoseleccionado = "0";
+    string statusCurso = "";
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        var url = navigationManager.Uri;//aqui aplicamos el diccionario de string
+        var queries = navigationManager.ObtenerQueryStrings(url);
+        //si es la primera vez que el usuario entra esto estaria a nulo
+        if (queries == null)
+        {
+            await RealizarBusqueda(string.Empty);//le pasamos un string vacio
+        }
+        else
+        {
+            queryStringsDict = queries;
+            LlenarCampos();
+            var queryStrings = url.Split(new string[] { "?" }, StringSplitOptions.None)[1];//obtenemos los querystring atravez de la url
+            await RealizarBusqueda(queryStrings);
+        }
+    }
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        //la pagina actual va hacer igual a la pagina que me envie el componente
+        paginaActual = pagina;
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        var queryStrings = GenerarQueryString();
+        navigationManager.NavigateTo("estadisticaquiz?" + queryStrings);
+        await RealizarBusqueda(queryStrings);
+    }
+
+    #region Filtrar
+
+    //este metodo me permite llenar los campos del formulario apartir del querystring
+    private void LlenarCampos()
+    {
+        //toma los campos del diccionario y los coloca en los campos correspondientes
+        if (queryStringsDict.ContainsKey("empleadoid"))
+        {
+            empleadoseleccionado = queryStringsDict["empleadoid"];
+        }
+        if (queryStringsDict.ContainsKey("cursoid"))
+        {
+            cursoseleccionado = queryStringsDict["cursoid"];
+        }
+        if (queryStringsDict.ContainsKey("statuscurso"))
+        {
+            //StatusdelEquipo.TryParse(queryStringsDict["statusequipo"], out statusEquipo);
+            statusCurso = queryStringsDict["statuscurso"];
+        }
+        if (queryStringsDict.ContainsKey("pagina"))
+        {
+            int.TryParse(queryStringsDict["pagina"], out paginaActual);
+        }
+    }
+
+    private async Task RealizarBusqueda(string queryStrings)
+    {
+        var httpResponse = await repositorio.Get<PaginadorGenerico<CursoEstado>>("api/Quiz/estadisticas?" + queryStrings);
+        var resultado = httpResponse.Response.Resultado;
+        var resultadoexport = httpResponse.Response.ResultadoAExportar;
+
+        paginaActual = httpResponse.Response.PaginaActual;
+        paginasTotales = httpResponse.Response.TotalPaginas;
+
+        ListadeCursoEstados = (List<CursoEstado>)resultado;
+        ListadeCursoEstadosExport = (List<CursoEstado>)resultadoexport;
+    }
+
+    private string GenerarQueryString()
+    {
+        //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
+        if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["empleadoid"] = empleadoseleccionado;
+        queryStringsDict["cursoid"] = cursoseleccionado;
+        queryStringsDict["statuscurso"] = statusCurso;
+        queryStringsDict["pagina"] = paginaActual.ToString();
+
+        //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
+        var valoresporDefecto = new List<string>() { "false", "", "0" };
+
+        //construir ruta para compartir categoria=7&titulo=lenovo...
+        //en el where exluimos los valores por defecto
+        //en select le pasamos la llave y el valor y con encode codificamos el valor como por ejemplo espacion en blanco y evitar inyeccion sql
+        return string.Join("&", queryStringsDict
+            .Where(x => !valoresporDefecto.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+    }
+
+    private async Task LimpiarOnClick()
+    {
+        empleadoseleccionado = "0";
+        cursoseleccionado = "0";
+        statusCurso = "";
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    #endregion
+
+    #region FiltroporEmpleado
+
+    public Empleado EmpleadoSeleccionado { get; set; }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleados(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private void CargarEmpleadosFiltro(Empleado item)
+    {
+        @if (item != null)
+        {
+            EmpleadoSeleccionado = item;
+            empleadoseleccionado = EmpleadoSeleccionado.Idempleado.ToString();
+        }
+    }
+
+    #endregion
+
+    #region FiltroporCurso
+
+    public Curso CursoSeleccionado { get; set; }
+
+    private async Task<IEnumerable<Curso>> BuscarCursos(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Curso>>($"api/Curso/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private void CargarCursoFiltro(Curso item)
+    {
+        @if (item != null)
+        {
+            CursoSeleccionado = item;
+            cursoseleccionado = CursoSeleccionado.CursoId.ToString();
+        }
+    }
+
+    #endregion
+
+    #region Exportar Excel
+
+    private void ExportExcel()
+    {
+        if (ListadeCursoEstadosExport != null)
+        {
+            var listadoequipos = from x in ListadeCursoEstadosExport
+                                 select new { x.Empleado.Noemp, x.Empleado.Persona.Nombre, x.Empleado.Persona.ApePat, x.Curso, x.EstadoCurso };
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //creamos un package
+            using (var package = new ExcelPackage())
+            {
+                //creamos una hoja de trabajo y le agregamos el nombre
+                var sheet = package.Workbook.Worksheets.Add("Status Cursos");
+
+                //Empezamos a escribir sobre ella.
+                var rowindex = 1;
+
+                if (string.IsNullOrEmpty(statusCurso) && int.Parse(cursoseleccionado) == 0 && int.Parse(cursoseleccionado) == 0)
+                {
+                    sheet.Cells[1, 1].Value = "Status de los Cursos";
+                }
+
+                if (int.Parse(empleadoseleccionado) > 0)
+                {
+                    sheet.Cells[1, 1].Value = "Cursos realizados por:" + " " + EmpleadoSeleccionado.Persona.Nombre + " " + EmpleadoSeleccionado.Persona.ApePat;
+                }
+
+                if (int.Parse(cursoseleccionado) > 0)
+                {
+                    sheet.Cells[1, 1].Value = "Empleados que realizaron el Curso:" + " " + CursoSeleccionado.Nombre;
+                }
+
+                if (statusCurso == EstadoCurso.Terminado.ToString())
+                {
+                    sheet.Cells[1, 1].Value = "Empleados que terminaron los cursos";
+                }
+                else if (statusCurso == EstadoCurso.SinCompletar.ToString())
+                {
+                    sheet.Cells[1, 1].Value = "Empleados que no terminaron los cursos";
+                }
+
+                //if (int.Parse(cursoseleccionado) > 0 && statusCurso == EstadoCurso.Terminado.ToString())
+                //{
+                //    sheet.Cells[1, 1].Value = "Total de Cursos Terminados:" + " " + CursoSeleccionado.Nombre + " " + "&" + " " + "que estan con el Señor Cruz";
+                //}
+                //else if (int.Parse(cursoseleccionado) > 0 && statusCurso == EstadoCurso.SinCompletar.ToString())
+                //{
+                //    sheet.Cells[1, 1].Value = "Total de Cursos sin Terminar:" + " " + CursoSeleccionado.Nombre + " " + "&" + " " + "que estan en CTN";
+                //}
+
+                sheet.Cells[1, 1, 1, 4].Merge = true; //Hago un Merge de primeras 5 columnas para poner el titulo.
+                sheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                sheet.Cells[1, 1].Style.Font.Bold = true;
+                sheet.Cells[1, 1].Style.Font.Color.SetColor(ColorTranslator.FromHtml("#000000"));
+
+                //sheet.Cells[1, 1].AddComment("Listado de recibos", "Masanasa"); //Se puede poner un comentario en una celda
+                rowindex = 2;
+
+                //Pongo los encabezados del excel
+                var col = 1;
+                sheet.Cells[rowindex, col++].Value = "Código";
+                sheet.Cells[rowindex, col++].Value = "Empleado";
+                sheet.Cells[rowindex, col++].Value = "Curso";
+                sheet.Cells[rowindex, col++].Value = "Status";
+
+                rowindex = 3;
+
+                //Recorro el listado y los ponemos en el Excel
+                foreach (var item in listadoequipos)
+                {
+                    col = 1;
+                    sheet.Cells[rowindex, col++].Value = item.Noemp;
+                    sheet.Cells[rowindex, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;//fue para alinear la primera columa ya que por defaulr venia a la izquierda
+                    sheet.Cells[rowindex, col++].Value = item.Nombre +" "+ item.ApePat;
+                    sheet.Cells[rowindex, col++].Value = item.Curso.Nombre;
+                    sheet.Cells[rowindex, col++].Value = item.EstadoCurso.GetDescription();
+
+                    rowindex++;
+                }
+
+                sheet.Cells[rowindex, 3].Value = "Total:";
+                sheet.Cells[rowindex, 4].Value = ListadeCursoEstadosExport.Count;
+
+                sheet.Cells[rowindex, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;//alinaer horizontalmente a la izquierda
+                sheet.Cells[rowindex, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                sheet.DefaultColWidth = 25;//ancho predefinido a las columnas
+
+                // Ancho de celdas, marca error
+                //sheet.Cells.AutoFitColumns();
+
+                //Establezco diseño al excel utilizando un diseño predefinido
+                var range = sheet.Cells[2, 1, rowindex, 4]; //el dos es hacia arriba la celda y el uno para que inice en la primera columna
+                var tableBody = sheet.Tables.Add(range, "tabla");
+                tableBody.TableStyle = OfficeOpenXml.Table.TableStyles.Medium4;
+
+                //descargar el archivo
+                JS.GuardarComo("StatusCursos.xlsx", package.GetAsByteArray());
+            }
+        }
+    }
+
+    #endregion
+}

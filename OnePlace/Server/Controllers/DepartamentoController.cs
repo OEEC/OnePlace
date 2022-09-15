@@ -37,13 +37,13 @@ namespace OnePlace.Server.Controllers
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Departamento>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).Take(25).ToListAsync();
+                return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).ToListAsync();
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Departamento>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).Take(5).ToListAsync();
+                return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
             }
         }
     }

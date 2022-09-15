@@ -55,7 +55,7 @@ namespace OnePlace.Server.Controllers
             if (string.IsNullOrEmpty(evento.ImgEvento))
             {
                 // Aquí colocas la URL de la imagen por defecto
-                evento.ImgEvento = "Img" + "/" + "avatars-1.png";
+                evento.ImgEvento = "Img" + "/" + "Imagenotfound.jpg";
             }
             
             return evento;
@@ -137,13 +137,13 @@ namespace OnePlace.Server.Controllers
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Evento>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Eventos.Where(x => x.NombreEvento.ToLower().Contains(textoBusqueda)).Take(25).ToListAsync();
+                return await context.Eventos.Where(x => x.NombreEvento.ToLower().Contains(textoBusqueda)).ToListAsync();
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Evento>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Eventos.Where(x => x.NombreEvento.ToLower().Contains(textoBusqueda)).Take(5).ToListAsync();
+                return await context.Eventos.Where(x => x.NombreEvento.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
             }
         }
 

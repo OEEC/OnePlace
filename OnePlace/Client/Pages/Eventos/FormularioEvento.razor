@@ -33,7 +33,7 @@
                 <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="descripcion">Descripción</InputLabel>
-                        <InputText id="descripcion" placeholder="Descripción" type="text" class="form-control form-control-sm" @bind-Value="@Evento.DescripcionEvento" />
+                        <InputTextArea id="descripcion" placeholder="Descripción" type="text" rows="1" class="form-control form-control-sm" @bind-Value="@Evento.DescripcionEvento" />
                         <ValidationMessage For="@(() => Evento.DescripcionEvento)" />
                     </div>
                 </div>

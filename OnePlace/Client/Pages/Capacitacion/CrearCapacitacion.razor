@@ -1,0 +1,25 @@
+﻿@page "/crear-capacitacion"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<FormularioCapacitacion OnValidSubmit="Crear" Capacitacion="Capacitacion" Titulo="Crear Capacitación" />
+
+@code {
+    private CapacitacionContinua Capacitacion = new CapacitacionContinua();
+
+    async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/Capacitacion", Capacitacion);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Capacitación Creada");
+            navigationManager.NavigateTo("indice-capacitacion");
+        }
+    }
+}

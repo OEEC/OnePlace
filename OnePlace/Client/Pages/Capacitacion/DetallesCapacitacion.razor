@@ -1,0 +1,185 @@
+﻿@page "/detalles-capacitacion/{CapacitacionId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+@if (Capacitacion == null)
+{
+    <LoadingSpinner IsLoading="Procesando" />
+}
+else
+{
+    <Card Class="card mb-3">
+        <CardBody Class="card-body">
+            <div class="row">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="position-relative contenedordelaimg">
+                        <Imagen Class="rounded-1 h-100 w-100" Src="@Capacitacion.Imagen" />
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <Texto Typo="Typo.h5">@Capacitacion.Nombre</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1">@Capacitacion.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">
+                        @Capacitacion.Descripcion
+                    </Texto>                   
+                    @if(Capacitacion.Activo == true)
+                    {
+                        <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
+                    }
+                    @if(user.IsInRole("Administrador"))
+                    {
+                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-capacitacion/" + Capacitacion.CapacitacionContinuaId)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Capacitación</Texto></Enlace>
+                    }
+                </div>
+            </div>
+        </CardBody>
+    </Card>
+
+    @if (ListadeVideos != null && ListadeVideos.Count > 0)
+    {
+        <Card Class="card mb-3">
+            <CardBody Class="card-body bg-light">
+                <div class="row light">
+                    @foreach (var item in ListadeVideos)
+                    {
+                        <div class="col-sm-6 col-lg-4 mb-4">
+                            <Card Class="card overflow-hidden" Style="height:300px;">
+                                <Card Class="card-img-top">
+                                    <video controls width="100%" controlslist="nodownload">
+                                        <source src="@item.UrlLocal" type="video/mp4"  />
+                                    </video>
+                                </Card>
+                                <CardBody Class="card-body">
+                                    <Texto Typo="Typo.body1" Class="fs--1">
+                                        Acciones para video:&nbsp;
+                                        @if (user.IsInRole("Administrador"))
+                                        {
+                                            <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => BorrarArchivo(item.ArchivoAdjuntoId))"/>
+                                        }
+                                    </Texto>
+                                </CardBody>
+                            </Card>
+                        </div>
+                    }
+                </div>
+            </CardBody>
+        </Card>
+        <br />
+    }  
+}
+
+@code {
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public int CapacitacionId { get; set; }
+    private bool Procesando = true;
+    private CapacitacionContinua Capacitacion;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        await Cargar();
+
+        if(Capacitacion != null)
+        {
+            await MostrarVideo();
+        }
+    }
+
+    private async Task Cargar()
+    {
+        var responseHttp = await repositorio.Get<CapacitacionContinua>($"api/Capacitacion/{CapacitacionId}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("inicio");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            Capacitacion = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    #region BorrarArchivos
+
+    private async Task BorrarArchivo(int Id)
+    {
+        string mensajeconfirmacion = $"¿Desea borrar este archivo?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            var httpResponse = await repositorio.Delete($"api/Capacitacion/{Id}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                await BorrarIdRelacionado(Id);
+            }
+        }
+    }
+
+    ////eliminar el registro relacionado en la tabla archivosadjuntos con el id de la tabla videoscapacitacion
+    private async Task BorrarIdRelacionado(int id)
+    {
+        var responseHttp = await repositorio.Delete($"api/Upload/{id}");
+        if (responseHttp.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await responseHttp.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo($"detalles-capacitacion/{Capacitacion.CapacitacionContinuaId}");
+            await Cargar();
+            await MostrarVideo();//refrescar el card del video y quitarlo
+        }
+    }
+
+    #endregion
+
+    #region VisualizarVideo
+
+    private List<ArchivoAdjunto> ListadeVideos;
+
+    public async Task MostrarVideo()
+    {
+        var responseHttp = await repositorio.Post<List<VideosCapacitacion>, List<ArchivoAdjunto>>($"api/Upload/ObtenerListadodeVideos", Capacitacion.ListadeVideos);
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
+                navigationManager.NavigateTo($"detalles-capacitacion/{Capacitacion.CapacitacionContinuaId}");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            ListadeVideos = responseHttp.Response;
+        }
+    }
+
+    #endregion
+}
+

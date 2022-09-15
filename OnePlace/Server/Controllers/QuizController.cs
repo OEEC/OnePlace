@@ -397,6 +397,8 @@ namespace OnePlace.Server.Controllers
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
+            int IdEmpleadoGlobal = 0;
+
             //buscamos un listado de temas por el id del curso enviado
             var listadetemas = await context.Temas.Where(x => x.CursoId == id).ToListAsync();
 
@@ -437,6 +439,7 @@ namespace OnePlace.Server.Controllers
                 {
                     var empleado = await context.Empleados.Where(x => x.Noemp == user.noemp).FirstOrDefaultAsync();
                     actividadUsuario.Idempleado = empleado.Idempleado;
+                    IdEmpleadoGlobal = empleado.Idempleado;
 
                     listadefasesterminadas.Add(actividadUsuario);
                 }               
@@ -453,6 +456,7 @@ namespace OnePlace.Server.Controllers
             {
                 CursoEstado cursoEstado = new CursoEstado();
                 cursoEstado.CursoId = id;
+                cursoEstado.Idempleado = IdEmpleadoGlobal;
                 cursoEstado.UserId = user.Id;
                 cursoEstado.EstadoCurso = EstadoCurso.Terminado;
 
@@ -511,5 +515,102 @@ namespace OnePlace.Server.Controllers
             }
             public int EmpleadoId { get; set; }         
         }
-    }
+
+        //utilizamos fromquery para traer los parametros de busqueda
+        [HttpGet("estadisticas")]
+        [AllowAnonymous]
+
+        public async Task<ActionResult<PaginadorGenerico<CursoEstado>>> GetEstadistica([FromQuery] ParametrosBusquedaEstadistica parametrosBusqueda)       
+        {
+            PaginadorGenerico<CursoEstado> _PaginadorConceptos;          
+
+            List<CursoEstado> listaARetornar = new List<CursoEstado>();//listado con filtrado de registros
+            List<CursoEstado> listaARetornarExport = new List<CursoEstado>();//listado sin filtrado de registros
+
+            //proyeccion del listado del cursoestados
+            List<CursoEstado> listadecursosestado =
+                (from e in context.CursoEstado
+                 select new CursoEstado
+                 {
+                     CursoEstadoId = e.CursoEstadoId,
+                     UserId = e.UserId,
+                     CursoId = e.CursoId,
+                     EstadoCurso = e.EstadoCurso,
+                     Idempleado = e.Idempleado,
+                     Curso = context.Cursos.Where(x => x.CursoId == e.CursoId).FirstOrDefault(),                     
+                     Empleado = (from z in context.Empleados
+                                 where z.Idempleado == e.Idempleado
+                                 select new Empleado
+                                 {
+                                     Noemp = z.Noemp,
+                                     Persona = context.Personas.Where(x => x.Idpersona == z.Idpersona).FirstOrDefault(),
+
+                                 }).FirstOrDefault()
+                 }).ToList();
+
+            //el listado de proyeccion se hace queryable para poder realizar los filtros
+            var queryable = listadecursosestado.OrderBy(x => x.Empleado.Noemp).ThenBy(x => x.CursoId).AsQueryable();            
+
+            if (parametrosBusqueda.EmpleadoId != 0)
+            {
+                queryable = queryable.Where(x => x.Idempleado == parametrosBusqueda.EmpleadoId);
+            }
+            if (parametrosBusqueda.CursoId != 0)
+            {
+                queryable = queryable.Where(x => x.CursoId == parametrosBusqueda.CursoId);
+            }
+            if (!string.IsNullOrWhiteSpace(parametrosBusqueda.StatusCurso))
+            {
+                //convertir string a enum para igualar enum con enum y no de error por que si pones x => x.StatusdelEquipo.ToString() da error
+                EstadoCurso StringAenum = (EstadoCurso)Enum.Parse(typeof(EstadoCurso), parametrosBusqueda.StatusCurso);
+                queryable = queryable.Where(x => x.EstadoCurso == StringAenum);
+            }
+
+            //se asignan los registros a los listados despues de cada query para que se vean reflejados los filtros
+            listaARetornar = queryable.ToList();
+            listaARetornarExport = listaARetornar;
+
+            #region PAGINACION          
+
+            int _TotalRegistros = 0;
+            int _TotalPaginas = 0;
+
+            // Número total de registros de la coleccion 
+            _TotalRegistros = listaARetornar.Count();
+
+            // Obtenemos la 'página de registros' de la coleccion 
+            listaARetornar = listaARetornar.Skip((parametrosBusqueda.Pagina - 1) * parametrosBusqueda.CantidadRegistros)
+                                                             .Take(parametrosBusqueda.CantidadRegistros)
+                                                             .ToList();
+            // Número total de páginas de la coleccion
+            _TotalPaginas = (int)Math.Ceiling((double)_TotalRegistros / parametrosBusqueda.CantidadRegistros);
+
+            //Instanciamos la 'Clase de paginación' y asignamos los nuevos valores
+            _PaginadorConceptos = new PaginadorGenerico<CursoEstado>()
+            {
+                RegistrosPorPagina = parametrosBusqueda.CantidadRegistros,
+                TotalRegistros = _TotalRegistros,
+                TotalPaginas = _TotalPaginas,
+                PaginaActual = parametrosBusqueda.Pagina,
+                Resultado = listaARetornar,
+                ResultadoAExportar = listaARetornarExport
+            };
+            return _PaginadorConceptos;
+
+            #endregion           
+        }
+        public class ParametrosBusquedaEstadistica
+        {
+            public int Pagina { get; set; } = 1;
+            public int CantidadRegistros { get; set; } = 12;
+            public PaginacionDTO Paginacion
+            {
+                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
+            }
+            public int EmpleadoId { get; set; }
+            public int CursoId { get; set; }
+            public string StatusCurso { get; set; }
+        }
+    }  
 }
+

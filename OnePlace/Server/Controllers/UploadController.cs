@@ -103,7 +103,7 @@ namespace OnePlace.Server.Controllers
         }
 
         ///////////////////////////
-        // SUBIR VIDEOS //
+        // SUBIR VIDEOS ///////////
         /////////////////////////// 
 
         [Route("Video")]
@@ -146,6 +146,7 @@ namespace OnePlace.Server.Controllers
             return uploadedFile.ArchivoAdjuntoId;
         }
 
+        #region VERELVIDEOPOMEDIODEBYTES
         //SI SE QUIERE VER EL VIDEO POR MEDIO DE BYTES DESCOMENTAR
 
         //[HttpGet("MostrarVideo/{Id}")]
@@ -168,6 +169,221 @@ namespace OnePlace.Server.Controllers
         //        salida = archivo.ArchivoEnBytes;// llenamos el arreglo vacio de bytes con los bytes del archivo obtenido
         //        return File(salida, "application/mp4");// retornamos los bytes transformados en lectura a mp4
         //    }
-        //}       
+        //}
+
+        #endregion
+
+        //////////////////////////////////////////////////
+        // APIS PARA SUBIR MULTIPLES IMAGENES/////////////
+        /////////////////////////////////////////////////    
+
+        [Route("Img")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrador,Usuario")]
+        public async Task<ActionResult<List<int>>> PostImg(List<ArchivoAdjunto> listadearchivos)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            //lista a devolver con los id de los archivosadjuntos
+            List<int> listaARetornar = new List<int>();
+
+            //recorremos la lista que nos envio el componente subirarchivos
+            foreach (var archivo in listadearchivos)
+            {
+                archivo.FechaDeSubida = DateTime.Now;
+
+                //Obtener la extension del archivo - tipo de documento
+                string extencion = archivo.NombreArchivo.ToString().Split('.').Last();
+                archivo.ExtensionArchivo = extencion;
+
+                if (extencion == "jpg" || extencion == "jpeg" || extencion == "png")
+                {
+                    context.Add(archivo);
+                    await context.SaveChangesAsync(user.Id);
+
+                    //despues de que almacenamos los archivos ya podemos obtener los id autoincrementables que nos da la bd, para retornarlos
+                    listaARetornar.Add(archivo.ArchivoAdjuntoId);
+                }
+                else
+                {
+                    string mensajeError = "Archivo no válido!";
+                    return BadRequest(mensajeError);
+                }
+            }
+            return listaARetornar;
+        }
+
+        [Route("Mostrarpicture/{Id}")]
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GetPicture(int Id)
+        {
+            //buscamos en la tabla los archivos con el id envidado
+            var archivos = context.ArchivoAdjuntos.Where(x => x.ArchivoAdjuntoId == Id).ToList();
+
+            byte[] salida = new byte[0];//inicilizamos un array vacio de bytes
+
+            if (archivos == null)
+            {
+                //si no se econtro archivos retornamos notfound
+                return NotFound();
+            }
+            else
+            {
+                foreach (var item in archivos)
+                {
+                    salida = item.ArchivoEnBytes;//llenamos el arreglo vacio de bytes con los bytes del archivo obtenido
+                }
+                return File(salida, "image/jpg");// retornamos los bytes transformados en lectura a jpg                
+            }
+        }
+
+        //////////////////////////////////////////////////
+        // APIS PARA SUBIR MULTIPLES VIDEOS//////////////
+        /////////////////////////////////////////////////   
+
+        [Route("Videos")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrador,Usuario")]
+        public async Task<ActionResult<List<int>>> PostVideos(List<ArchivoAdjunto> listadearchivos)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            //lista a devolver con los id de los archivosadjuntos
+            List<int> listaARetornar = new List<int>();
+
+            //recorremos la lista que nos envio el componente subirarchivos
+            foreach (var archivo in listadearchivos)
+            {
+                archivo.FechaDeSubida = DateTime.Now;
+
+                //Obtener la extension del archivo - tipo de documento
+                string extencion = archivo.NombreArchivo.ToString().Split('.').Last();
+                archivo.ExtensionArchivo = extencion;
+
+                if (extencion == "mp4")
+                {
+                    string nombreContenedor = "VideoServer";
+                    var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{archivo.NombreArchivo}";
+
+                    var fs = System.IO.File.Create(path);
+                    fs.Write(archivo.ArchivoEnBytes, 0, archivo.ArchivoEnBytes.Length);
+                    fs.Close();
+
+                    //pathbase es para obtener la url base en este caso capacitate solo cuando esta en IIS en local biene vacio no afecta
+                    var urlActual = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
+                    var rutaParaBD = Path.Combine(urlActual, nombreContenedor, archivo.NombreArchivo);
+
+                    archivo.UrlLocal = rutaParaBD;
+                    archivo.ArchivoEnBytes = null;//vienen bytes pero se hacen null ya que causa error si se almacenan 
+
+                    context.Add(archivo);
+                    await context.SaveChangesAsync(user.Id);
+
+                    //despues de que almacenamos los archivos ya podemos obtener los id autoincrementables que nos da la bd, para retornarlos
+                    listaARetornar.Add(archivo.ArchivoAdjuntoId);
+                }
+                else
+                {
+                    string mensajeError = "Archivo no válido!";
+                    return BadRequest(mensajeError);
+                }
+            }
+            return listaARetornar;
+        }
+
+        [Route("ObtenerListadodeVideos")]
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrador,Usuario")]
+        public async Task<ActionResult<List<ArchivoAdjunto>>> PostVideos(List<VideosCapacitacion> listadevideos)
+        {
+            List<ArchivoAdjunto> listadearchivos = new List<ArchivoAdjunto>();
+            foreach(var item in listadevideos)
+            {
+                var archivo = context.ArchivoAdjuntos.Where(x => x.ArchivoAdjuntoId == item.ArchivoId).FirstOrDefault();
+                if (archivo != null){
+
+                    listadearchivos.Add(archivo);
+                }
+            }
+           
+            return listadearchivos;
+        }
+
+        #region VERLOSVIDEOSPORMEDIODEBYTES
+        //SI SE QUIERE VER LOS VIDEOS POR MEDIO DE BYTES DESCOMENTAR
+        //[Route("Videos")]
+        //[HttpPost]
+        //public async Task<ActionResult<List<int>>> PostVideos(List<ArchivoAdjunto> listadearchivos)
+        //{
+        //    var user = await _userManager.GetUserAsync(HttpContext.User);
+
+        //    //lista a devolver con los id de los archivosadjuntos
+        //    List<int> listaARetornar = new List<int>();
+
+        //    //recorremos la lista que nos envio el componente subirarchivos
+        //    foreach (var archivo in listadearchivos)
+        //    {
+        //        archivo.FechaDeSubida = DateTime.Now;
+
+        //        //Obtener la extension del archivo - tipo de documento
+        //        string extencion = archivo.NombreArchivo.ToString().Split('.').Last();
+        //        archivo.ExtensionArchivo = extencion;
+
+        //        if (extencion == "mp4")
+        //        {
+        //            context.Add(archivo);
+        //            await context.SaveChangesAsync(user.Id);
+
+        //            //despues de que almacenamos los archivos ya podemos obtener los id autoincrementables que nos da la bd, para retornarlos
+        //            listaARetornar.Add(archivo.ArchivoAdjuntoId);
+        //        }
+        //        else
+        //        {
+        //            string mensajeError = "Archivo no válido!";
+        //            return BadRequest(mensajeError);
+        //        }
+        //    }
+        //    return listaARetornar;
+        //}
+        #endregion
+
+        #region YaNoSeUsa
+        //[HttpPost("{id}")]
+        //public async Task Post(int Id)
+        //{           
+        //    //Comprueba si se cargó algún archivo 
+        //    if (HttpContext.Request.Form.Files.Any())
+        //    {
+        //        foreach (var file in HttpContext.Request.Form.Files)
+        //        {                    
+        //            //si usas wwwroot/Uploads necesitas WebRootPath
+        //            //si no usas /Uploads necesitas ContentRootPath
+        //            var path = Path.Combine(environment.WebRootPath, "Uploads", file.FileName);                   
+
+        //            //creamos un FileStream usando el método FileMode.Create()
+        //            using (var stream = new FileStream(path, FileMode.Create))
+        //            {
+        //                //escribimos el byte[] en el archivo usando el método Copy()
+        //                await file.CopyToAsync(stream);                     
+        //            }
+
+        //            //buscamos el proveedor en la bd que sea igual al proveedor enviado
+        //            var proveedor = context.Proveedores.SingleOrDefault(x => x.ProveeedorId == Id);
+
+        //            using (var ms = new MemoryStream())//inicializamos el memorystream
+        //            {
+        //                await file.CopyToAsync(ms);//copiamos el file que viene del foreach al memorystream
+        //                proveedor.ArchivoAdjunto = ms.ToArray();//convertimos el memorystream en array
+        //                proveedor.NombreArchivo = file.FileName;
+        //            }                    
+
+        //            context.Proveedores.Update(proveedor);
+        //            await context.SaveChangesAsync();
+        //        }
+        //    }
+        //}
+
+        #endregion
     }
 }

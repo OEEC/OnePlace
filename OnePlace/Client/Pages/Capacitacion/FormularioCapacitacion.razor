@@ -1,0 +1,143 @@
+﻿@inject IRepositorio repositorio
+@using System.Security.Claims
+
+<EditForm Model="@Capacitacion" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header">
+            <div class="row">
+                <div class="col">
+                    <Texto Typo="Typo.h5" Class="mb-0">@Titulo</Texto><br>
+                </div>
+                <div class="col-auto d-none d-sm-block">
+                    <input type="date" class="form-control form-control-sm" id="fecha" @bind-value="@Capacitacion.FechaRegistro" disabled />
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="nombre">Nombre de la Capacitación</InputLabel>
+                        <InputText class="form-control form-control-sm" id="nombreevento" placeholder="Nombre de la Capacitación" @bind-Value="@Capacitacion.Nombre" />
+                        <ValidationMessage For="@(() => Capacitacion.Nombre)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="descripcion">Descripción</InputLabel>
+                        <InputTextArea id="descripcion" placeholder="Descripción" type="text" rows="1"dien class="form-control form-control-sm" @bind-Value="@Capacitacion.Descripcion" />
+                        <ValidationMessage For="@(() => Capacitacion.Descripcion)" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" Label="Imagen" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <SubirMultiplesVideos SubidaExitosa="SeSubioelArchivo"></SubirMultiplesVideos>
+                    </div>
+                </div>
+                @if (Es_EditarCapacitacion == true)
+                {
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <br />
+                            <ToolTip Delay="1000">
+                                <ChildContent>
+                                    <CasillaVerificacion @bind-Checked="@Capacitacion.Activo" ManejarEstados="true" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <Texto Typo="Typo.body2">La casilla marcada indica que el registro esta activo</Texto>
+                                </TooltipContent>
+                            </ToolTip>
+                        </div>
+                    </div>
+                }
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top text-right bg-transparent">
+            <Boton Class="btn btn-secondary btn-sm mr-2" ButtonType="ButtonType.Submit"><Icono Icon="fas fa-check fs--2 mr-1"></Icono>Guardar</Boton>
+        </CardFooter>
+    </Card>
+</EditForm>
+<br />
+
+@code{
+
+    ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public CapacitacionContinua Capacitacion { get; set; }
+    [Parameter] public bool Es_EditarCapacitacion { get; set; }
+    [Parameter] public string Titulo { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    private string imagenURL;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        if (Es_EditarCapacitacion == false)
+        {
+            Capacitacion.FechaRegistro = DateTime.Now;
+        }
+
+        //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+        if (!string.IsNullOrWhiteSpace(Capacitacion.Imagen))
+        {
+            imagenURL = Capacitacion.Imagen;
+            Capacitacion.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+        }
+    }
+
+    //este metodo actualiza la imagen con la nueva imagen seleccionada
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        Capacitacion.Imagen = imagenBase64;
+        imagenURL = null;
+    }
+
+    #region SubirArchivo   
+
+    public List<VideosCapacitacion> ListaVideos = new List<VideosCapacitacion>();
+    public VideosCapacitacion Videos;
+    private Boolean isUpload = false;
+
+    //subir archivo
+    private void SubirArchivo()
+    {
+        this.isUpload = true;
+    }
+
+    //metodo que recibe la respuesta del evento callback
+    private void SeSubioelArchivo(List<int> lista)
+    {
+        //recibimos una lista de id´s
+        foreach (var item in lista)
+        {
+            //por cada iteracion creamos un new ArchivoAdjunto y le vamos añadiendo los id de la lista
+            Videos = new VideosCapacitacion()
+            {
+                ArchivoId = item
+            };
+
+            //añadimos a la lista de imgreportes cada objeto de imgreportes
+            ListaVideos.Add(Videos);
+
+            //guardar la lista de video en la lista de videos de capacitacion
+            Capacitacion.ListadeVideos = ListaVideos;
+        }
+    }
+
+    private void closeModal()
+    {
+        this.isUpload = false;
+        StateHasChanged();
+    }
+
+    #endregion
+}

@@ -476,13 +476,13 @@ namespace OnePlace.Server.Controllers
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Tema>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Temas.Where(x => x.Nombre.ToLower().Contains(textoBusqueda)).Take(25).ToListAsync();
+                return await context.Temas.Where(x => x.Nombre.ToLower().Contains(textoBusqueda)).ToListAsync();
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Tema>(); }
                 textoBusqueda = textoBusqueda.ToLower();
-                return await context.Temas.Where(x => x.Nombre.ToLower().Contains(textoBusqueda)).Take(5).ToListAsync();
+                return await context.Temas.Where(x => x.Nombre.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
             }
         }
     }

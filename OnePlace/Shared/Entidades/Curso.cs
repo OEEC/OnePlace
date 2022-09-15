@@ -1,6 +1,9 @@
-﻿using System;
+﻿using OnePlace.Shared.Entidades.SimsaCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -124,14 +127,20 @@ namespace OnePlace.Shared.Entidades
     public class CursoEstado
     {
         public int CursoEstadoId { get; set; }
-        public int CursoId { get; set; }
+        public int? CursoId { get; set; }
         public string UserId { get; set; }
+        public int? Idempleado { get; set; }
         public EstadoCurso EstadoCurso { get; set; }
+        public Curso Curso { get; set; }
+        //el not mapped hace que la bd no quiera poner foreign key con la tabla empleados , no se puede por que una tabla es innodb y la otra myasam
+        [NotMapped]
+        public Empleado Empleado { get; set; }
     }
     public enum EstadoCurso
     {
-        Comenzado,
+        [Description("Sin Completar")]
+        SinCompletar,
         Terminado,
-        Pendiente        
+              
     }
 }

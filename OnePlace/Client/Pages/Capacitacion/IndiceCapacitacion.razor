@@ -1,4 +1,4 @@
-﻿@page "/indice-cursos"
+﻿@page "/indice-capacitacion"
 @inject IRepositorio repositorio
 @inject IMostrarMensaje mostrarMensajes
 @inject IJSRuntime JS
@@ -12,46 +12,43 @@
             <div class="col-sm-auto">
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
-                        <Texto Typo="Typo.h5" Class="mb-0">Cursos</Texto>
+                        <Texto Typo="Typo.h5" Class="mb-0">Capacitaciones Continuas</Texto>
                     </div>
                 </div>
-                @if (user.IsInRole("Administrador"))
-                {
-                    <div class="d-inline-block mr-3">
-                        <div class="input-group input-group-sm d-flex align-items-center">
-                            <Enlace Class="btn btn-outline-primary btn-sm" Href="crear-curso"><Icono Icon="fas fa-plus" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Crear</Texto></Enlace>
-                        </div>
-                    </div>
-                    <div class="d-inline-block mr-3">
-                        <div class="input-group input-group-sm d-flex align-items-center">
-                            <div class="custom-control custom-switch">
-                                <input class="custom-control-input" id="customSwitch1" type="checkbox" @onchange="e => CheckChanged(e)" checked="@Activo">
-                                <label class="custom-control-label" for="customSwitch1">Inactivos</label>
-                            </div>
-                        </div>
-                    </div>
-                }
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
-                        <BlazoredTypeahead SearchMethod="BuscarCursos"
+                        <Enlace Class="btn btn-outline-primary btn-sm" Href="crear-capacitacion"><Icono Icon="fas fa-plus" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Crear</Texto></Enlace>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarCapacitacion"
                                            MaximumSuggestions="100"
-                                           Context="curso"
-                                           TValue="Curso"
-                                           TItem="Curso"
-                                           ValueExpression="@(()=>CursoSeleccionado)"
-                                           Value="@CursoSeleccionado"
-                                           ValueChanged="@((Curso item) => CargarCursosFiltro(item))"
-                                           placeholder="Buscar Curso">
+                                           Context="capacitacion"
+                                           TValue="CapacitacionContinua"
+                                           TItem="CapacitacionContinua"
+                                           ValueExpression="@(()=>CapacitacionSeleccionada)"
+                                           Value="@CapacitacionSeleccionada"
+                                           ValueChanged="@((CapacitacionContinua item) => CargarCapacitacionFiltro(item))"
+                                           placeholder="Buscar Eventos">
                             <SelectedTemplate>
-                                @curso.Nombre
+                                @capacitacion.Nombre
                             </SelectedTemplate>
                             <ResultTemplate>
-                                @curso.Nombre
+                                @capacitacion.Nombre
                             </ResultTemplate>
                             <NotFoundTemplate>
-                                Lo sentimos, no hay cursos con esos datos.
+                                Lo sentimos, no hay capacitaciones con esos datos.
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <div class="custom-control custom-switch">
+                            <input class="custom-control-input" id="customSwitch1" type="checkbox" @onchange="e => CheckChanged(e)" checked="@Activo">
+                            <label class="custom-control-label" for="customSwitch1">Inactivos</label>
+                        </div>
                     </div>
                 </div>
                 <div class="d-inline-block mr-3">
@@ -70,60 +67,57 @@
         </div>
     </CardHeader>
     <CardBody Class="card-body border-top">
-        <div class="row light">
-            @if (ListadeCursos == null)
-            {
-                <LoadingSpinner IsLoading="Procesando" />
-            }
-            else
-            {
-                @foreach (var item in ListadeCursos)
-                {
-                    <div class="col-sm-6 col-lg-4 mb-4">
-                        <Card Class="card overflow-hidden" style="height: 370px;">
-                            <Card Class="card-img-top">
-                                <Enlace Class="manita" Href="@("detalles-curso/"+item.CursoId)">
-                                    <Imagen Class="img-fluidcustom" Src="@item.Imagen" alt="Card image cap" />
-                                </Enlace>
-                            </Card>
-                            <CardBody Class="card-body">
-                                <Texto Typo="Typo.body2" Class="card-title">@item.NombreCortado</Texto>
-                                <Texto Typo="Typo.body2" Class="card-text">
-                                    @item.DescripcionCortada
-                                </Texto>
-                                @if (user.IsInRole("Administrador"))
-                                {
-                                    <Enlace Class="btn p-0" Href="@("editar-curso/" + item.CursoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
-                                        <Icono Icon="text-500 fas fa-edit" />
-                                    </Enlace>
-                                    <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => Desactivar(item))" />
-                                }
-                            </CardBody>
-                        </Card>
-                    </div>
-                }
-            }
-        </div>
+        <Tabla Items="ListadeCapacitaciones" Context="item">
+            <Cabecera>
+                <th scope="col">Nombre</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Fecha de Registro</th>                
+                <th class="text-end" scope="col">Acciones</th>
+            </Cabecera>
+            <Filas>
+                <td>
+                    <Enlace Href="@("detalles-capacitacion/"+item.CapacitacionContinuaId)">
+                        @item.Nombre
+                    </Enlace>
+                </td>
+                <td>
+                    @item.Descripcion
+                </td>
+                <td>
+                    @if (item.FechaRegistro != null)
+                    {
+                        @item.FechaRegistro.Value.ToString("MM/dd/yyyy")
+                    }
+                </td>                
+                <td>
+                    <Enlace Class="btn p-0" Href="@("editar-capacitacion/" + item.CapacitacionContinuaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                        <Icono Icon="text-500 fas fa-edit" />
+                    </Enlace>
+                    @if (item.Activo == true)
+                    {
+                        <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(() => Desactivar(item))" />
+                    }
+                </td>
+            </Filas>
+        </Tabla>
     </CardBody>
     <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
         <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
     </CardFooter>
 </Card>
-<br />
 
 @code{
-    private bool Procesando = true;
 
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
-    public List<Curso> ListadeCursos { get; set; }
+    public List<CapacitacionContinua> ListadeCapacitaciones { get; set; }
     private int paginaActual = 1;
     private int paginasTotales;
 
     //incluir mas parametros si se requieren
-    string cursoseleccionado = "0";
+    string capacitacionseleccionada = "0";
     private bool Activo = false;
 
     protected async override Task OnInitializedAsync()
@@ -156,9 +150,8 @@
     private async Task Cargar()
     {
         var queryStrings = GenerarQueryString();
-        navigationManager.NavigateTo("indice-cursos?" + queryStrings);
+        navigationManager.NavigateTo("indice-capacitacion?" + queryStrings);
         await RealizarBusqueda(queryStrings);
-        Procesando = false;
     }
 
     #region Filtrar
@@ -167,9 +160,9 @@
     private void LlenarCampos()
     {
         //toma los campos del diccionario y los coloca en los campos correspondientes
-        if (queryStringsDict.ContainsKey("cursoid"))
+        if (queryStringsDict.ContainsKey("capacitacionid"))
         {
-            cursoseleccionado = queryStringsDict["cursoid"];
+            capacitacionseleccionada = queryStringsDict["capacitacionid"];
         }
         if (queryStringsDict.ContainsKey("activo"))
         {
@@ -183,16 +176,16 @@
 
     private async Task RealizarBusqueda(string queryStrings)
     {
-        var httpResponse = await repositorio.Get<List<Curso>>("api/Curso/filtrar?" + queryStrings);
+        var httpResponse = await repositorio.Get<List<CapacitacionContinua>>("api/Capacitacion/filtrar?" + queryStrings);
         paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
-        ListadeCursos = httpResponse.Response;
+        ListadeCapacitaciones = httpResponse.Response;
     }
 
     private string GenerarQueryString()
     {
         //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
         if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
-        queryStringsDict["cursoid"] = cursoseleccionado;
+        queryStringsDict["capacitacionid"] = capacitacionseleccionada;
         queryStringsDict["activo"] = Activo.ToString();
         queryStringsDict["pagina"] = paginaActual.ToString();
 
@@ -209,13 +202,34 @@
 
     private async Task LimpiarOnClick()
     {
-        cursoseleccionado = "0";
+        capacitacionseleccionada = "";
         Activo = false;
         paginaActual = 1;
         await Cargar();
     }
 
-    #endregion  
+    #endregion
+
+    #region FiltroporCapacitacion
+
+    private async Task<IEnumerable<CapacitacionContinua>> BuscarCapacitacion(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<CapacitacionContinua>>($"api/Capacitacion/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    public CapacitacionContinua CapacitacionSeleccionada { get; set; }
+
+    private void CargarCapacitacionFiltro(CapacitacionContinua item)
+    {
+        @if (item != null)
+        {
+            CapacitacionSeleccionada = item;
+            capacitacionseleccionada = CapacitacionSeleccionada.CapacitacionContinuaId.ToString();
+        }
+    }
+
+    #endregion
 
     #region FiltroActivos
 
@@ -226,43 +240,22 @@
 
     #endregion
 
-    #region FiltroporCursos
-
-    private async Task<IEnumerable<Curso>> BuscarCursos(string searchText)
+    #region BorrarCapacitacion
+    public async Task Desactivar(CapacitacionContinua capacitacion)
     {
-        var responseHttp = await repositorio.Get<List<Curso>>($"api/Curso/buscar/{searchText}");
-        return responseHttp.Response;
-    }
-
-    public Curso CursoSeleccionado { get; set; }
-
-    private void CargarCursosFiltro(Curso item)
-    {
-        @if (item != null)
-        {
-            CursoSeleccionado = item;
-            cursoseleccionado = CursoSeleccionado.CursoId.ToString();
-        }
-    }
-
-    #endregion
-
-    #region BorrarCurso
-    public async Task Desactivar(Curso curso)
-    {
-        string mensajeconfirmacion = $"¿Desea borrar este curso: {curso.Nombre}?";
+        string mensajeconfirmacion = $"¿Desea borrar esta Capacitación: {capacitacion.Nombre}?";
         var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
         if (confirmado)
         {
-            curso.Activo = false;
-            var httpResponse = await repositorio.Put("api/Curso/Desactivar", curso);
+            capacitacion.Activo = false;
+            var httpResponse = await repositorio.Put("api/Capacitacion/Desactivar", capacitacion);
             if (httpResponse.Error)
             {
                 await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
             }
             else
             {
-                navigationManager.NavigateTo("indice-cursos");
+                navigationManager.NavigateTo("indice-capacitacion");
                 await Cargar();
             }
         }

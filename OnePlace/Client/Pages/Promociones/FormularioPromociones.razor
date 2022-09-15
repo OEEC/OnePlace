@@ -26,7 +26,7 @@
                 <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="descripcion">Descripción</InputLabel>
-                        <InputText class="form-control form-control-sm" id="descripcion" placeholder="Descripción" @bind-Value="@Promocion.Descripcion" />
+                        <InputTextArea class="form-control form-control-sm" id="descripcion" rows="1" placeholder="Descripción" @bind-Value="@Promocion.Descripcion" />
                         <ValidationMessage For="@(() => Promocion.Descripcion)" />
                     </div>
                 </div>

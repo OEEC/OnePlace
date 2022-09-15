@@ -411,3 +411,61 @@ h5, .h5 {
     .selector-multiple-botones button {
         margin: 5px;
     }
+
+/*codigo para el icono de archivos subidos en el componente subirarchivos*/
+.flex-between-center {
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.rounded-3 {
+    border-radius: 0.375rem !important;
+}
+
+.bg-white {
+    background-color: rgba(255,255,255) !important;
+}
+
+.fs--1 {
+    font-size: .8333333333rem !important;
+}
+
+.px-2 {
+    padding-right: 0.5rem !important;
+    padding-left: 0.5rem !important;
+}
+
+.my-1 {
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.border {
+    border: 1px solid #d8e2ef !important;
+}
+
+.d-flex {
+    display: -webkit-box !important;
+    display: -ms-flexbox !important;
+    display: flex !important;
+}
+
+.ms-2 {
+    margin-left: 0.5rem !important;
+}
+
+.text-300 {
+    color: rgba( 216, 226, 239) !important;
+}
+
+.text-500 {
+    color: rgba(157, 169, 187) !important;
+}
+
+.text-200 {
+    color: #5e6e82 !important;
+}

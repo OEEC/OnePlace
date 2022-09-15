@@ -3,6 +3,7 @@
 @inject NavigationManager navigationManager
 @inject IMostrarMensaje mostrarMensajes
 @inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
 
 @if (ListadeActividades != null)
@@ -19,6 +20,7 @@
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
                             <BlazoredTypeahead SearchMethod="BuscarEmpleados"
+                                               MaximumSuggestions="100"
                                                Context="empleado"
                                                TValue="Empleado"
                                                TItem="Empleado"
@@ -50,6 +52,14 @@
                             </Boton>
                         </div>
                     </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Enlace Href="estadisticaquiz" Class="btn btn-outline-primary btn-sm">
+                                <Icono Icon="fa fa-calculator" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Estadísticas</Texto>
+                            </Enlace>
+                        </div>
+                    </div>
                 </div>
             </div>
         </CardHeader>
@@ -58,7 +68,7 @@
                 <table class="table table-bordered table-hover table-striped table-sm">
                     <thead class="text-center">
                         <tr>
-                            <th scope="col">Usuario</th>
+                            <th scope="col">Empleado</th>
                             <th scope="col">Tema</th>
                             <th scope="col">Fase</th>
                             <th scope="col">Estado</th>
@@ -71,7 +81,7 @@
                                 <td>
                                     <span class="text-primary">
                                         @item.Empleado.Persona.Nombre @item.Empleado.Persona.ApePat @item.Empleado.Persona.ApeMat
-                                    </span>                               
+                                    </span>
                                 </td>
                                 <td>@item.Tema.Nombre</td>
                                 <td>@item.FaseCurso.FaseNombre</td>
@@ -81,7 +91,7 @@
                                 }
                                 else
                                 {
-                                    <td class="text-danger">Sin Completadar</td>
+                                    <td class="text-danger">Sin Completar</td>
                                 }
                             </tr>
                         }
@@ -212,5 +222,5 @@
         }
     }
 
-    #endregion
+    #endregion   
 }

@@ -26,6 +26,7 @@ namespace OnePlace.Server.Helpers
                 .ForMember(x => x.Imagen, option => option.Ignore())
                 .ForMember(x => x.Tema, option => option.Ignore());
 
+            CreateMap<CapacitacionContinua, CapacitacionContinua>().ForMember(x => x.Imagen, option => option.Ignore());
         }
     }
 }
