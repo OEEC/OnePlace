@@ -20,6 +20,10 @@ else
                     <Texto Typo="Typo.body2" Class="mt-2">
                         @Curso.Descripcion
                     </Texto>
+                    @if (Curso.FechaFinal != null)
+                    {
+                        <Texto Typo="Typo.body2" Class="fs--1 mb-0 text-600">Vence el día: @Curso.FechaFinal.Value.ToString("MM/dd/yyyy")</Texto>
+                    }
                     @if (user.IsInRole("Administrador"))
                     {
                         <Enlace Class="btn btn-dark btn-sm mr-1 mb-1" type="button" Href="@("crear-temas/"+Curso.CursoId)">

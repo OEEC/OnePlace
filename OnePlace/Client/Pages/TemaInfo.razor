@@ -90,10 +90,17 @@
                                     *@
                                      @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
                                         {
-                                            bool FaseCompleta = false;
+                                            bool FaseCompleta = false;                                            
                                             @foreach (var actividad in TemaFaseDTO.ListadeActividades.Where(x => x.FaseCursoId == faseitem.FaseCursoId))
                                             {
                                                 FaseCompleta = actividad.IsComplete;
+
+                                                //si la actividad 2 due terminada con status de completada y que pertenezca al tema seleccionado
+                                                if(actividad.FaseCursoId == 2 && actividad.IsComplete == true && actividad.TemaId == TemaId)
+                                                {
+                                                    //entonces quiere decir que el quiz ya se realizo
+                                                    QuizCompletado = true;
+                                                }
                                             }
 
                                             @if (FaseCompleta == true)
@@ -144,12 +151,25 @@
                                             {
                                                 <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
                                             }
+
+                                            @*si la fase de video fue terminada se activa el mostrarbotonquiz*@
                                             @if (MostrarBotonQuiz == true)
                                             {
-                                                <Enlace Class="btn btn-dark btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
-                                                    <Icono Icon="oi oi-pencil" />
-                                                    Responder Cuestionario
-                                                </Enlace>
+                                                //si el quiz ya fue terminado aparece este boton, sino el boton de responder
+                                                if (QuizCompletado == true)
+                                                {
+                                                    <Enlace Class="btn btn-warning btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
+                                                        <Icono Icon="fas fa-check-circle" />                                                     
+                                                        Ver Resultados
+                                                    </Enlace>
+                                                }
+                                                else
+                                                {
+                                                    <Enlace Class="btn btn-dark btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
+                                                        <Icono Icon="oi oi-pencil" />
+                                                        Responder Cuestionario
+                                                    </Enlace>
+                                                }
                                             }
                                         </div>
                                     </div>
@@ -261,6 +281,9 @@
     private bool Procesando = true;
     private TemaQuizDTO TemaQuizDTO;
     private string UserId;
+
+    //variable para idicar que el cuestionario termino y mostrar el boton de mostrar resultados y no el de responder quiz
+    public bool QuizCompletado = false;
 
     protected override async Task OnInitializedAsync()
     {

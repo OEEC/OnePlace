@@ -251,7 +251,7 @@
 
     private async Task Cargar()
     {
-        var responseHttp = await repositorio.Get<Curso>($"api/Curso/{CursoId}");
+        var responseHttp = await repositorio.Get<Curso>($"api/Curso/DetalleCurso/{CursoId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -424,17 +424,34 @@
         //con la bandera resivida desde el backend indicamos si se termino todas las fases del curso, sino entonces pasamos a ejecutar el siguente codigo
         if (ActividadesFasesTerminadasDTO.Terminado != true)
         {
+            //cambiar a 4 (4 temas finalizados)
             //si ya se completaron las fases entonces se agregara a cada tema la ultima fase para asi obtener el certificado del curso
-            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Count == 3)
+            //aqui se realiza el filtrado de la lista de actividades, a las actividades con fase 3 estado completado
+            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Where(x=>x.IsComplete == true).Count() == 3)
             {
                 //le pasamos un nuevo objeto de tipo actividad, la cual se registrara en la base de datos e indica que todas las fases terminaron
                 Actividad.IsComplete = true;
                 Actividad.FaseCursoId = 4;
 
-                var httpResponse2 = await repositorio.Post($"api/Quiz/TerminarFases/{CursoId}", Actividad);
+                var httpResponse2 = await repositorio.Post($"api/Quiz/TerminarFasesCompletas/{CursoId}", Actividad);
                 if (httpResponse2.Error)
                 {
                     await mostrarMensajes.MostrarMensajeError(await httpResponse2.GetBody());
+                }
+                else
+                {
+                    navigationManager.NavigateTo($"cursoinfoextra/{CursoId}");
+                }
+            }
+
+            /*para que no se ejecute este metodo la primera vez de carga, ya que aun no habra registros,
+            entonces minimo se ejecutara cuando el usuario haya terminado al menos un tema*/            
+            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Where(x => x.IsComplete == false).Count() >= 1)
+            {
+                var httpResponse3 = await repositorio.Post($"api/Quiz/TerminarFasesSinCompletar/{CursoId}", Actividad);
+                if (httpResponse3.Error)
+                {
+                    await mostrarMensajes.MostrarMensajeError(await httpResponse3.GetBody());
                 }
                 else
                 {

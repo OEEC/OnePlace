@@ -297,7 +297,7 @@ namespace OnePlace.Server.Controllers
                     #region TerminarTema
                     /*
                     1-Si es aprobado se actualiza el estado del tema y la fase 3 se da por terminada
-                    2-Sino aprueba el tema no sera finalizado
+                    2-Sino aprueba, el tema no sera finalizado
                     3-Sino finaliza el tema jamas avanzara para obtener el certificado
                     4-Ya que la logica de fin de curso necesita las 3 fases del tema terminadas para obtener el certificado
                     */
@@ -327,7 +327,32 @@ namespace OnePlace.Server.Controllers
                 }
                 else
                 {
-                    estado.Evaluacion = Evaluacion.Reprobado;                 
+                    estado.Evaluacion = Evaluacion.Reprobado;
+                    
+                    #region TerminarTema                              
+
+                    //si es reprobado se finaliza el tema osea la fase 3 pero con un estado de incompleta, ya que reprobo el quiz de ese tema
+                    //esto ayudara el a creacion del estado del curso en la tabla cursoestado
+                    ActividadUsuario ActividadUsuario = new ActividadUsuario();
+                    ActividadUsuario.UserId = user.Id;
+                    ActividadUsuario.IsComplete = false;
+                    ActividadUsuario.TemaId = quiz.TemaId;
+                    ActividadUsuario.FaseCursoId = 3;
+
+                    //ver si en la bd ya existe una actividad con el temaid, fasecuroid y userid
+                    var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == ActividadUsuario.TemaId && x.FaseCursoId == ActividadUsuario.FaseCursoId && x.UserId == user.Id);
+
+                    //sino exite, agregala
+                    if (!siexisteactividad)
+                    {
+                        var empleado = await context.Empleados.Where(x => x.Noemp == user.noemp).FirstOrDefaultAsync();
+                        ActividadUsuario.Idempleado = empleado.Idempleado;
+
+                        context.Add(ActividadUsuario);
+                        await context.SaveChangesAsync(user.Id);
+                    }
+
+                    #endregion
                 }
 
                 //con el estado que obtuvimos actualizamos el estado de la bd solo con la diferencia que ahora tendra la evaluacion aprobado o rerpobado
@@ -343,14 +368,15 @@ namespace OnePlace.Server.Controllers
             return model;
         }
 
+        //este endponit monitorea si las fase 3 son 4 para asi crear en una sola tirada las fase 4 de cada actividad
         [Route("ListadeActividadesTerminadas/{id}")]
         [HttpGet]
         public async Task<ActionResult<ActividadesFasesTerminadasDTO>> GetFasesTerminadas(int id)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
-            //buscamos si existe un registro en la tabla cursoestado que sea del curso envidado por parametro y con status terminado
-            var Existeestadocurso = await context.CursoEstado.AnyAsync(x => x.CursoId == id && x.EstadoCurso == EstadoCurso.Terminado && x.UserId == user.Id);
+            //buscamos si existe un registro en la tabla cursoestado que sea del curso envidado por parametro, del usuario logueado, sin importar su estado
+            var Existeestadocurso = await context.CursoEstado.AnyAsync(x => x.CursoId == id && x.UserId == user.Id);            
 
             //buscamos un listado de temas por el id del curso enviado
             var listadetemas = await context.Temas.Where(x => x.CursoId == id).ToListAsync();
@@ -361,12 +387,12 @@ namespace OnePlace.Server.Controllers
             //recorremos el listado de temas para obtener una actividad por tema, filtrado por curso seleccionado
             foreach (var tema in listadetemas)
             {
-                //sino existe un un registro en la tabla curso estado con estatus terminado, añade actividades a la lista
+                //sino existe un registro en la tabla curso estado con estatus terminado, añade actividades a la lista
                 if (!Existeestadocurso)
                 {
-                    //si la actividad tiene la fase 3 completada y es del mismo tema y del mismo usuario entonces agregala a la lista
-                    var actividad = await context.ActividadUsuarios
-                       .Where(x => x.IsComplete == true && x.UserId == user.Id && x.FaseCursoId == 3 && x.TemaId == tema.TemaId)
+                    //si la actividad tiene la fase 3 con cualquier estado completada o incompleta, y es del mismo tema y del mismo usuario entonces agregala a la lista
+                    var actividad = await context.ActividadUsuarios                     
+                       .Where(x => x.UserId == user.Id && x.FaseCursoId == 3 && x.TemaId == tema.TemaId)
                        .FirstOrDefaultAsync();
 
                     //evita añadir actividades nulas a la lista de actividades
@@ -391,7 +417,7 @@ namespace OnePlace.Server.Controllers
             return model;           
         }
        
-        [Route("TerminarFases/{id}")]
+        [Route("TerminarFasesCompletas/{id}")]
         [HttpPost]
         public async Task<ActionResult<int>> Post(ActividadUsuario actividad, int id)
         {
@@ -449,9 +475,10 @@ namespace OnePlace.Server.Controllers
             2-se guardaron las actividades en una lista 
             3-enviaremos a la bd toda la data junta de dicha lista usando addrange*/
             context.AddRange(listadefasesterminadas);
-            await context.SaveChangesAsync(user.Id);
+            await context.SaveChangesAsync(user.Id);           
 
-            //si la lista es iguala 5 entonces quiere decir que todas las fases estan terminadas y el curso ya finalizo, entonces guarda el estado del curso
+            //cambiar a 4 (4 temas finalizados)
+            //si la lista es igual a 4 entonces quiere decir que todas las fases estan terminadas y el curso ya finalizo, entonces guarda el estado del curso
             if(listadefasesterminadas.Count == 3)
             {
                 CursoEstado cursoEstado = new CursoEstado();
@@ -462,7 +489,7 @@ namespace OnePlace.Server.Controllers
 
                 context.CursoEstado.Add(cursoEstado);
                 await context.SaveChangesAsync(user.Id);
-            }
+            }           
             
             return actividad.ActividadUsuarioId;
         }       
@@ -610,6 +637,126 @@ namespace OnePlace.Server.Controllers
             public int EmpleadoId { get; set; }
             public int CursoId { get; set; }
             public string StatusCurso { get; set; }
+        }
+
+        [Route("TerminarFasesSinCompletar/{id}")]
+        [HttpPost]
+        public async Task<ActionResult<int>> PostSinCompletar(ActividadUsuario actividad, int id)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            int IdEmpleadoGlobal = 0;
+
+            //buscamos un listado de temas por el id del curso enviado
+            var listadetemas = await context.Temas.Where(x => x.CursoId == id).ToListAsync();
+
+            List<ActividadUsuario> listadeactividades = new List<ActividadUsuario>();
+
+            //recorremos el listado de temas para obtener una actividad por tema, filtrado por curso seleccionado
+            foreach (var tema in listadetemas)
+            {
+                //si la actividad tiene la fase 3 pero su estado es incompleto y es del mismo tema y del mismo usuario entonces agregala a la lista
+                var actividadIn = await context.ActividadUsuarios
+                   .Where(x => x.IsComplete == false && x.UserId == user.Id && x.FaseCursoId == 3 && x.TemaId == tema.TemaId)
+                   .FirstOrDefaultAsync();
+
+                //evita añadir actividades nulas a la lista de actividades
+                if (actividadIn != null)
+                {
+                    listadeactividades.Add(actividadIn);
+                }
+            }
+
+            //obtenemos el la data del empleado logueado
+            var empleado = await context.Empleados.Where(x => x.Noemp == user.noemp).FirstOrDefaultAsync();
+            IdEmpleadoGlobal = empleado.Idempleado;           
+           
+            //cambiar a 4(4 temas finalizados)
+            /*Si la lista es igual a 3, quiere decir que reporbo 3 temas
+            (termino el video, termino el quiz pero no lo aprobo, y por lo tanto la fase 3 se pone como terminada pero con estado incompleto)
+            Si la lista es menor a 3 quiere decir que de los 3 temas uno o dos no los termino satisfactoriamente*/
+            if (listadeactividades.Count == 3 || listadeactividades.Count <= 3)
+            {
+                //buscamos si en la tabla estadocurso no exite ya un registro
+                var existecursoestado = await context.CursoEstado
+                    .AnyAsync(x => x.CursoId == id && x.Idempleado == IdEmpleadoGlobal && x.EstadoCurso == EstadoCurso.SinCompletar);
+
+                //sino exite, añadimos un nuevo registro de estadocurso con el estado sin completar
+                if (!existecursoestado)
+                {
+                    CursoEstado cursoEstado = new CursoEstado();
+                    cursoEstado.CursoId = id;
+                    cursoEstado.Idempleado = IdEmpleadoGlobal;
+                    cursoEstado.UserId = user.Id;
+                    cursoEstado.EstadoCurso = EstadoCurso.SinCompletar;
+
+                    context.CursoEstado.Add(cursoEstado);
+                    await context.SaveChangesAsync(user.Id);
+                }
+            }
+
+            return actividad.ActividadUsuarioId;
+        }
+
+        [Route("VerRespuestas/{temaid}/{empleadoid}")]
+        [HttpGet]
+        public async Task<ActionResult<PreguntaRespuestaDTO>> GetVerRespuestas(int temaid, int empleadoid)
+        {
+            //buscamos un empleado
+            Empleado empleado = (from e in context.Empleados
+                                 where e.Idempleado == empleadoid
+                                 select new Empleado
+                                 {
+                                     Idempleado = e.Idempleado,
+                                     Idpersona = e.Idpersona,
+                                     Img = e.Img,
+                                     Noemp = e.Noemp,
+                                     Correo = e.Correo,
+                                     Telefono = e.Telefono,
+                                     Iddepartamento = e.Iddepartamento,
+                                     Idarea = e.Idarea,
+                                     Idpuesto = e.Idpuesto,
+                                     Nomina = e.Nomina,
+                                     Variable = e.Variable,
+                                     Idtipo = e.Idtipo,
+                                     Fchalta = e.Fchalta,
+                                     Fchbaja = e.Fchbaja,
+                                     Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
+                                 }).FirstOrDefault();
+
+            //obtenemos el quiz por tema
+            var quiz = await context.Quizzes.Where(x => x.TemaId == temaid)
+                .Include(x=>x.Tema)
+                .FirstOrDefaultAsync();
+
+            //tenemos que ir a la actividad quiz para obtener el verdadero quiz a usar ya que aqui si podemos comparar el tema y a su vez
+            //el idempleado enviado como parametro para asi obtener solo los resultados del empleado seleccionado
+            var actividadquiz = await context.ActividadUsuarioQuiz
+                .Where(x => x.QuizId == quiz.QuizId && x.Idempleado == empleadoid).FirstOrDefaultAsync();
+
+            //obtenemos un listado de preguntas en base a al quiz 
+            var preguntas = await context.Preguntas.Where(x => x.Quiz.QuizId == actividadquiz.QuizId)
+                .Include(x=>x.Quiz)
+                .ToListAsync();
+
+            //recorremos la lista de preguntas para obtener el listado de respuestas
+            List<Respuesta> listaderespuestas = new List<Respuesta>();
+            foreach (var item in preguntas)
+            {
+                var respuesta = await context.Respuestas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
+                if (respuesta != null)
+                {
+                    listaderespuestas.Add(respuesta);
+                }
+            }
+
+            var model = new PreguntaRespuestaDTO();
+            model.Empleado = empleado;
+            model.Tema = quiz.Tema;
+            model.ListadePreguntas = preguntas;
+            model.ListadeRespuestas = listaderespuestas;
+
+            return model;
         }
     }  
 }

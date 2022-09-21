@@ -21,6 +21,28 @@ namespace OnePlace.Shared.Entidades
         public string Descripcion { get; set; }
         public string Imagen { get; set; }
         public DateTime? FechaRegistro { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        private DateTime? _FechaFinal { get; set; } //debe ser private     
+        public DateTime? FechaFinal
+        {
+            get
+            {
+                //se usa hasvalue para que no tire error de object reference null al usar value en la fecha
+                if (FechaInicio.HasValue)
+                {
+                    //si en caso que se eligiera el 28 de febrero mas un mes daria 28 de marzo y eso esta mal por que marzo trae 31 dias
+                    //con esto se soluciona y ahora suma correctamente un mes sea cual sea el dia en cualquier mes seleccionado
+                    _FechaFinal = FechaInicio.Value.AddDays(1).AddMonths(1).AddDays(-1);                    
+                }
+
+                //se retorna aqui por que dentro del if no reconoce el return
+                return _FechaFinal;
+            }
+            set
+            {
+                _FechaFinal = value;
+            }
+        }
         public bool Activo { get; set; }
         public virtual ICollection<Tema> LisadeTemas { get; set; }
         public string NombreCortado

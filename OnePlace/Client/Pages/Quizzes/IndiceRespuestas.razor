@@ -1,0 +1,101 @@
+﻿@page "/indice-respuestas/{TemaId:int}/{EmpleadoId:int}"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IMostrarMensaje mostrarMensajes
+@inject IJSRuntime JS
+@attribute [Authorize(Roles = "Administrador")]
+@using System.Security.Claims
+
+@if (PreguntaRespuestaDTO != null)
+{
+    <Card Class="card mb-3">
+        <CardHeader Class="card-header bg-light">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-sm-auto">
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Texto Typo="Typo.h5" Class="mb-0">Lista de Respuestas</Texto>
+                        </div>
+                    </div>                 
+                </div>
+            </div>
+        </CardHeader>
+        <CardBody Class="card-body border-top">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped table-sm">
+                    <thead class="text-center">
+                        <tr>
+                            <th scope="col">Empleado</th>
+                            <th scope="col">Tema</th>
+                            <th scope="col">Pregunta</th>
+                            <th scope="col">Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach (var pregunta in PreguntaRespuestaDTO.ListadePreguntas)
+                        {
+                            foreach (var respuesta in PreguntaRespuestaDTO.ListadeRespuestas.Where(x => x.PreguntaId == pregunta.PreguntaId))
+                            {
+                                <tr>
+                                    <td>@PreguntaRespuestaDTO.Empleado.Persona.Nombre @PreguntaRespuestaDTO.Empleado.Persona.ApePat</td>
+                                    <td>@PreguntaRespuestaDTO.Tema.Nombre</td>
+                                    <td>
+                                        <span class="text-primary">
+                                           @pregunta.NombrePregunta
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @respuesta.NombreRespuesta
+                                    </td>                              
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </CardBody>
+        <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+            @*<Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />*@
+        </CardFooter>
+    </Card>
+}
+
+@code {
+
+    [Parameter] public int TemaId { get; set; }
+    [Parameter] public int EmpleadoId { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await VerRespuestas();
+    }
+
+    #region VerRespuesta
+
+    public PreguntaRespuestaDTO PreguntaRespuestaDTO { get; set; }
+
+    public async Task VerRespuestas()
+    {
+        var responseHttp = await repositorio.Get<PreguntaRespuestaDTO>($"api/Quiz/VerRespuestas/{TemaId}/{EmpleadoId}");
+
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("");
+            }
+            else
+            {
+                var mensajeError = await responseHttp.GetBody();
+                await mostrarMensajes.MostrarMensajeError(mensajeError);
+            }
+        }
+        else
+        {
+            PreguntaRespuestaDTO = responseHttp.Response;
+        }
+    }
+
+    #endregion
+}

@@ -253,7 +253,7 @@ namespace OnePlace.Server.Controllers
                                                 Fchbaja = e.Fchbaja,
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),                                              
                                             })
-                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda))                                            
+                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))                                            
                                             .ToListAsync();
 
                 return empleados;
@@ -282,7 +282,7 @@ namespace OnePlace.Server.Controllers
                                                 Fchbaja = e.Fchbaja,
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             })
-                                           .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda))
+                                           .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
                                            .Take(50)
                                            .ToListAsync();
 

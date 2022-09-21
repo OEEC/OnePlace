@@ -14,7 +14,7 @@
                 <div class="col-sm-auto">
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
-                            <Texto Typo="Typo.h5" Class="mb-0">Avance de Usuarios</Texto>
+                            <Texto Typo="Typo.h5" Class="mb-0">Avance de Cursos</Texto>
                         </div>
                     </div>
                     <div class="d-inline-block mr-3">
@@ -87,6 +87,14 @@
                             </Boton>
                         </div>
                     </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Enlace Href="indice-quiz" Class="btn btn-outline-primary btn-sm">
+                                <Icono Icon="fa fa-question" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Quiz</Texto>
+                            </Enlace>
+                        </div>
+                    </div>
                     @if (ListadeCursoEstados != null && ListadeCursoEstados.Count > 0)
                     {
                         <div class="d-inline-block mr-3">
@@ -106,6 +114,7 @@
                             <th scope="col">Empleado</th>
                             <th scope="col">Curso</th>
                             <th scope="col">Estado</th>
+                            <th scope="col">Reactivar</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
@@ -125,6 +134,16 @@
                                 else
                                 {
                                     <td class="text-danger">Sin Completar</td>
+                                }
+                                @if (item.EstadoCurso == EstadoCurso.SinCompletar)
+                                {
+                                    <td>
+                                        <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Reactivar" Icon="text-500 oi oi-action-undo" @onclick="@(() => ReactivarCurso(item))" />
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
                                 }
                             </tr>
                         }
@@ -391,7 +410,7 @@
                     col = 1;
                     sheet.Cells[rowindex, col++].Value = item.Noemp;
                     sheet.Cells[rowindex, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;//fue para alinear la primera columa ya que por defaulr venia a la izquierda
-                    sheet.Cells[rowindex, col++].Value = item.Nombre +" "+ item.ApePat;
+                    sheet.Cells[rowindex, col++].Value = item.Nombre + " " + item.ApePat;
                     sheet.Cells[rowindex, col++].Value = item.Curso.Nombre;
                     sheet.Cells[rowindex, col++].Value = item.EstadoCurso.GetDescription();
 
@@ -416,6 +435,30 @@
 
                 //descargar el archivo
                 JS.GuardarComo("StatusCursos.xlsx", package.GetAsByteArray());
+            }
+        }
+    }
+
+    #endregion    
+
+    #region ReactivarCurso
+
+    public async Task ReactivarCurso(CursoEstado cursoestado)
+    {
+        string mensajeconfirmacion = $"¿Desea reactivar este curso: {cursoestado.Curso.Nombre}?";
+        var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
+        if (confirmado)
+        {
+            var httpResponse = await repositorio.Post("api/Curso/ReactivarCurso", cursoestado);
+            @if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                await mostrarMensajes.MostrarMensajeExitoso("Curso Reactivado");
+                navigationManager.NavigateTo("estadisticaquiz");
+                await Cargar();
             }
         }
     }
