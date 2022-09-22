@@ -546,7 +546,6 @@ namespace OnePlace.Server.Controllers
         //utilizamos fromquery para traer los parametros de busqueda
         [HttpGet("estadisticas")]
         [AllowAnonymous]
-
         public async Task<ActionResult<PaginadorGenerico<CursoEstado>>> GetEstadistica([FromQuery] ParametrosBusquedaEstadistica parametrosBusqueda)       
         {
             PaginadorGenerico<CursoEstado> _PaginadorConceptos;          

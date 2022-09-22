@@ -90,8 +90,8 @@
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
                             <Enlace Href="indice-quiz" Class="btn btn-outline-primary btn-sm">
-                                <Icono Icon="fa fa-question" data-fa-transform="shrink-3 down-2" />
-                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Quiz</Texto>
+                                <Icono Icon="fa fa-book" data-fa-transform="shrink-3 down-2" />
+                                <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Temas</Texto>
                             </Enlace>
                         </div>
                     </div>
@@ -167,6 +167,7 @@
             }
         </CardBody>
         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+            <button class="btn btn-sm btn-primary" @onclick="TerminarCursoFecha">Terminar</button>
             <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
         </CardFooter>
     </Card>
@@ -439,7 +440,7 @@
         }
     }
 
-    #endregion    
+    #endregion
 
     #region ReactivarCurso
 
@@ -463,5 +464,26 @@
         }
     }
 
+    #endregion
+
+    #region TerminarCursoPorFecha
+
+    public bool RespuestaOk = false;
+
+    public async Task TerminarCursoFecha()
+    {
+        var httpResponse = await repositorio.Get<bool>("api/Curso/TerminarCursoFecha");
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            RespuestaOk = httpResponse.Response;
+            await mostrarMensajes.MostrarMensajeExitoso("Actualización de Cursos Vencidos");
+            navigationManager.NavigateTo("estadisticaquiz");
+            await Cargar();
+        }
+    }
     #endregion
 }
