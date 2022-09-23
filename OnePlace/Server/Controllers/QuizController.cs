@@ -726,28 +726,34 @@ namespace OnePlace.Server.Controllers
             //obtenemos el quiz por tema
             var quiz = await context.Quizzes.Where(x => x.TemaId == temaid)
                 .Include(x=>x.Tema)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();            
 
             //tenemos que ir a la actividad quiz para obtener el verdadero quiz a usar ya que aqui si podemos comparar el tema y a su vez
             //el idempleado enviado como parametro para asi obtener solo los resultados del empleado seleccionado
             var actividadquiz = await context.ActividadUsuarioQuiz
                 .Where(x => x.QuizId == quiz.QuizId && x.Idempleado == empleadoid).FirstOrDefaultAsync();
 
-            //obtenemos un listado de preguntas en base a al quiz 
-            var preguntas = await context.Preguntas.Where(x => x.Quiz.QuizId == actividadquiz.QuizId)
-                .Include(x=>x.Quiz)
-                .ToListAsync();
-
-            //recorremos la lista de preguntas para obtener el listado de respuestas
+            List<Pregunta> preguntas = new List<Pregunta>();
             List<Respuesta> listaderespuestas = new List<Respuesta>();
-            foreach (var item in preguntas)
+
+            if (actividadquiz != null)
             {
-                var respuesta = await context.Respuestas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
-                if (respuesta != null)
+                //obtenemos un listado de preguntas en base a al quiz 
+                preguntas = await context.Preguntas.Where(x => x.Quiz.QuizId == actividadquiz.QuizId)
+                    .Include(x => x.Quiz)
+                    .ToListAsync();
+
+                //recorremos la lista de preguntas para obtener el listado de respuestas
+
+                foreach (var item in preguntas)
                 {
-                    listaderespuestas.Add(respuesta);
+                    var respuesta = await context.Respuestas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
+                    if (respuesta != null)
+                    {
+                        listaderespuestas.Add(respuesta);
+                    }
                 }
-            }
+            }          
 
             var model = new PreguntaRespuestaDTO();
             model.Empleado = empleado;

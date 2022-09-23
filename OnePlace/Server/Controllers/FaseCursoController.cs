@@ -52,10 +52,26 @@ namespace OnePlace.Server.Controllers
                 .Where(x => x.TemaId == id && x.UserId == user.Id)
                 .ToListAsync();
 
+            //buscamos un quiz con el id del tema enviado
+            var quiz = await context.Quizzes.Where(x => x.TemaId == id).FirstOrDefaultAsync();
+
+            //buscamos una actividad quiz con el id del quiz antes buscado, y que pertenezca al usuario logueado
+            var actividadquiz = await context.ActividadUsuarioQuiz.Where(x => x.QuizId == quiz.QuizId && x.UserId == user.Id).FirstOrDefaultAsync();
+
+            //si encuentra una actividad entonces busca el estado de esa actividad donde sea terminado
+            EstadosdelQuiz estadoquiz = new EstadosdelQuiz();
+            if (actividadquiz != null)
+            {
+                estadoquiz = await context.EstadosdelQuiz
+                  .Where(x => x.EstadosdelQuizId == actividadquiz.EstadosdelQuizId && x.EstadoQuiz == EstadoQuiz.Terminado)
+                  .FirstOrDefaultAsync();
+            }          
+
             //retornamos un dto con ambas listas para ser usadas en el timeline de progreso
             var model = new TemaFaseDTO();
             model.ListadodeFases = listadefases;
             model.ListadeActividades = actividades;
+            model.EstadosdelQuiz = estadoquiz;//el enviar el estado del quiz en terminado , nos ayudara a cambiar el boton de responder cuestionario a ver respuestas
 
             return model;
         }      

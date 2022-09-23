@@ -14,5 +14,8 @@ namespace OnePlace.Shared.DTOs
 
         //se necesita ya que de aqui se optiene el valor bool iscomplete, que se usa en la razor page TemaInfo
         public List<ActividadUsuario>  ListadeActividades { get; set; }
+
+
+        public EstadosdelQuiz EstadosdelQuiz { get; set; }
     }
 }

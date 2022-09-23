@@ -340,7 +340,7 @@
 
             //le pasamos un nuevo objeto de tipo actividad, la cual se registrara en la base de datos e indica que esa actividad fue terminada
             Actividad.UserId = UserId;
-            Actividad.IsComplete = true;
+            Actividad.IsComplete = true;          
             Actividad.TemaId = Quiz.TemaId;
             Actividad.FaseCursoId = 2;
 
@@ -352,7 +352,7 @@
             else
             {
                 navigationManager.NavigateTo($"temainfoextra/{Quiz.TemaId}");
-            }          
+            }
         }
     }
 
