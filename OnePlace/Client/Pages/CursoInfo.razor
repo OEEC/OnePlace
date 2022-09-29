@@ -50,7 +50,6 @@
             </div>
         </div>
         <!-- Navbar & Hero End -->
-
         <!--Cursos-->
 
         <div class="container-xxl py-5" id="cursos">
@@ -75,7 +74,13 @@
                                             <Texto Typo="Typo.h3">@Curso.Nombre</Texto>
                                             <Texto Typo="Typo.body2" Class="mt-2">
                                                 @Curso.Descripcion
-                                            </Texto>                                           
+                                            </Texto>
+                                            @if (ActividadesFasesTerminadasDTO.Terminado == true)
+                                            {
+                                                <Boton Class="btn btn-sm btn-warning" @onclick="()=>verCertificado(TipoReporte.Certificado,IdEmpleado)">
+                                                    <Icono Icon="fa fa-trophy"></Icono> Certificado
+                                                </Boton>
+                                            }
                                         </div>
                                     </div>
                                 </CardBody>
@@ -114,7 +119,7 @@
                                                             </NotFoundTemplate>
                                                         </BlazoredTypeahead>
                                                     </div>
-                                                </div>                                             
+                                                </div>
                                                 <div class="d-inline-block mr-3">
                                                     <div class="input-group input-group-sm d-flex align-items-center">
                                                         <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-dark btn-sm" @onclick="CargarTemas">
@@ -145,7 +150,7 @@
                                                             <Texto Typo="Typo.h5" Class="card-title">@item.NombreCortado</Texto>
                                                             <Texto Typo="Typo.body2" Class="card-text">
                                                                 @item.DescripcionCortada
-                                                            </Texto>                                                           
+                                                            </Texto>
                                                         </CardBody>
                                                     </Card>
                                                 </div>
@@ -165,7 +170,6 @@
         </div>
 
         <!--Cursos End-->
-
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
             <div class="container px-lg-5">
@@ -196,10 +200,38 @@
             </div>
         </div>
         <!-- Footer End -->
-
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
-    </div>
+    </div>   
+
+    @if (VerCertificado)
+    {
+        <div class="modal show" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label" aria-modal="true" style="display:block; padding-left: 0px;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background-color: rgba(10,10,10,.8); border: none;">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn bg-simsa" data-bs-dismiss="modal" aria-label="Close"
+                                style="margin: -0.5rem -0.5rem -0.5rem auto;" @onclick="closeModalCertificados">
+                            <span class="fas fa-times" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row light">
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+
+                            <div class="col-sm-6 col-lg-6 mb-3">
+                                <iframe id="certificado" src="api/Ticket/iframe/@IdCer/@TipoReporteCertificado/@CursoId" style="width: 100%; height: 500px;"></iframe>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-3 mb-3"></div>
+                        </div>                      
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -212,13 +244,18 @@
     private Curso Curso;
     private bool Procesando = true;
 
+    public int IdEmpleado = 0;
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
         user = authState.User;
 
-        @if (user.IsInRole("Usuario"))
+        if (user.IsInRole("Usuario"))
         {
+            var empleadoid = ($"{user.FindFirst(x => x.Type == "GetIdEmpleado")?.Value}");
+            IdEmpleado = Convert.ToInt32(empleadoid);
+
             //cambiar el diseño dependiendo del rol del usuario logueado
             MyApp.SetLayout(typeof(UserLayout));
             await JS.InvokeVoidAsync("loadCss", "css/Landingpagestyle.css");
@@ -348,7 +385,7 @@
         await CargarTemas();
     }
 
-    #endregion   
+    #endregion
 
     #region FiltroporTemas
 
@@ -369,7 +406,7 @@
         }
     }
 
-    #endregion   
+    #endregion
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -427,7 +464,7 @@
             //cambiar a 4 (4 temas finalizados)
             //si ya se completaron las fases entonces se agregara a cada tema la ultima fase para asi obtener el certificado del curso
             //aqui se realiza el filtrado de la lista de actividades, a las actividades con fase 3 estado completado
-            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Where(x=>x.IsComplete == true).Count() == 3)
+            if (ActividadesFasesTerminadasDTO.ListadeActiviades.Where(x => x.IsComplete == true).Count() == 3)
             {
                 //le pasamos un nuevo objeto de tipo actividad, la cual se registrara en la base de datos e indica que todas las fases terminaron
                 Actividad.IsComplete = true;
@@ -445,7 +482,7 @@
             }
 
             /*para que no se ejecute este metodo la primera vez de carga, ya que aun no habra registros,
-            entonces minimo se ejecutara cuando el usuario haya terminado al menos un tema*/            
+            entonces minimo se ejecutara cuando el usuario haya terminado al menos un tema*/
             if (ActividadesFasesTerminadasDTO.ListadeActiviades.Where(x => x.IsComplete == false).Count() >= 1)
             {
                 var httpResponse3 = await repositorio.Post($"api/Quiz/TerminarFasesSinCompletar/{CursoId}", Actividad);
@@ -462,4 +499,24 @@
     }
 
     #endregion
+
+    #region Certificado
+
+    private TipoReporte TipoReporteCertificado;
+    private Boolean VerCertificado = false;
+    private int IdCer;
+
+    public async Task verCertificado(TipoReporte tipoReporte, int id)
+    {
+        IdCer = id;
+        TipoReporteCertificado = tipoReporte;
+        VerCertificado = true;
+    }
+
+    private void closeModalCertificados()
+    {
+        VerCertificado = false;
+    }
+
+    #endregion Certificado
 }

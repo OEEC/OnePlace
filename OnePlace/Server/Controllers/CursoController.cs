@@ -14,6 +14,8 @@ using OnePlace.Shared.Entidades;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using static OnePlace.Server.Data.ApplicationUser;
+using Hangfire;
+using OnePlace.Server.Services;
 
 namespace OnePlace.Server.Controllers
 {
@@ -24,14 +26,12 @@ namespace OnePlace.Server.Controllers
     {
         private readonly oneplaceContext context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IAlmacenadorArchivos almacenadorDeArchivos;
-        private readonly IMapper mapper;
-        public CursoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IAlmacenadorArchivos almacenadorDeArchivos, IMapper mapper)
+        private readonly IBackgroundJobClient backgroundJobClient;        
+        public CursoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IBackgroundJobClient backgroundJobClient)
         {
             this.context = context;
-            _userManager = userManager;
-            this.almacenadorDeArchivos = almacenadorDeArchivos;
-            this.mapper = mapper;
+            this.backgroundJobClient = backgroundJobClient;
+            _userManager = userManager;           
         }
 
         [HttpPost]
@@ -192,298 +192,6 @@ namespace OnePlace.Server.Controllers
             return curso;
         }
 
-        #region ReactivarEliminandoTodoslosRegistros
-        //[Route("ReactivarCurso")]
-        //[HttpPost]
-        //public async Task<ActionResult> PostReactivarCurso(CursoEstado cursoestado)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    #region ActividadQuiz
-
-        //    //obtenemos una lista con todas las actividades de usuario quiz que correspondal al id del empleado enviado por parametro
-        //    var listaactividadquiz = await context.ActividadUsuarioQuiz
-        //        .Where(x => x.Idempleado == cursoestado.Idempleado).ToListAsync();
-
-        //    List<EstadosdelQuiz> listadodeestadodelquiz = new List<EstadosdelQuiz>();
-
-        //    //recorremos el listadodeactividadesquiz para obtener un listado filtrado unicamente por los quiz reprobados
-        //    foreach(var actividad in listaactividadquiz)
-        //    {
-        //        var estadoquiz = await context.EstadosdelQuiz
-        //            .Where(x => x.EstadosdelQuizId == actividad.EstadosdelQuizId && x.Evaluacion == Evaluacion.Reprobado).FirstOrDefaultAsync();
-
-        //        if(estadoquiz != null)
-        //        {
-        //            listadodeestadodelquiz.Add(estadoquiz);
-        //        }               
-        //    }
-
-        //    List<ActividadUsuarioQuiz> listactividadesquizfiltradaporreprobado= new List<ActividadUsuarioQuiz>();
-
-        //    //una vez que tenemos los quiz reprobados volvemos a obtener una lista de actividades quiz pero ya reducida a los quiz reprobados
-        //    foreach (var statusdelquiz in listadodeestadodelquiz)
-        //    {
-        //        var actividad = await context.ActividadUsuarioQuiz
-        //            .Where(x => x.EstadosdelQuizId == statusdelquiz.EstadosdelQuizId).FirstOrDefaultAsync();
-
-        //        if(actividad != null)
-        //        {
-        //            listactividadesquizfiltradaporreprobado.Add(actividad);
-        //        }              
-        //    }
-
-        //    //al final eliminamos los registros de listado de actividades usuario quiz y estado quiz donde hayan sido reprobados
-        //    //primero eliminamos las actividades y luego los estados si se hace al reves causa error
-
-        //    context.RemoveRange(listactividadesquizfiltradaporreprobado);
-        //    await context.SaveChangesAsync(user.Id);
-
-        //    context.RemoveRange(listadodeestadodelquiz);
-        //    await context.SaveChangesAsync(user.Id);           
-
-        //    #endregion
-
-        //    #region ActividadUsuario
-
-        //    //obtenemos un listado de todas las actividades de usuario filtradas por el id del empleado enviado por parametro
-        //    var listadeactividades = await context.ActividadUsuarios
-        //        .Where(x => x.Idempleado == cursoestado.Idempleado).ToListAsync();
-
-        //    //obtenemos un listado de temas filtrado por el id del curso enviado por parametro
-        //    var listadetemas = await context.Temas
-        //        .Where(x => x.CursoId == cursoestado.CursoId).ToListAsync();
-
-        //    List<ActividadUsuario> listadeactividadesretornar = new List<ActividadUsuario>();
-
-        //    //obtenemos una lista de actividades de usuario pero ya filtrada unicamente por las actividades que pertenecen a los temas 
-        //    //que a su vez pertenecen al curso seleccionado, cremos una lista comparando dos listas y unificando los id coincidentes
-        //    listadeactividadesretornar = listadeactividades.Where(p => listadetemas.Any(p2 => p2.TemaId == p.TemaId)).ToList();
-
-        //    context.RemoveRange(listadeactividadesretornar);
-        //    await context.SaveChangesAsync(user.Id);
-
-        //    #endregion          
-
-        //    #region Respuestas
-
-        //    //obtenemos una lista de quiz, reccoriendo un listado de temas los cuales pertenecen al curso seleccionado
-        //    List<Quiz> listadequizzes = new List<Quiz>();
-        //    foreach(var tema in listadetemas)
-        //    {
-        //        var quiz = await context.Quizzes.Where(x => x.TemaId == tema.TemaId).Include(x=>x.LisadePreguntas).FirstOrDefaultAsync();
-        //        if(quiz != null)
-        //        {
-        //            listadequizzes.Add(quiz);
-        //        }                
-        //    }
-
-        //    //recorremos el listado de quizzes y luego recorremos cada pregunta de cada quiz, para obtener un listado de preguntas que pertenezcan a ese quiz 
-
-        //    List<Pregunta> listadepreguntas = new List<Pregunta>();
-        //    foreach (var quiz in listadequizzes)
-        //    {
-        //        foreach(var item in quiz.LisadePreguntas)
-        //        {
-        //            var pregunta = await context.Preguntas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
-        //            if(pregunta != null)
-        //            {
-        //                listadepreguntas.Add(pregunta);
-        //            }                  
-        //        }                
-        //    }
-
-        //    //recorremos el listado de preguntas para obtener un listado de respuestas que pertenezcan a esas preguntas
-        //    List<Respuesta> listaderespuestas = new List<Respuesta>();
-        //    foreach (var item in listadepreguntas)
-        //    {
-        //        var respuesta = await context.Respuestas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
-        //        if(respuesta != null)
-        //        {
-        //            listaderespuestas.Add(respuesta);
-        //        }              
-        //    }
-
-        //    //borramos las respuestas
-        //    context.RemoveRange(listaderespuestas);
-        //    await context.SaveChangesAsync(user.Id);
-
-        //    #endregion
-
-        //    #region CursoEstado
-
-        //    //obtenemos el registro de cursoestado donde sea igual al cursoid & empleadoid enviado por parametro y que su estado sea sin completar
-        //    var CursoEstado = await context.CursoEstado
-        //   .Where(x => x.CursoId == cursoestado.CursoId
-        //    && x.Idempleado == cursoestado.Idempleado
-        //    && x.EstadoCurso == EstadoCurso.SinCompletar)
-        //   .FirstOrDefaultAsync();
-
-        //    context.Remove(CursoEstado);
-        //    await context.SaveChangesAsync(user.Id);
-
-        //    #endregion
-
-        //    return Ok();
-        //}
-
-        #endregion
-
-        [Route("TerminarCursoFecha")]
-        [HttpGet]
-        public async Task<ActionResult<bool>> PostTerminarCursoFecha()
-        {
-            var user = await _userManager.GetUserAsync(HttpContext.User);           
-
-            #region LlenarBDparaTerminarFases
-
-            //obtenemos la fecha de hoy
-            var fechadehoy = DateTime.Today;
-           
-            //listado de cursos que ya vencieron y sus respectivos temas
-            var curso = await context.Cursos.Where(x => x.FechaFinal <= fechadehoy)
-               .Include(x => x.LisadeTemas).FirstOrDefaultAsync();
-
-            //listado de usuarios para obtener iduser y idempleado
-            var users = await context.Users.Where(x => x.Activo == true && x.TipodeUsuarios == TipodeUsuario.Usuario.ToString()).ToListAsync();
-
-            //listados de actividades
-            List<ActividadUsuario> listadeactividadesARetornar = new List<ActividadUsuario>();
-            List<ActividadUsuario> listadeactividades = new List<ActividadUsuario>();          
-
-            //recorremos el listado de empleado contra la lista de temas
-            foreach (var item in users)
-            {
-                foreach (var tema in curso.LisadeTemas)
-                {
-                    //si existe una activiadad con estos filtros:
-                    //-UserId igual al userid de la lista de usuarios
-                    //-Status IsComplete en true
-                    //-TemaId igual al id del listado de temas 
-                    //FaseId igual a la fase 1
-                    //no se crea dicha actividad en caso contrario entra a un a evaluar una segunda condicion
-                    var actividadusuariofase1true = await context.ActividadUsuarios
-                       .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 1);
-
-                    if(!actividadusuariofase1true)
-                    {
-                        //se repite el mismo filtro de busqueda de actividad a diferencia que aqui buscamos las actividades con status iscomplete false
-                        var actividadusuariofase1false = await context.ActividadUsuarios
-                       .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 1);
-
-                        if (!actividadusuariofase1false)
-                        {
-                            //si en la bd no existe ningunga actividad con los criterios antes evaluados ahora si pasamos a crear dicha actividad en la bd
-                            ActividadUsuario actividadUsuario = new ActividadUsuario();
-                            actividadUsuario.UserId = item.Id;
-                            actividadUsuario.IsComplete = false;
-                            actividadUsuario.TemaId = tema.TemaId;
-                            actividadUsuario.FaseCursoId = 1;
-                            actividadUsuario.Idempleado = item.Idempleado;
-
-                            context.Add(actividadUsuario);
-                            await context.SaveChangesAsync(user.Id);
-
-                        }
-                    }
-
-                    //se repite los pasos que describimos arriba.
-                    var actividadusuariofase2true = await context.ActividadUsuarios
-                       .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 2);
-
-                    if (!actividadusuariofase2true)
-                    {
-                        var actividadusuariofase2false = await context.ActividadUsuarios
-                       .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 2);
-
-                        if (!actividadusuariofase2false)
-                        {
-                            ActividadUsuario actividadUsuario = new ActividadUsuario();
-                            actividadUsuario.UserId = item.Id;
-                            actividadUsuario.IsComplete = false;
-                            actividadUsuario.TemaId = tema.TemaId;
-                            actividadUsuario.FaseCursoId = 2;
-                            actividadUsuario.Idempleado = item.Idempleado;
-
-                            context.Add(actividadUsuario);
-                            await context.SaveChangesAsync(user.Id);
-
-                        }
-                    }
-
-                    var actividadusuariofase3true = await context.ActividadUsuarios
-                      .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 3);
-
-                    if (!actividadusuariofase3true)
-                    {
-                        var actividadusuariofase3false = await context.ActividadUsuarios
-                       .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 3);
-
-                        if (!actividadusuariofase3false)
-                        {
-                            ActividadUsuario actividadUsuario = new ActividadUsuario();
-                            actividadUsuario.UserId = item.Id;
-                            actividadUsuario.IsComplete = false;
-                            actividadUsuario.TemaId = tema.TemaId;
-                            actividadUsuario.FaseCursoId = 3;
-                            actividadUsuario.Idempleado = item.Idempleado;
-
-                            context.Add(actividadUsuario);
-                            await context.SaveChangesAsync(user.Id);
-
-                        }
-                    }                  
-
-                    //si la actividad tiene la fase 3 pero su estado es incompleto y es del mismo tema y del mismo usuario entonces agregala a la lista
-                    var actividadIn = await context.ActividadUsuarios
-                       .Where(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 3)
-                       .FirstOrDefaultAsync();
-
-                    //evita añadir actividades nulas a la lista de actividades
-                    if (actividadIn != null)
-                    {
-                        listadeactividades.Add(actividadIn);
-                    }
-                }
-
-                /*aqui comparamos las listas para poder obtener los resultados esperados
-                si solo se recorre las actividades dentro del foreach temas solo obtendremos las actividades del primer usuario
-                y no las actividades de todos los usuarios, aqui vamos llenando un nuevo listado en el foreach de los usuarios por cada usuario*/
-                listadeactividadesARetornar = listadeactividades;                
-
-                //cambiar a 4(4 temas finalizados)
-                /*
-                Si la lista es igual a 3, quiere decir que reporbo 3 temas
-                (termino el video, termino el quiz pero no lo aprobo, y por lo tanto la fase 3 se pone como terminada pero con estado incompleto)
-                Si la lista es menor a 3 quiere decir que de los 3 temas uno o dos no los termino satisfactoriamente.
-                Ademas se pone un filtro por id usuario para que contabilice por separado las actividades de cada usuario, sino solo cuenta las de uno
-                */
-                if (listadeactividadesARetornar.Where(x=>x.UserId == item.Id).Count() == 3 || listadeactividadesARetornar.Where(x => x.UserId == item.Id).Count() <= 3)
-                {
-                    //buscamos si en la tabla estadocurso no exite ya un registro, no importa si su estado es completado o incompleto 
-                    var existecursoestado = await context.CursoEstado
-                        .AnyAsync(x => x.CursoId == curso.CursoId && x.UserId == item.Id);
-
-                    //sino exite, añadimos un nuevo registro de estadocurso con el estado sin completar
-                    if (!existecursoestado)
-                    {
-                        CursoEstado cursoEstado = new CursoEstado();
-                        cursoEstado.CursoId = curso.CursoId;
-                        cursoEstado.Idempleado = item.Idempleado;
-                        cursoEstado.UserId = item.Id;
-                        cursoEstado.EstadoCurso = EstadoCurso.SinCompletar;
-
-                        context.CursoEstado.Add(cursoEstado);
-                        await context.SaveChangesAsync(user.Id);
-                    }
-                }
-            }
-
-            #endregion        
-
-            return true;
-        }
-
         //reactivamos solo los registros que faltaron por completar el score del usuario queda intacto
         [Route("ReactivarCurso")]
         [HttpPost]
@@ -625,5 +333,310 @@ namespace OnePlace.Server.Controllers
 
             return Ok();
         }
+
+        //terminar cursos por fecha usando jobs , este job solo se ejecuta si se le da clic al boton que llama a esta api, no se hace automatico
+        //[Route("TerminarCursoFecha")]
+        //[HttpGet]
+        //public ActionResult<bool> PostTerminarCursoFecha()
+        //{
+        //    backgroundJobClient.Schedule<ITerminarCursoFechaServicio>(job => job.TerminarCursoporFecha(), TimeSpan.FromSeconds(3));
+        //    return true;
+        //}
+
+        #region ReactivarEliminandoTodoslosRegistros
+        //[Route("ReactivarCurso")]
+        //[HttpPost]
+        //public async Task<ActionResult> PostReactivarCurso(CursoEstado cursoestado)
+        //{
+        //    var user = await _userManager.GetUserAsync(HttpContext.User);
+
+        //    #region ActividadQuiz
+
+        //    //obtenemos una lista con todas las actividades de usuario quiz que correspondal al id del empleado enviado por parametro
+        //    var listaactividadquiz = await context.ActividadUsuarioQuiz
+        //        .Where(x => x.Idempleado == cursoestado.Idempleado).ToListAsync();
+
+        //    List<EstadosdelQuiz> listadodeestadodelquiz = new List<EstadosdelQuiz>();
+
+        //    //recorremos el listadodeactividadesquiz para obtener un listado filtrado unicamente por los quiz reprobados
+        //    foreach(var actividad in listaactividadquiz)
+        //    {
+        //        var estadoquiz = await context.EstadosdelQuiz
+        //            .Where(x => x.EstadosdelQuizId == actividad.EstadosdelQuizId && x.Evaluacion == Evaluacion.Reprobado).FirstOrDefaultAsync();
+
+        //        if(estadoquiz != null)
+        //        {
+        //            listadodeestadodelquiz.Add(estadoquiz);
+        //        }               
+        //    }
+
+        //    List<ActividadUsuarioQuiz> listactividadesquizfiltradaporreprobado= new List<ActividadUsuarioQuiz>();
+
+        //    //una vez que tenemos los quiz reprobados volvemos a obtener una lista de actividades quiz pero ya reducida a los quiz reprobados
+        //    foreach (var statusdelquiz in listadodeestadodelquiz)
+        //    {
+        //        var actividad = await context.ActividadUsuarioQuiz
+        //            .Where(x => x.EstadosdelQuizId == statusdelquiz.EstadosdelQuizId).FirstOrDefaultAsync();
+
+        //        if(actividad != null)
+        //        {
+        //            listactividadesquizfiltradaporreprobado.Add(actividad);
+        //        }              
+        //    }
+
+        //    //al final eliminamos los registros de listado de actividades usuario quiz y estado quiz donde hayan sido reprobados
+        //    //primero eliminamos las actividades y luego los estados si se hace al reves causa error
+
+        //    context.RemoveRange(listactividadesquizfiltradaporreprobado);
+        //    await context.SaveChangesAsync(user.Id);
+
+        //    context.RemoveRange(listadodeestadodelquiz);
+        //    await context.SaveChangesAsync(user.Id);           
+
+        //    #endregion
+
+        //    #region ActividadUsuario
+
+        //    //obtenemos un listado de todas las actividades de usuario filtradas por el id del empleado enviado por parametro
+        //    var listadeactividades = await context.ActividadUsuarios
+        //        .Where(x => x.Idempleado == cursoestado.Idempleado).ToListAsync();
+
+        //    //obtenemos un listado de temas filtrado por el id del curso enviado por parametro
+        //    var listadetemas = await context.Temas
+        //        .Where(x => x.CursoId == cursoestado.CursoId).ToListAsync();
+
+        //    List<ActividadUsuario> listadeactividadesretornar = new List<ActividadUsuario>();
+
+        //    //obtenemos una lista de actividades de usuario pero ya filtrada unicamente por las actividades que pertenecen a los temas 
+        //    //que a su vez pertenecen al curso seleccionado, cremos una lista comparando dos listas y unificando los id coincidentes
+        //    listadeactividadesretornar = listadeactividades.Where(p => listadetemas.Any(p2 => p2.TemaId == p.TemaId)).ToList();
+
+        //    context.RemoveRange(listadeactividadesretornar);
+        //    await context.SaveChangesAsync(user.Id);
+
+        //    #endregion          
+
+        //    #region Respuestas
+
+        //    //obtenemos una lista de quiz, reccoriendo un listado de temas los cuales pertenecen al curso seleccionado
+        //    List<Quiz> listadequizzes = new List<Quiz>();
+        //    foreach(var tema in listadetemas)
+        //    {
+        //        var quiz = await context.Quizzes.Where(x => x.TemaId == tema.TemaId).Include(x=>x.LisadePreguntas).FirstOrDefaultAsync();
+        //        if(quiz != null)
+        //        {
+        //            listadequizzes.Add(quiz);
+        //        }                
+        //    }
+
+        //    //recorremos el listado de quizzes y luego recorremos cada pregunta de cada quiz, para obtener un listado de preguntas que pertenezcan a ese quiz 
+
+        //    List<Pregunta> listadepreguntas = new List<Pregunta>();
+        //    foreach (var quiz in listadequizzes)
+        //    {
+        //        foreach(var item in quiz.LisadePreguntas)
+        //        {
+        //            var pregunta = await context.Preguntas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
+        //            if(pregunta != null)
+        //            {
+        //                listadepreguntas.Add(pregunta);
+        //            }                  
+        //        }                
+        //    }
+
+        //    //recorremos el listado de preguntas para obtener un listado de respuestas que pertenezcan a esas preguntas
+        //    List<Respuesta> listaderespuestas = new List<Respuesta>();
+        //    foreach (var item in listadepreguntas)
+        //    {
+        //        var respuesta = await context.Respuestas.Where(x => x.PreguntaId == item.PreguntaId).FirstOrDefaultAsync();
+        //        if(respuesta != null)
+        //        {
+        //            listaderespuestas.Add(respuesta);
+        //        }              
+        //    }
+
+        //    //borramos las respuestas
+        //    context.RemoveRange(listaderespuestas);
+        //    await context.SaveChangesAsync(user.Id);
+
+        //    #endregion
+
+        //    #region CursoEstado
+
+        //    //obtenemos el registro de cursoestado donde sea igual al cursoid & empleadoid enviado por parametro y que su estado sea sin completar
+        //    var CursoEstado = await context.CursoEstado
+        //   .Where(x => x.CursoId == cursoestado.CursoId
+        //    && x.Idempleado == cursoestado.Idempleado
+        //    && x.EstadoCurso == EstadoCurso.SinCompletar)
+        //   .FirstOrDefaultAsync();
+
+        //    context.Remove(CursoEstado);
+        //    await context.SaveChangesAsync(user.Id);
+
+        //    #endregion
+
+        //    return Ok();
+        //}
+
+        #endregion
+
+        #region TerminarCursoPorFechaConBoton
+
+        //[Route("TerminarCursoFecha")]
+        //[HttpGet]
+        //public async Task<ActionResult<bool>> PostTerminarCursoFecha()
+        //{
+        //    var user = await _userManager.GetUserAsync(HttpContext.User);
+
+        //    #region LlenarBDparaTerminarFases
+
+        //    //obtenemos la fecha de hoy
+        //    var fechadehoy = DateTime.Today;
+
+        //    //listado de cursos que ya vencieron y sus respectivos temas
+        //    var curso = await context.Cursos.Where(x => x.FechaFinal <= fechadehoy)
+        //       .Include(x => x.LisadeTemas).FirstOrDefaultAsync();
+
+        //    //listado de usuarios para obtener iduser y idempleado
+        //    var users = await context.Users.Where(x => x.Activo == true && x.TipodeUsuarios == TipodeUsuario.Usuario.ToString()).ToListAsync();
+
+        //    //listados de actividades
+        //    List<ActividadUsuario> listadeactividadesARetornar = new List<ActividadUsuario>();
+        //    List<ActividadUsuario> listadeactividades = new List<ActividadUsuario>();
+
+        //    //recorremos el listado de empleado contra la lista de temas
+        //    foreach (var item in users)
+        //    {
+        //        foreach (var tema in curso.LisadeTemas)
+        //        {
+        //            //si existe una activiadad con estos filtros:
+        //            //-UserId igual al userid de la lista de usuarios
+        //            //-Status IsComplete en true
+        //            //-TemaId igual al id del listado de temas 
+        //            //FaseId igual a la fase 1
+        //            //no se crea dicha actividad en caso contrario entra a un a evaluar una segunda condicion
+        //            var actividadusuariofase1true = await context.ActividadUsuarios
+        //               .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 1);
+
+        //            if (!actividadusuariofase1true)
+        //            {
+        //                //se repite el mismo filtro de busqueda de actividad a diferencia que aqui buscamos las actividades con status iscomplete false
+        //                var actividadusuariofase1false = await context.ActividadUsuarios
+        //               .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 1);
+
+        //                if (!actividadusuariofase1false)
+        //                {
+        //                    //si en la bd no existe ningunga actividad con los criterios antes evaluados ahora si pasamos a crear dicha actividad en la bd
+        //                    ActividadUsuario actividadUsuario = new ActividadUsuario();
+        //                    actividadUsuario.UserId = item.Id;
+        //                    actividadUsuario.IsComplete = false;
+        //                    actividadUsuario.TemaId = tema.TemaId;
+        //                    actividadUsuario.FaseCursoId = 1;
+        //                    actividadUsuario.Idempleado = item.Idempleado;
+
+        //                    context.Add(actividadUsuario);
+        //                    await context.SaveChangesAsync(user.Id);
+
+        //                }
+        //            }
+
+        //            //se repite los pasos que describimos arriba.
+        //            var actividadusuariofase2true = await context.ActividadUsuarios
+        //               .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 2);
+
+        //            if (!actividadusuariofase2true)
+        //            {
+        //                var actividadusuariofase2false = await context.ActividadUsuarios
+        //               .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 2);
+
+        //                if (!actividadusuariofase2false)
+        //                {
+        //                    ActividadUsuario actividadUsuario = new ActividadUsuario();
+        //                    actividadUsuario.UserId = item.Id;
+        //                    actividadUsuario.IsComplete = false;
+        //                    actividadUsuario.TemaId = tema.TemaId;
+        //                    actividadUsuario.FaseCursoId = 2;
+        //                    actividadUsuario.Idempleado = item.Idempleado;
+
+        //                    context.Add(actividadUsuario);
+        //                    await context.SaveChangesAsync(user.Id);
+
+        //                }
+        //            }
+
+        //            var actividadusuariofase3true = await context.ActividadUsuarios
+        //              .AnyAsync(x => x.UserId == item.Id && x.IsComplete == true && x.TemaId == tema.TemaId && x.FaseCursoId == 3);
+
+        //            if (!actividadusuariofase3true)
+        //            {
+        //                var actividadusuariofase3false = await context.ActividadUsuarios
+        //               .AnyAsync(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 3);
+
+        //                if (!actividadusuariofase3false)
+        //                {
+        //                    ActividadUsuario actividadUsuario = new ActividadUsuario();
+        //                    actividadUsuario.UserId = item.Id;
+        //                    actividadUsuario.IsComplete = false;
+        //                    actividadUsuario.TemaId = tema.TemaId;
+        //                    actividadUsuario.FaseCursoId = 3;
+        //                    actividadUsuario.Idempleado = item.Idempleado;
+
+        //                    context.Add(actividadUsuario);
+        //                    await context.SaveChangesAsync(user.Id);
+
+        //                }
+        //            }
+
+        //            //si la actividad tiene la fase 3 pero su estado es incompleto y es del mismo tema y del mismo usuario entonces agregala a la lista
+        //            var actividadIn = await context.ActividadUsuarios
+        //               .Where(x => x.UserId == item.Id && x.IsComplete == false && x.TemaId == tema.TemaId && x.FaseCursoId == 3)
+        //               .FirstOrDefaultAsync();
+
+        //            //evita añadir actividades nulas a la lista de actividades
+        //            if (actividadIn != null)
+        //            {
+        //                listadeactividades.Add(actividadIn);
+        //            }
+        //        }
+
+        //        /*aqui comparamos las listas para poder obtener los resultados esperados
+        //        si solo se recorre las actividades dentro del foreach temas solo obtendremos las actividades del primer usuario
+        //        y no las actividades de todos los usuarios, aqui vamos llenando un nuevo listado en el foreach de los usuarios por cada usuario*/
+        //        listadeactividadesARetornar = listadeactividades;
+
+        //        //cambiar a 4(4 temas finalizados)
+        //        /*
+        //        Si la lista es igual a 3, quiere decir que reporbo 3 temas
+        //        (termino el video, termino el quiz pero no lo aprobo, y por lo tanto la fase 3 se pone como terminada pero con estado incompleto)
+        //        Si la lista es menor a 3 quiere decir que de los 3 temas uno o dos no los termino satisfactoriamente.
+        //        Ademas se pone un filtro por id usuario para que contabilice por separado las actividades de cada usuario, sino solo cuenta las de uno
+        //        */
+        //        if (listadeactividadesARetornar.Where(x => x.UserId == item.Id).Count() == 3 || listadeactividadesARetornar.Where(x => x.UserId == item.Id).Count() <= 3)
+        //        {
+        //            //buscamos si en la tabla estadocurso no exite ya un registro, no importa si su estado es completado o incompleto 
+        //            var existecursoestado = await context.CursoEstado
+        //                .AnyAsync(x => x.CursoId == curso.CursoId && x.UserId == item.Id);
+
+        //            //sino exite, añadimos un nuevo registro de estadocurso con el estado sin completar
+        //            if (!existecursoestado)
+        //            {
+        //                CursoEstado cursoEstado = new CursoEstado();
+        //                cursoEstado.CursoId = curso.CursoId;
+        //                cursoEstado.Idempleado = item.Idempleado;
+        //                cursoEstado.UserId = item.Id;
+        //                cursoEstado.EstadoCurso = EstadoCurso.SinCompletar;
+
+        //                context.CursoEstado.Add(cursoEstado);
+        //                await context.SaveChangesAsync(user.Id);
+        //            }
+        //        }
+        //    }
+
+        //    #endregion        
+
+        //    return true;
+        //}
+
+        #endregion
     }
 }

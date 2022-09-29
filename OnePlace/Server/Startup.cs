@@ -1,6 +1,9 @@
+using Hangfire;
+using Hangfire.MySql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -10,9 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using OnePlace.Server.Data;
+using OnePlace.Server.Extenciones;
 using OnePlace.Server.Helpers;
+using OnePlace.Server.Services;
+using System;
 using System.Linq;
 using System.Text;
+using System.Transactions;
 
 namespace OnePlace.Server
 {
@@ -70,14 +77,20 @@ namespace OnePlace.Server
                    ClockSkew = System.TimeSpan.Zero
                });
 
+            //uso de hangfire, en este caso no lo pusimos en startup, creamos una extension de la clase
+            services.ConfigureHangFire(Configuration);
+
             //uso de Automapper          
             services.AddAutoMapper(typeof(Startup));
 
             //servicio para guardar imagen de manera local 
-            services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();         
+            services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+
+            //servicio custom para usar un job de hangfire 
+            services.AddScoped<ITerminarCursoFechaServicio, TerminarCursoFechaServicio>();            
 
             //agremaos el servicios de addhttpcontextaccesor
-            services.AddHttpContextAccessor();
+            services.AddHttpContextAccessor();         
 
             //si se encuentra con un bucle de referencia al deserealizar debe ignorar esa situacion
             services.AddMvc().AddNewtonsoftJson(options =>
@@ -104,7 +117,7 @@ namespace OnePlace.Server
 
             app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles();            
 
             app.UseRouting();
 
@@ -112,11 +125,22 @@ namespace OnePlace.Server
             app.UseAuthentication();
             app.UseAuthorization();
 
+            //ver la interfaz de hangfire, y cambiar la ruta por defecto
+            app.UseHangfireDashboard("/jobs");
+
+
+            //TODO:convertir datetime a cronexpression
+            //var input = DateTime.Parse("2014-12-31 00:00:00");
+            //var str = string.Format("0 0 * * task", input(n));           
+
+            //se ejecutara cada mes , A las 00:00, el día 1 del mes
+            RecurringJob.AddOrUpdate<ITerminarCursoFechaServicio>("JobTerminarCursoFecha", servicio => servicio.TerminarCursoporFecha(), "0 0 1 */1 *" );
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");
+                endpoints.MapFallbackToFile("index.html");                
             });
         }
     }

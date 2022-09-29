@@ -363,5 +363,133 @@ namespace OnePlace.Server.Reportes
         }
 
         #endregion TarjetadeCumple
+
+        #region CertificadoRojo
+        public static byte[] Certificado(EmpleadoPersonaDTO model)
+        {
+            //pdf que se carga con todo e imagen           
+            string pathPDF = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\ImgServer\certificadorojo.pdf"}";
+
+            //archivo pdf nuevo con texto
+            //string pathnewPDF = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\ImgServer\Pagarelimpiocontexto.pdf"}";
+
+            //Objeto para leer el pdf original
+            PdfReader reader = new PdfReader(pathPDF);
+
+            //es para escribir el archivo en memoria y retronarlo en bytes
+            MemoryStream PDFData = new MemoryStream();
+
+            //el filestream es para escribir el archivo en la segunda ruta
+            //FileStream fs = new FileStream(pathnewPDF, FileMode.Create, FileAccess.Write); 
+
+            //crea el objeto PdfStamper para escribir para obtener las páginas del lector
+            PdfStamper stamper = new PdfStamper(reader, PDFData);
+
+            //El contenido del pdf, aqui se hace la escritura del contenido sobre el contenido origina, hara que el texto este encima de la imagen getover
+            PdfContentByte canvas = stamper.GetOverContent(1);
+
+            //Propiedades de nuestra fuente a insertar
+            //BaseFont bf = BaseFont.CreateFont(BaseFont.COURIER_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+
+            //obtener una fuente perzonalizada o de internet
+            //string pathFonts = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\FontsServer\Shelly.ttf"}";
+            string pathFonts = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\FontsServer\PlayfairDisplay-Italic.ttf"}";
+            var bf = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 28, Font.NORMAL, BaseColor.Black);
+            var bf2 = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 18, Font.NORMAL, BaseColor.Black);
+            var bf3 = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 14, Font.NORMAL, BaseColor.Black);
+
+            ColumnText.ShowTextAligned(
+                canvas,
+                Element.ALIGN_RIGHT,
+                new Phrase(model.Persona.Nombre + " " + model.Persona.ApePat + " " + model.Persona.ApeMat, new Font(bf)),
+                650, 285, 0
+            );
+
+            ColumnText.ShowTextAligned(
+              canvas,
+              Element.ALIGN_RIGHT,
+              new Phrase(model.Curso.Nombre, new Font(bf2)),
+              540, 195, 0
+            );
+
+            ColumnText.ShowTextAligned(
+             canvas,
+             Element.ALIGN_RIGHT,
+             new Phrase("Torreón Coahuila " + "a" + " " + DateTime.Now.ToString("dd") + " " + "de" + " " + DateTime.Now.ToString("MMMM") + " " + "del" + " " + DateTime.Now.ToString("yyyy"), new Font(bf3)),
+             580, 150, 0
+            );
+
+            stamper.Close();
+
+            byte[] arch = PDFData.ToArray();
+            PDFData.Close();
+            return arch;
+        }
+
+        #endregion
+
+        #region CertificadoGris
+        //public static byte[] Certificado(EmpleadoPersonaDTO model)
+        //{
+        //    //pdf que se carga con todo e imagen           
+        //    string pathPDF = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\ImgServer\certificadogris.pdf"}";
+
+        //    //archivo pdf nuevo con texto
+        //    //string pathnewPDF = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\ImgServer\Pagarelimpiocontexto.pdf"}";
+
+        //    //Objeto para leer el pdf original
+        //    PdfReader reader = new PdfReader(pathPDF);
+
+        //    //es para escribir el archivo en memoria y retronarlo en bytes
+        //    MemoryStream PDFData = new MemoryStream();
+
+        //    //el filestream es para escribir el archivo en la segunda ruta
+        //    //FileStream fs = new FileStream(pathnewPDF, FileMode.Create, FileAccess.Write); 
+
+        //    //crea el objeto PdfStamper para escribir para obtener las páginas del lector
+        //    PdfStamper stamper = new PdfStamper(reader, PDFData);
+
+        //    //El contenido del pdf, aqui se hace la escritura del contenido sobre el contenido origina, hara que el texto este encima de la imagen getover
+        //    PdfContentByte canvas = stamper.GetOverContent(1);
+
+        //    //Propiedades de nuestra fuente a insertar
+        //    //BaseFont bf = BaseFont.CreateFont(BaseFont.COURIER_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+
+        //    //obtener una fuente perzonalizada o de internet
+        //    //string pathFonts = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\FontsServer\Shelly.ttf"}";
+        //    string pathFonts = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\FontsServer\PlayfairDisplay-Italic.ttf"}";
+        //    var bf = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 28, Font.NORMAL, BaseColor.Black);
+        //    var bf2 = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 18, Font.NORMAL, BaseColor.Black);
+        //    var bf3 = FontFactory.GetFont(pathFonts, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 14, Font.NORMAL, BaseColor.Black);
+
+        //    ColumnText.ShowTextAligned(
+        //        canvas,
+        //        Element.ALIGN_RIGHT,
+        //        new Phrase(model.Persona.Nombre + " " + model.Persona.ApePat + " " + model.Persona.ApeMat, new Font(bf)),
+        //        660, 210, 0
+        //    );
+
+        //    ColumnText.ShowTextAligned(
+        //      canvas,
+        //      Element.ALIGN_RIGHT,
+        //      new Phrase(model.Curso.Nombre, new Font(bf2)),
+        //      550, 130, 0
+        //    );
+
+        //    ColumnText.ShowTextAligned(
+        //     canvas,
+        //     Element.ALIGN_RIGHT,
+        //     new Phrase("Torreón Coahuila " + "a" + " " + DateTime.Now.ToString("dd") + " " + "de" + " " + DateTime.Now.ToString("MMMM") + " " + "del" + " " + DateTime.Now.ToString("yyyy"), new Font(bf3)),
+        //     615, 95, 0
+        //    );
+
+        //    stamper.Close();
+
+        //    byte[] arch = PDFData.ToArray();
+        //    PDFData.Close();
+        //    return arch;
+        //}
+
+        #endregion
     }
 }

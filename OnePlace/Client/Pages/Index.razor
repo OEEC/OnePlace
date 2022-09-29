@@ -808,7 +808,7 @@ else
 
     public async Task DownloadArchivo(int Id, TipoReporte tipoReporte)
     {
-        var responseHttp = await repositorio.Get<byte[]>($"api/Ticket/iframe/{Id}/{tipoReporte}");
+        var responseHttp = await repositorio.Get<byte[]>($"api/Ticket/iframe/{Id}/{tipoReporte}/{0}");
         PdfResultado = responseHttp.Response;
 
         await JS.InvokeVoidAsync("saveAsFile", "tarjetadecumpleaños.pdf", PdfResultado);

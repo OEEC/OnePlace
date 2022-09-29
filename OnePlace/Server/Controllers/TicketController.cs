@@ -8,6 +8,7 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Server.Reportes;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.Reporteador;
 using System;
 using System.Collections.Generic;
@@ -32,9 +33,9 @@ namespace OnePlace.Server.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("iframe/{id}/{tipo}")]
+        [HttpGet("iframe/{id}/{tipo}/{idcurso}")]
         [AllowAnonymous]
-        public IActionResult Get(int id, TipoReporte tipo)
+        public IActionResult Get(int id, TipoReporte tipo, int idcurso = 0)
         {
             var bytes16 = new Byte[16];            
             byte[] salida = new byte[0];
@@ -72,6 +73,37 @@ namespace OnePlace.Server.Controllers
                     //se comento esta linea por que ya no retornamos un file pdf para verlo,sino solo los bytes para descargarlo
                     //return File(salida, "application/pdf");
                     return Ok(salida);
+
+                case TipoReporte.Certificado:
+
+                    //todo: traer los cursos que han sido aprobados, la razon social o de donde obtener la region a la que pertenece el usuario
+
+                    //buscamos el empleado por medio del usuario logueado
+                    var empleadocer = context.Empleados.Where(x => x.Idempleado == id).FirstOrDefault();
+
+                    //buscamos la persona por medio del empleado que pertenece al usuario logueado
+                    var personacer = context.Personas.Where(x => x.Idpersona == empleadocer.Idpersona).FirstOrDefault();
+
+                    //buscamos un curso con el estado de terminado para obtener solo los cursos terminados por el usuario y no cualquier curso por su id
+                    var cursoestado = context.CursoEstado
+                    .Where(x => x.CursoId == idcurso && x.Idempleado == empleadocer.Idempleado && x.EstadoCurso == EstadoCurso.Terminado).FirstOrDefault();
+
+                    Curso curso = new Curso();
+
+                    if(cursoestado != null)
+                    {
+                        //buscamos en la tabla curso el curso por idcurso del estadocurso que es el que nos idicara que ese curso ya fue terminado por el usuario
+                       curso = context.Cursos.Where(x => x.CursoId == cursoestado.CursoId).FirstOrDefault();
+                    }                    
+
+                    var modelcer = new EmpleadoPersonaDTO();
+                    modelcer.Empleado = empleadocer;
+                    modelcer.Persona = personacer;
+                    modelcer.Curso = curso;
+
+                    salida = GenerarTickets.Certificado(modelcer);
+
+                    return File(salida, "application/pdf");
 
                 default:
                     return NotFound("Este caso no esta en el switch");

@@ -167,7 +167,7 @@
             }
         </CardBody>
         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
-            <button class="btn btn-sm btn-primary" @onclick="TerminarCursoFecha">Terminar</button>
+            @*<button class="btn btn-sm btn-primary" @onclick="TerminarCursoFecha">Terminar</button>*@
             <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
         </CardFooter>
     </Card>
@@ -468,7 +468,7 @@
 
     #region TerminarCursoPorFecha
 
-    public bool RespuestaOk = false;
+    @*public bool RespuestaOk = false;
 
     public async Task TerminarCursoFecha()
     {
@@ -484,6 +484,7 @@
             navigationManager.NavigateTo("estadisticaquiz");
             await Cargar();
         }
-    }
+    }*@
+
     #endregion
 }

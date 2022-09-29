@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,16 +26,21 @@ namespace OnePlace.Server.Controllers
         private readonly oneplaceContext context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper mapper;
-        public EventoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper)
+        private readonly IBackgroundJobClient backgroundJobClient;
+        public EventoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IBackgroundJobClient backgroundJobClient)
         {
             this.context = context;
             _userManager = userManager;
             this.mapper = mapper;
+            this.backgroundJobClient = backgroundJobClient;
         }
 
         [HttpPost]
         public async Task<ActionResult<int>> Post(Evento evento)
         {
+            //ejemplo de job hangfire
+            //backgroundJobClient.Enqueue(() => Console.WriteLine(evento.NombreEvento));
+
             var user = await _userManager.GetUserAsync(HttpContext.User);
             evento.Activo = true;
             context.Add(evento);

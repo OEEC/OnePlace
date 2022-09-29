@@ -119,6 +119,7 @@ namespace OnePlace.Server.Controllers
                 new Claim(ClaimTypes.GivenName, user.Nombre),//nombre del usuario
                 new Claim(ClaimTypes.Surname, user.ApellidoPaterno),//apellido del usuario
                 new Claim("miValor", "Lo que yo quiera"),//informacion que tu quieras  
+                new Claim("GetIdEmpleado", user.Idempleado.ToString()),//informacion que tu quieras  
                 new Claim(ClaimTypes.NameIdentifier, user.Id),//recuperamos el id del usuario logueado
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())//identificador para identificar un webtoken en particular
              };
