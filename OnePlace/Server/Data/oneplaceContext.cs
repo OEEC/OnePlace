@@ -727,6 +727,7 @@ namespace OnePlace.Server.Data
         public DbSet<EstadodeCumpleaños> EstadodeCumpleaños { get; set; }
         public DbSet<CapacitacionContinua> CapacitacionContinua { get; set; }
         public DbSet<VideosCapacitacion> VideosCapacitacion { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
 
         #endregion
     }
