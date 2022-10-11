@@ -128,7 +128,6 @@ namespace OnePlace.Server
             //ver la interfaz de hangfire, y cambiar la ruta por defecto
             app.UseHangfireDashboard("/jobs");
 
-
             //TODO:convertir datetime a cronexpression
             //var input = DateTime.Parse("2014-12-31 00:00:00");
             //var str = string.Format("0 0 * * task", input(n));           

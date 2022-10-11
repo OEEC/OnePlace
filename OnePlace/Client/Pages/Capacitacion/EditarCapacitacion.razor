@@ -10,16 +10,22 @@
 }
 else
 {
-    <FormularioCapacitacion Capacitacion="Capacitacion" OnValidSubmit="Editar" Es_EditarCapacitacion="true" Titulo="Editar Capacitación" />
+    <FormularioCapacitacion Capacitacion="Capacitacion" OnValidSubmit="Editar" Es_EditarCapacitacion="true" 
+                            Titulo="Editar Capacitación" 
+                            ZonasNoSeleccionadas="ZonasNoSeleccionadas"
+                            ZonasSeleccionadas="ZonaSeleccionadas"/>
 }
 
 @code {
     [Parameter] public int CapacitacionId { get; set; }
     CapacitacionContinua Capacitacion;
 
+    private List<Zona> ZonaSeleccionadas = new List<Zona>();
+    private List<Zona> ZonasNoSeleccionadas = new List<Zona>();
+
     protected async override Task OnInitializedAsync()
     {
-        var httpResponse = await repositorio.Get<CapacitacionContinua>($"api/Capacitacion/{CapacitacionId}");
+        var httpResponse = await repositorio.Get<CapacitacionZonaActualizacionDTO>($"api/Capacitacion/Actualizar/{CapacitacionId}");
         if (httpResponse.Error)
         {
             if (httpResponse.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -33,9 +39,12 @@ else
         }
         else
         {
-            Capacitacion = httpResponse.Response;
+            var model = httpResponse.Response;
+            ZonasNoSeleccionadas = model.ZonasNoSeleccionadas;
+            ZonaSeleccionadas = model.ZonasSeleccionadas;
+            Capacitacion = model.CapacitacionContinua;            
         }
-    }
+    }   
 
     private async Task Editar()
     {

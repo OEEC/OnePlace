@@ -226,7 +226,7 @@
 
     private async Task RealizarBusqueda(string queryStrings)
     {
-        var httpResponse = await repositorio.Get<List<CapacitacionContinua>>("api/Capacitacion/filtrar?" + queryStrings);
+        var httpResponse = await repositorio.Get<List<CapacitacionContinua>>("api/Capacitacion/filtrarparausuarios?" + queryStrings);
         paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
         ListadeCapacitaciones = httpResponse.Response;
         Procesando = false;

@@ -65,6 +65,29 @@
                     </div>
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
+                            <BlazoredTypeahead SearchMethod="BuscarEstaciones"
+                                               MaximumSuggestions="100"
+                                               Context="estacion"
+                                               TValue="Estacion"
+                                               TItem="Estacion"
+                                               ValueExpression="@(()=>EstacionSeleccionada)"
+                                               Value="@EstacionSeleccionada"
+                                               ValueChanged="@((Estacion item) => CargarEstacionFiltro(item))"
+                                               placeholder="Buscar Estaciones">
+                                <SelectedTemplate>
+                                    @estacion.Nombre
+                                </SelectedTemplate>
+                                <ResultTemplate>
+                                    @estacion.Nombre
+                                </ResultTemplate>
+                                <NotFoundTemplate>
+                                    Lo sentimos, no hay estaciones con esos datos.
+                                </NotFoundTemplate>
+                            </BlazoredTypeahead>
+                        </div>
+                    </div>
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
                             @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
                             <select class="form-control form-control-sm" @bind="statusCurso">
                                 <option value="">Seleccione Status</option>
@@ -103,6 +126,11 @@
                             </div>
                         </div>
                     }
+                    @*<div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <button class="btn btn-sm btn-danger" @onclick="TerminarCursoFecha">Terminar Cursos</button>
+                        </div>
+                    </div>*@
                 </div>
             </div>
         </CardHeader>
@@ -167,7 +195,6 @@
             }
         </CardBody>
         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
-            @*<button class="btn btn-sm btn-primary" @onclick="TerminarCursoFecha">Terminar</button>*@
             <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales" />
         </CardFooter>
     </Card>
@@ -187,6 +214,7 @@
     //incluir mas parametros si se requieren
     string empleadoseleccionado = "0";
     string cursoseleccionado = "0";
+    string estacionseleccionada = "0";
     string statusCurso = "";
 
     protected async override Task OnInitializedAsync()
@@ -238,6 +266,10 @@
         {
             cursoseleccionado = queryStringsDict["cursoid"];
         }
+        if (queryStringsDict.ContainsKey("estacionid"))
+        {
+            estacionseleccionada = queryStringsDict["estacionid"];
+        }
         if (queryStringsDict.ContainsKey("statuscurso"))
         {
             //StatusdelEquipo.TryParse(queryStringsDict["statusequipo"], out statusEquipo);
@@ -268,6 +300,7 @@
         if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
         queryStringsDict["empleadoid"] = empleadoseleccionado;
         queryStringsDict["cursoid"] = cursoseleccionado;
+        queryStringsDict["estacionid"] = estacionseleccionada;
         queryStringsDict["statuscurso"] = statusCurso;
         queryStringsDict["pagina"] = paginaActual.ToString();
 
@@ -286,6 +319,7 @@
     {
         empleadoseleccionado = "0";
         cursoseleccionado = "0";
+        estacionseleccionada = "0";
         statusCurso = "";
         paginaActual = 1;
         await Cargar();
@@ -335,6 +369,27 @@
 
     #endregion
 
+    #region FiltroporEstacion
+
+    public Estacion EstacionSeleccionada { get; set; }
+
+    private async Task<IEnumerable<Estacion>> BuscarEstaciones(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Estacion>>($"api/Estacion/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private void CargarEstacionFiltro(Estacion item)
+    {
+        @if (item != null)
+        {
+            EstacionSeleccionada = item;
+            estacionseleccionada = EstacionSeleccionada.Idestacion.ToString();
+        }
+    }
+
+    #endregion
+
     #region Exportar Excel
 
     private void ExportExcel()
@@ -368,6 +423,11 @@
                 if (int.Parse(cursoseleccionado) > 0)
                 {
                     sheet.Cells[1, 1].Value = "Empleados que realizaron el Curso:" + " " + CursoSeleccionado.Nombre;
+                }
+
+                if (int.Parse(estacionseleccionada) > 0)
+                {
+                    sheet.Cells[1, 1].Value = "Estación:" + " " + EstacionSeleccionada.Nombre;
                 }
 
                 if (statusCurso == EstadoCurso.Terminado.ToString())
@@ -470,21 +530,21 @@
 
     @*public bool RespuestaOk = false;
 
-    public async Task TerminarCursoFecha()
-    {
-        var httpResponse = await repositorio.Get<bool>("api/Curso/TerminarCursoFecha");
-        @if (httpResponse.Error)
+        public async Task TerminarCursoFecha()
         {
-            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
-        }
-        else
-        {
-            RespuestaOk = httpResponse.Response;
-            await mostrarMensajes.MostrarMensajeExitoso("Actualización de Cursos Vencidos");
-            navigationManager.NavigateTo("estadisticaquiz");
-            await Cargar();
-        }
-    }*@
+            var httpResponse = await repositorio.Get<bool>("api/Curso/TerminarCursoFecha");
+            @if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                RespuestaOk = httpResponse.Response;
+                await mostrarMensajes.MostrarMensajeExitoso("Actualización de Cursos Vencidos");
+                navigationManager.NavigateTo("estadisticaquiz");
+                await Cargar();
+            }
+        }*@
 
     #endregion
 }

@@ -224,31 +224,34 @@ namespace OnePlace.Server.Controllers
             //buscamos un empleado por el usuario logueado
             var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
 
-            //buscamos las zonas relacionadas al empleado
-            var listapromocionzona = await context.PromocionZonas.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
-
             List<Promocion> listadepromocionescarrusel = new List<Promocion>();
 
-            var FechadeHoy = DateTime.Today;
-
-            //recorremos las zonas ligadas a una promocion, para obtener las promociones por zona
-            foreach(var item in listapromocionzona)
+            if (empleado != null)
             {
-                var promocion = await context.Promociones.Where(x => x.PromocionId == item.PromocionId && x.Activo == true)
-                    .Include(x => x.PromocionZona).ThenInclude(x=>x.Zona)
-                    .Include(x => x.Imagenes)
-                    .FirstOrDefaultAsync();
+                //buscamos las zonas relacionadas al empleado
+                var listapromocionzona = await context.PromocionZonas.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
 
-                //solo agregar las promociones que no se han vencido
-                if(FechadeHoy >= promocion.FechadeTermino)
+                var FechadeHoy = DateTime.Today;
+
+                //recorremos las zonas ligadas a una promocion, para obtener las promociones por zona
+                foreach (var item in listapromocionzona)
                 {
+                    var promocion = await context.Promociones.Where(x => x.PromocionId == item.PromocionId && x.Activo == true)
+                        .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
+                        .Include(x => x.Imagenes)
+                        .FirstOrDefaultAsync();
 
+                    //solo agregar las promociones que no se han vencido
+                    if (FechadeHoy >= promocion.FechadeTermino)
+                    {
+
+                    }
+                    else
+                    {
+                        listadepromocionescarrusel.Add(promocion);
+                    }
                 }
-                else
-                {
-                    listadepromocionescarrusel.Add(promocion);
-                }               
-            }
+            }       
             
             return listadepromocionescarrusel;
         }

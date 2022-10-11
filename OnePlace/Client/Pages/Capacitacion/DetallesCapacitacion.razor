@@ -6,7 +6,7 @@
 @attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
 
-@if (Capacitacion == null)
+@if (Detalles == null)
 {
     <LoadingSpinner IsLoading="Procesando" />
 }
@@ -17,22 +17,38 @@ else
             <div class="row">
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <div class="position-relative contenedordelaimg">
-                        <Imagen Class="rounded-1 h-100 w-100" Src="@Capacitacion.Imagen" />
+                        <Imagen Class="rounded-1 h-100 w-100" Src="@Detalles.CapacitacionContinua.Imagen" />
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <Texto Typo="Typo.h5">@Capacitacion.Nombre</Texto>
-                    <Texto Typo="Typo.body1" Class="fs--1">@Capacitacion.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
+                    <Texto Typo="Typo.h5">@Detalles.CapacitacionContinua.Nombre</Texto>
+                    <Texto Typo="Typo.body1" Class="fs--1">@Detalles.CapacitacionContinua.FechaRegistro.Value.ToString("dddd, dd MMMM yyyy")</Texto>
                     <Texto Typo="Typo.body1" Class="fs--1" Style="text-align:justify">
-                        @Capacitacion.Descripcion
-                    </Texto>                   
-                    @if(Capacitacion.Activo == true)
+                        @Detalles.CapacitacionContinua.Descripcion
+                    </Texto>
+                    @if (Detalles.CapacitacionContinua.Activo == true)
                     {
                         <Texto Typo="Typo.body1" Class="fs--1">Estado:&nbsp;<Texto Typo="Typo.strong" Class="text-success">Activo</Texto></Texto>
                     }
-                    @if(user.IsInRole("Administrador"))
+                    <Texto Typo="Typo.body1" Class="fs--1">
+                        Zona:&nbsp;
+                        <Texto Typo="Typo.strong" Class="text-primary">
+                            @for (int i = 0; i < Detalles.Zonas.Count; i++)
+                            {
+                                if (i < Detalles.Zonas.Count - 1)
+                                {
+                                    @enlaceZona(Detalles.Zonas[i])<text>, </text>
+                                }
+                                else
+                                {
+                                    @enlaceZona(Detalles.Zonas[i])
+                                }
+                            }
+                        </Texto>
+                    </Texto>
+                    @if (user.IsInRole("Administrador"))
                     {
-                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-capacitacion/" + Capacitacion.CapacitacionContinuaId)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Capacitación</Texto></Enlace>
+                        <Enlace Class="btn btn-sm btn-dark" Href="@("editar-capacitacion/" + Detalles.CapacitacionContinua.CapacitacionContinuaId)"><Icono Class="fas fa-edit" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Editar Capacitación</Texto></Enlace>
                     }
                 </div>
             </div>
@@ -77,9 +93,11 @@ else
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    private RenderFragment<Zona> enlaceZona = (zona) =>@<span>@zona.Zona1</span>;
+
     [Parameter] public int CapacitacionId { get; set; }
     private bool Procesando = true;
-    private CapacitacionContinua Capacitacion;
+    private CapacitacionContinuaVisualizarDTO Detalles;
 
     protected async override Task OnInitializedAsync()
     {
@@ -88,7 +106,7 @@ else
 
         await Cargar();
 
-        if(Capacitacion != null)
+        if(Detalles.CapacitacionContinua != null)
         {
             await MostrarVideo();
         }
@@ -96,12 +114,12 @@ else
 
     private async Task Cargar()
     {
-        var responseHttp = await repositorio.Get<CapacitacionContinua>($"api/Capacitacion/{CapacitacionId}");
+        var responseHttp = await repositorio.Get<CapacitacionContinuaVisualizarDTO>($"api/Capacitacion/{CapacitacionId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("inicio");
+                navigationManager.NavigateTo("");
             }
             else
             {
@@ -111,10 +129,10 @@ else
         }
         else
         {
-            Capacitacion = responseHttp.Response;
+            Detalles = responseHttp.Response;
             Procesando = false;
         }
-    }
+    }   
 
     #region BorrarArchivos
 
@@ -146,7 +164,7 @@ else
         }
         else
         {
-            navigationManager.NavigateTo($"detalles-capacitacion/{Capacitacion.CapacitacionContinuaId}");
+            navigationManager.NavigateTo($"detalles-capacitacion/{Detalles.CapacitacionContinua.CapacitacionContinuaId}");
             await Cargar();
             await MostrarVideo();//refrescar el card del video y quitarlo
         }
@@ -160,13 +178,13 @@ else
 
     public async Task MostrarVideo()
     {
-        var responseHttp = await repositorio.Post<List<VideosCapacitacion>, List<ArchivoAdjunto>>($"api/Upload/ObtenerListadodeVideos", Capacitacion.ListadeVideos);
+        var responseHttp = await repositorio.Post<List<VideosCapacitacion>, List<ArchivoAdjunto>>($"api/Upload/ObtenerListadodeVideos", Detalles.CapacitacionContinua.ListadeVideos);
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
-                navigationManager.NavigateTo($"detalles-capacitacion/{Capacitacion.CapacitacionContinuaId}");
+                navigationManager.NavigateTo($"detalles-capacitacion/{Detalles.CapacitacionContinua.CapacitacionContinuaId}");
             }
             else
             {

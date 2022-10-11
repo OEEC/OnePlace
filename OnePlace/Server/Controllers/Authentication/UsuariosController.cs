@@ -35,13 +35,136 @@ namespace OnePlace.Server.Controllers
         }
 
         //con esta peticion traemos un listado de usuarios desde la bd
-        [HttpGet]       
-        public async Task<ActionResult<List<UsuarioDTO>>> Get([FromQuery] PaginacionDTO paginacion)
+        //[HttpGet]       
+        //public async Task<ActionResult<List<UsuarioDTO>>> Get([FromQuery] PaginacionDTO paginacion)
+        //{
+        //    var queryable = context.Users.Where(x => x.Activo == true).AsQueryable();
+        //    await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros);
+        //    return await queryable.Paginar(paginacion)
+        //    .Select(x => new UsuarioDTO { NumeroEmpleado = x.UserName, UserId = x.Id, Contraseña = x.ContraseñaTextoPlano, Nombre = x.Nombre, Apellido_Paterno = x.ApellidoPaterno}).ToListAsync();//hacemos un mapeo hacia usuariodto          
+        //}
+
+        //utilizamos fromquery para traer los parametros de busqueda
+        [HttpGet("filtrar")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PaginadorGenerico<UsuarioDTO>>> Ge([FromQuery] ParametrosBusqueda parametrosBusqueda)
         {
-            var queryable = context.Users.Where(x => x.Activo == true).AsQueryable();
-            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros);
-            return await queryable.Paginar(paginacion)
-            .Select(x => new UsuarioDTO { NumeroEmpleado = x.UserName, UserId = x.Id, Contraseña = x.ContraseñaTextoPlano, Nombre = x.Nombre, Apellido_Paterno = x.ApellidoPaterno}).ToListAsync();//hacemos un mapeo hacia usuariodto          
+            PaginadorGenerico<UsuarioDTO> _PaginadorConceptos;
+
+            List<UsuarioDTO> listaARetornar = new List<UsuarioDTO>();//listado con filtrado de registros
+            List<UsuarioDTO> listaARetornarExport = new List<UsuarioDTO>();//listado sin filtrado de registros
+
+            List<ApplicationUser> listadeusuarios = new List<ApplicationUser>();//listado con filtrado por estacion
+            var queryable = context.Users.Where(x => x.Activo == true).AsQueryable();//listado inicial queryable
+
+            //si viene un id de estacion entra al if
+            if (parametrosBusqueda.EstacionId != 0)
+            {
+                //traemos una lista de empleados que pertenezcan a una estacion, por medio de idestacion se realiza el filtro
+                var listadeempleados = await context.Empleados.Where(x => x.Idestacion == parametrosBusqueda.EstacionId).ToListAsync();
+
+                foreach (var item in listadeempleados)
+                {
+                    //por cada empleado obtenemos un usuario para guardarlo en la lista de usuarios por estacion
+                    var usuario = await context.Users.Where(x => x.Idempleado == item.Idempleado && x.Activo == true).FirstOrDefaultAsync();
+                    
+                    if(usuario != null)
+                    {
+                        listadeusuarios.Add(usuario);
+                    }                                  
+                }
+
+                //actualizamos la lista inicial de usuarios por la lista de usuarios filtrado por estacion
+                queryable = listadeusuarios.AsQueryable();
+
+                #region LISTINMEMORY LISTUSER
+
+                ////aqui se usaba si la lista se creaba en memoria se pone la variable true para poder usar tolist en ligar de tolistasyn
+                //await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros, true);
+                //return queryable.Paginar(parametrosBusqueda.Paginacion)
+                //.Select(x => new UsuarioDTO
+                //{
+                //    NumeroEmpleado = x.UserName,
+                //    UserId = x.Id,
+                //    Contraseña = x.ContraseñaTextoPlano,
+                //    Nombre = x.Nombre,
+                //    Apellido_Paterno = x.ApellidoPaterno
+                //})
+                //.ToList();//hacemos un mapeo hacia usuariodto
+         
+                #endregion
+            }
+
+            //se asignan los registros a los listados despues de cada query para que se vean reflejados los filtros
+            listaARetornar = queryable.Select(x => new UsuarioDTO
+            {
+                NumeroEmpleado = x.UserName,
+                UserId = x.Id,
+                Contraseña = x.ContraseñaTextoPlano,
+                Nombre = x.Nombre,
+                Apellido_Paterno = x.ApellidoPaterno,
+                Apellido_Materno = x.ApellidoMaterno
+            })
+            .ToList();//hacemos un mapeo hacia usuariodto    
+
+            //la lista a exportar es igual a la lista final pero sin paginacion
+            listaARetornarExport = listaARetornar;
+
+            #region PAGINACION          
+
+            int _TotalRegistros = 0;
+            int _TotalPaginas = 0;
+
+            // Número total de registros de la coleccion 
+            _TotalRegistros = listaARetornar.Count();
+
+            // Obtenemos la 'página de registros' de la coleccion 
+            listaARetornar = listaARetornar.Skip((parametrosBusqueda.Pagina - 1) * parametrosBusqueda.CantidadRegistros)
+                                                             .Take(parametrosBusqueda.CantidadRegistros)
+                                                             .ToList();
+            // Número total de páginas de la coleccion
+            _TotalPaginas = (int)Math.Ceiling((double)_TotalRegistros / parametrosBusqueda.CantidadRegistros);
+
+            //Instanciamos la 'Clase de paginación' y asignamos los nuevos valores
+            _PaginadorConceptos = new PaginadorGenerico<UsuarioDTO>()
+            {
+                RegistrosPorPagina = parametrosBusqueda.CantidadRegistros,
+                TotalRegistros = _TotalRegistros,
+                TotalPaginas = _TotalPaginas,
+                PaginaActual = parametrosBusqueda.Pagina,
+                Resultado = listaARetornar,
+                ResultadoAExportar = listaARetornarExport
+            };
+            return _PaginadorConceptos;
+
+            #endregion
+
+            #region DBCONTEXT LISTUSER
+
+            ////aqui se usaba para el query normal de usuarios cuando venia del dbcontext
+            //await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros);
+            //return await queryable.Paginar(parametrosBusqueda.Paginacion)
+            //.Select(x => new UsuarioDTO
+            //{
+            //    NumeroEmpleado = x.UserName,
+            //    UserId = x.Id,
+            //    Contraseña = x.ContraseñaTextoPlano,
+            //    Nombre = x.Nombre,
+            //    Apellido_Paterno = x.ApellidoPaterno
+            //})
+            //.ToListAsync();//hacemos un mapeo hacia usuariodto
+        
+            #endregion
+        }
+        public class ParametrosBusqueda
+        {
+            public int Pagina { get; set; } = 1;
+            public int CantidadRegistros { get; set; } = 10;
+            public PaginacionDTO Paginacion
+            {
+                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
+            }
+            public int EstacionId { get; set; }           
         }
 
         //con esta peticion traemos el listado de roles desde la bd

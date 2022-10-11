@@ -61,7 +61,7 @@
                             <h6 class="position-relative text-primarysimsa pl-4">Capacitación</h6>
                             <h2 class="mt-2">Vuleve cuando quieras, adquiere más conocimientos.</h2>
                         </div>
-                        @if (Capacitacion == null)
+                        @if (Detalles == null)
                         {
                             <LoadingSpinner IsLoading="Procesando" />
                         }
@@ -72,9 +72,9 @@
                                 <CardBody Class="card-body position-relative">
                                     <div class="row">
                                         <div class="col-lg-8">
-                                            <Texto Typo="Typo.h3">@Capacitacion.Nombre</Texto>
+                                            <Texto Typo="Typo.h3">@Detalles.CapacitacionContinua.Nombre</Texto>
                                             <Texto Typo="Typo.body2" Class="mt-2">
-                                                @Capacitacion.Descripcion
+                                                @Detalles.CapacitacionContinua.Descripcion
                                             </Texto>
                                         </div>
                                     </div>
@@ -156,7 +156,7 @@
 
     [Parameter] public int CapacitacionId { get; set; }
     private bool Procesando = true;
-    private CapacitacionContinua Capacitacion;
+    private CapacitacionContinuaVisualizarDTO Detalles;
 
     protected async override Task OnInitializedAsync()
     {
@@ -165,20 +165,20 @@
 
         await Cargar();
 
-        if (Capacitacion != null)
+        if (Detalles.CapacitacionContinua != null)
         {
             await MostrarVideo();
         }
-    }
+    }   
 
     private async Task Cargar()
     {
-        var responseHttp = await repositorio.Get<CapacitacionContinua>($"api/Capacitacion/{CapacitacionId}");
+        var responseHttp = await repositorio.Get<CapacitacionContinuaVisualizarDTO>($"api/Capacitacion/{CapacitacionId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("inicio");
+                navigationManager.NavigateTo("");
             }
             else
             {
@@ -188,7 +188,7 @@
         }
         else
         {
-            Capacitacion = responseHttp.Response;
+            Detalles = responseHttp.Response;
             Procesando = false;
         }
     }
@@ -199,13 +199,13 @@
 
     public async Task MostrarVideo()
     {
-        var responseHttp = await repositorio.Post<List<VideosCapacitacion>, List<ArchivoAdjunto>>($"api/Upload/ObtenerListadodeVideos", Capacitacion.ListadeVideos);
+        var responseHttp = await repositorio.Post<List<VideosCapacitacion>, List<ArchivoAdjunto>>($"api/Upload/ObtenerListadodeVideos", Detalles.CapacitacionContinua.ListadeVideos);
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 //al borrar un video hay un error por que este metodo requiere un id para cargar, pero como ya no hay idvideo la api responde con in notfound
-                navigationManager.NavigateTo($"detalles-capacitacioninfo/{Capacitacion.CapacitacionContinuaId}");
+                navigationManager.NavigateTo($"detalles-capacitacioninfo/{Detalles.CapacitacionContinua.CapacitacionContinuaId}");
             }
             else
             {

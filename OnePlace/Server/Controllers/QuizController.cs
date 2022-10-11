@@ -552,6 +552,7 @@ namespace OnePlace.Server.Controllers
 
             List<CursoEstado> listaARetornar = new List<CursoEstado>();//listado con filtrado de registros
             List<CursoEstado> listaARetornarExport = new List<CursoEstado>();//listado sin filtrado de registros
+            List<CursoEstado> listadecursoestadoporestacion = new List<CursoEstado>();//listado para guardar los registros de cursoestado filtrado por estacion
 
             //proyeccion del listado del cursoestados
             List<CursoEstado> listadecursosestado =
@@ -584,6 +585,46 @@ namespace OnePlace.Server.Controllers
             if (parametrosBusqueda.CursoId != 0)
             {
                 queryable = queryable.Where(x => x.CursoId == parametrosBusqueda.CursoId);
+            }
+            if (parametrosBusqueda.EstacionId != 0)
+            {
+                //traemos una lista de empleados que pertenezcan a una estacion, por medio de idestacion se realiza el filtro
+                var listadeempleados = await context.Empleados.Where(x => x.Idestacion == parametrosBusqueda.EstacionId).ToListAsync();
+
+                //recorremos la lista de empleados que ya viene filtrada por estacion, ahora para obtener un listado del cursoestados por empleado
+                foreach (var item in listadeempleados)
+                {
+                    //proyeccion del listado del cursoestados filtrando por idempleado que a su vez ya viene filtrado por stacion
+                    CursoEstado cursosestado =
+                        (from e in context.CursoEstado
+                         where e.Idempleado == item.Idempleado
+                         select new CursoEstado
+                         {
+                             CursoEstadoId = e.CursoEstadoId,
+                             UserId = e.UserId,
+                             CursoId = e.CursoId,
+                             EstadoCurso = e.EstadoCurso,
+                             Idempleado = e.Idempleado,
+                             Curso = context.Cursos.Where(x => x.CursoId == e.CursoId).FirstOrDefault(),
+                             Empleado = (from z in context.Empleados
+                                         where z.Idempleado == e.Idempleado
+                                         select new Empleado
+                                         {
+                                             Noemp = z.Noemp,
+                                             Persona = context.Personas.Where(x => x.Idpersona == z.Idpersona).FirstOrDefault(),
+
+                                         }).FirstOrDefault()
+                         }).FirstOrDefault();
+
+                    //si es diferente de null guardamos el estadocurso en un listado
+                    if(cursosestado != null)
+                    {
+                        listadecursoestadoporestacion.Add(cursosestado);
+                    }                    
+                }
+
+                //el queryable lo actualizamos con el nuevo listado filtrado por id estacion
+                queryable = listadecursoestadoporestacion.OrderBy(x => x.Empleado.Noemp).ThenBy(x => x.CursoId).AsQueryable();
             }
             if (!string.IsNullOrWhiteSpace(parametrosBusqueda.StatusCurso))
             {
@@ -635,6 +676,7 @@ namespace OnePlace.Server.Controllers
             }
             public int EmpleadoId { get; set; }
             public int CursoId { get; set; }
+            public int EstacionId { get; set; }
             public string StatusCurso { get; set; }
         }
 

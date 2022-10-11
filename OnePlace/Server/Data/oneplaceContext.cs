@@ -668,8 +668,8 @@ namespace OnePlace.Server.Data
 
             //creamos el modelo entity, creamos un objeto anonimo con new y le pasamos el haskey para crear una llave compuesta con temaid y fasecursoid        
             modelBuilder.Entity<TemaFase>().HasKey(x => new { x.TemaId, x.FaseCursoId });
-
             modelBuilder.Entity<PromocionZona>().HasKey(x => new { x.PromocionId, x.ZonaId });
+            modelBuilder.Entity<CapacitacionContinuaZona>().HasKey(x => new { x.CapacitacionContinuaId, x.ZonaId });
 
             var roleAdmin = new IdentityRole()
             { Id = "f2e8377a-a95f-4e57-ac21-392bb3240cb4", Name = "Administrador", NormalizedName = "Administrador" };
@@ -690,7 +690,7 @@ namespace OnePlace.Server.Data
         public virtual DbSet<Departamento> Departamentos { get; set; }
         public virtual DbSet<Empleado> Empleados { get; set; }
         public virtual DbSet<Empresa> Empresas { get; set; }
-        public virtual DbSet<Estacion> Estacions { get; set; }
+        public virtual DbSet<Estacion> Estaciones { get; set; }
         public virtual DbSet<Estatus> Estatuses { get; set; }
         public virtual DbSet<Marca> Marcas { get; set; }
         public virtual DbSet<Pagadora> Pagadoras { get; set; }
@@ -728,6 +728,7 @@ namespace OnePlace.Server.Data
         public DbSet<CapacitacionContinua> CapacitacionContinua { get; set; }
         public DbSet<VideosCapacitacion> VideosCapacitacion { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; }
 
         #endregion
     }

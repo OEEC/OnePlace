@@ -16,6 +16,7 @@ namespace OnePlace.Shared.Entidades
         public string Imagen { get; set; }
         public bool Activo { get; set; }
         public List<VideosCapacitacion> ListadeVideos { get; set; }
+        public List<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; } = new List<CapacitacionContinuaZona>();
     }
     public class VideosCapacitacion
     {

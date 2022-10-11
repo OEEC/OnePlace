@@ -1,7 +1,7 @@
 ﻿@inject IRepositorio repositorio
 @using System.Security.Claims
 
-<EditForm Model="@Capacitacion" OnValidSubmit="OnValidSubmit">
+<EditForm Model="@Capacitacion" OnValidSubmit="OnDataAnnonationsValidated">
     <DataAnnotationsValidator />
     <Card Class="card mb-3">
         <CardHeader Class="card-header">
@@ -26,7 +26,7 @@
                 <div class="col-sm-4">
                     <div class="form-group">
                         <InputLabel for="descripcion">Descripción</InputLabel>
-                        <InputTextArea id="descripcion" placeholder="Descripción" type="text" rows="1"dien class="form-control form-control-sm" @bind-Value="@Capacitacion.Descripcion" />
+                        <InputTextArea id="descripcion" placeholder="Descripción" type="text" rows="1" dien class="form-control form-control-sm" @bind-Value="@Capacitacion.Descripcion" />
                         <ValidationMessage For="@(() => Capacitacion.Descripcion)" />
                     </div>
                 </div>
@@ -38,6 +38,12 @@
                 <div class="col-sm-4">
                     <div class="form-group">
                         <SubirMultiplesVideos SubidaExitosa="SeSubioelArchivo"></SubirMultiplesVideos>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <InputLabel for="zona">Zona</InputLabel>
+                        <SelectorMultiple Seleccionados="Seleccionadas" NoSeleccionados="NoSeleccionadas" />
                     </div>
                 </div>
                 @if (Es_EditarCapacitacion == true)
@@ -76,6 +82,13 @@
     [Parameter] public EventCallback OnValidSubmit { get; set; }
     private string imagenURL;
 
+    [Parameter] public List<Zona> ZonasSeleccionadas { get; set; } = new List<Zona>();
+    [Parameter] public List<Zona> ZonasNoSeleccionadas { get; set; } = new List<Zona>();
+
+    private List<SelectorMultipleModel> Seleccionadas { get; set; } = new List<SelectorMultipleModel>();
+    private List<SelectorMultipleModel> NoSeleccionadas { get; set; } = new List<SelectorMultipleModel>();
+
+
     protected async override Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
@@ -92,6 +105,9 @@
             imagenURL = Capacitacion.Imagen;
             Capacitacion.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
         }
+
+        Seleccionadas = ZonasSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
+        NoSeleccionadas = ZonasNoSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
     }
 
     //este metodo actualiza la imagen con la nueva imagen seleccionada
@@ -99,6 +115,14 @@
     {
         Capacitacion.Imagen = imagenBase64;
         imagenURL = null;
+    }
+
+    private async Task OnDataAnnonationsValidated()
+    {
+        Capacitacion.CapacitacionContinuaZona = Seleccionadas
+         .Select(x => new CapacitacionContinuaZona { ZonaId = int.Parse(x.Llave) }).ToList();
+
+        await OnValidSubmit.InvokeAsync(null);
     }
 
     #region SubirArchivo   

@@ -64,8 +64,8 @@ namespace OnePlace.Server.Controllers
 
             //paginacion
             await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros);
-            var eventos = await queryable.Paginar(parametrosBusqueda.Paginacion).ToListAsync();
-            return eventos;
+            var capacitacion = await queryable.Paginar(parametrosBusqueda.Paginacion).ToListAsync();
+            return capacitacion;
         }
         public class ParametrosBusqueda
         {
@@ -80,11 +80,12 @@ namespace OnePlace.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CapacitacionContinua>> Get(int id)
+        public async Task<ActionResult<CapacitacionContinuaVisualizarDTO>> Get(int id)
         {
             var capacitacion = await context.CapacitacionContinua
                .Where(x => x.CapacitacionContinuaId == id)
                .Include(x => x.ListadeVideos)
+               .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
                .FirstOrDefaultAsync();
             if (capacitacion == null) { return NotFound(); }
 
@@ -95,7 +96,30 @@ namespace OnePlace.Server.Controllers
                 capacitacion.Imagen = "Img" + "/" + "Imagenotfound.jpg";
             }
 
-            return capacitacion;
+            var model = new CapacitacionContinuaVisualizarDTO();
+            model.CapacitacionContinua = capacitacion;
+            model.Zonas = capacitacion.CapacitacionContinuaZona.Select(x => x.Zona).ToList();
+
+            return model;
+        }
+
+        [HttpGet("Actualizar/{id}")]
+        public async Task<ActionResult<CapacitacionZonaActualizacionDTO>> PutGet(int id)
+        {
+            var capacitacionActionResult = await Get(id);
+            if (capacitacionActionResult.Result is NotFoundResult) { return NotFound(); }
+
+            var capacitacionVisualizarDTO = capacitacionActionResult.Value;
+            var zonasSeleccionadasIds = capacitacionVisualizarDTO.Zonas.Select(x => x.ZonaId).ToList();
+            var zonasNoSeleccionadas = await context.Zonas
+                .Where(x => !zonasSeleccionadasIds.Contains(x.ZonaId))
+                .ToListAsync();
+
+            var model = new CapacitacionZonaActualizacionDTO();
+            model.CapacitacionContinua = capacitacionVisualizarDTO.CapacitacionContinua;
+            model.ZonasNoSeleccionadas = zonasNoSeleccionadas;
+            model.ZonasSeleccionadas = capacitacionVisualizarDTO.Zonas;
+            return model;
         }
 
         [HttpPut]
@@ -116,6 +140,10 @@ namespace OnePlace.Server.Controllers
 
             //mapeamos el tema de la bd con el que viene como paramtro
             CapacitacionDB = mapper.Map(capacitacion, CapacitacionDB);
+
+            //eliminar relacion capacitacion zona para poder actualizarla
+            await context.Database.ExecuteSqlInterpolatedAsync($"delete from capacitacioncontinuazona WHERE CapacitacionContinuaId = {capacitacion.CapacitacionContinuaId};");
+            CapacitacionDB.CapacitacionContinuaZona = capacitacion.CapacitacionContinuaZona;
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
@@ -166,6 +194,75 @@ namespace OnePlace.Server.Controllers
                 await context.SaveChangesAsync();
             }            
             return NoContent();
+        }
+
+
+
+        //utilizamos fromquery para traer los parametros de busqueda
+        [HttpGet("filtrarparausuarios")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<CapacitacionContinua>>> GetparaUsuarios([FromQuery] ParametrosBusquedaUsuario parametrosBusqueda)
+        {
+            bool mostrar = true;
+
+            #region CapacitacionContinuaFiltradoPorlaZonadelEmpleado
+
+            //buscamos un empleado por el usuario logueado
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
+
+            List<CapacitacionContinua> listadecapacitaciones = new List<CapacitacionContinua>();
+
+            if (empleado != null)
+            {
+                //buscamos las zonas relacionadas al empleado
+                var listacapacitacionzona = await context.CapacitacionContinuaZona.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
+                              
+                //recorremos las zonas ligadas a una capacitacion, para obtener las capacitaciones por zona
+                foreach (var item in listacapacitacionzona)
+                {
+                    var capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId)
+                        .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
+                        .FirstOrDefaultAsync();
+
+                    //solo agregar las promociones que no se han vencido
+                    if (capacitacioncontinua != null)
+                    {
+                        listadecapacitaciones.Add(capacitacioncontinua);
+                    }                   
+                }
+            }
+
+            #endregion
+
+            //query para traer los eventos
+            var queryable = listadecapacitaciones.Where(x => x.Activo == mostrar).OrderBy(x => x.CapacitacionContinuaId).AsQueryable();
+
+            if (parametrosBusqueda.CapacitacionId != 0)
+            {
+                queryable = queryable.Where(x => x.CapacitacionContinuaId == parametrosBusqueda.CapacitacionId);
+            }
+            if (parametrosBusqueda.Activo == true)
+            {
+                //queryable = queryable.Where(x => x.Activo == false);
+                mostrar = false;
+            }
+
+            //paginacion
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros, true);
+            var capacitacion = queryable.Paginar(parametrosBusqueda.Paginacion).ToList();
+            return capacitacion;
+        }
+        public class ParametrosBusquedaUsuario
+        {
+            public int Pagina { get; set; } = 1;
+            public int CantidadRegistros { get; set; } = 10;
+            public PaginacionDTO Paginacion
+            {
+                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
+            }
+            public int CapacitacionId { get; set; }
+            public bool Activo { get; set; }
         }
     }
 }

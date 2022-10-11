@@ -103,6 +103,15 @@ namespace OnePlace.Server.Controllers
 
                     salida = GenerarTickets.Certificado(modelcer);
 
+                    //Stream stream = new MemoryStream(salida);
+                    //HttpResponseMessage response = new HttpResponseMessage();
+                    //response.StatusCode = HttpStatusCode.OK;
+                    //response.Content = new StreamContent(stream);
+                    //response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("inline")
+                    //{
+                    //    FileName = "certificado.pdf"                       
+                    //};                 
+
                     return File(salida, "application/pdf");
 
                 default:

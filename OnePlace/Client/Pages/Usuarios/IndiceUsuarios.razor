@@ -2,6 +2,7 @@
 @inject IRepositorio repositorio
 @inject IMostrarMensaje mostrarMensajes
 @inject IJSRuntime JS
+@inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
 
@@ -14,6 +15,49 @@
                         <Texto Typo="Typo.h5">Usuarios</Texto>
                     </div>
                 </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEstaciones"
+                                           MaximumSuggestions="100"
+                                           Context="estacion"
+                                           TValue="Estacion"
+                                           TItem="Estacion"
+                                           ValueExpression="@(()=>EstacionSeleccionada)"
+                                           Value="@EstacionSeleccionada"
+                                           ValueChanged="@((Estacion item) => CargarEstacionFiltro(item))"
+                                           placeholder="Buscar Estaciones">
+                            <SelectedTemplate>
+                                @estacion.Nombre
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @estacion.Nombre
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay estaciones con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-dark btn-sm" @onclick="Cargar">
+                            <Icono Icon="oi oi-magnifying-glass" data-fa-transform="shrink-3 down-2" />
+                            <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Filtrar</Texto>
+                        </Boton>
+                        <Boton ButtonType="ButtonType.Button" Class="btn btn-outline-danger btn-sm" @onclick="LimpiarOnClick">
+                            <Icono Icon="oi oi-reload" data-fa-transform="shrink-3 down-2" />
+                            <Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Limpiar</Texto>
+                        </Boton>
+                    </div>
+                </div>
+                @if (UsuariosExport != null && UsuariosExport.Count > 0)
+                {
+                    <div class="d-inline-block mr-3">
+                        <div class="input-group input-group-sm d-flex align-items-center">
+                            <Boton Class="btn btn-outline-primary btn-sm" ButtonType="ButtonType.Button" @onclick="ExportExcel"><Icono Icon="fa fa-download" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Exportar a Excel</Texto></Boton>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </CardHeader>
@@ -36,9 +80,9 @@
                                     <td>
                                         @(usuario.Nombre+" "+usuario.Apellido_Paterno)
                                     </td>
-                                     <td>
+                                    <td>
                                         @usuario.Contraseña
-                                     </td>
+                                    </td>
                                     <td>
                                         <Enlace Class="btn p-0" Href=@("usuarios-editar/"+usuario.UserId) data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
                                             <Icono Icon="text-500 fas fa-edit" />
@@ -64,50 +108,139 @@
 
 @code{
 
-    //obtener el user, role y claims
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-
     ClaimsPrincipal user;
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    List<UsuarioDTO> Usuarios;
-
+    Dictionary<string, string> queryStringsDict = new Dictionary<string, string>(); //creamos un diccionario de string
+    public List<UsuarioDTO> Usuarios { get; set; }
+    public List<UsuarioDTO> UsuariosExport { get; set; }
     private int paginaActual = 1;
     private int paginasTotales;
+
+    //incluir mas parametros si se requieren
+    string estacionseleccionada = "0";
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        user = authState.User;
+
+        var url = navigationManager.Uri;//aqui aplicamos el diccionario de string
+        var queries = navigationManager.ObtenerQueryStrings(url);
+        //si es la primera vez que el usuario entra esto estaria a nulo
+        if (queries == null)
+        {
+            await RealizarBusqueda(string.Empty);//le pasamos un string vacio
+        }
+        else
+        {
+            queryStringsDict = queries;
+            LlenarCampos();
+            var queryStrings = url.Split(new string[] { "?" }, StringSplitOptions.None)[1];//obtenemos los querystring atravez de la url
+            await RealizarBusqueda(queryStrings);
+        }
+    }
 
     private async Task paginaSeleccionada(int pagina)
     {
         paginaActual = pagina;
-        await Cargar(pagina);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        //obtener el user, role y claims
-        var authState = await authenticationStateTask;
-        user = authState.User;
-
         await Cargar();
     }
 
-    private async Task Cargar(int pagina = 1)
+    private async Task Cargar()
     {
-        var httpResponse = await repositorio.Get<List<UsuarioDTO>>($"api/Usuarios?pagina={pagina}");
+        var queryStrings = GenerarQueryString();
+        navigationManager.NavigateTo("usuarios?" + queryStrings);
+        await RealizarBusqueda(queryStrings);
+    }
 
-        if (httpResponse.Error)
+    #region Filtrar
+
+    //este metodo me permite llenar los campos del formulario apartir del querystring
+    private void LlenarCampos()
+    {
+        //toma los campos del diccionario y los coloca en los campos correspondientes
+        if (queryStringsDict.ContainsKey("estacionid"))
         {
-            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            estacionseleccionada = queryStringsDict["estacionid"];
         }
-        else
+        if (queryStringsDict.ContainsKey("pagina"))
         {
-            paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
-            Usuarios = httpResponse.Response;
+            int.TryParse(queryStringsDict["pagina"], out paginaActual);
         }
     }
 
+    //private async Task RealizarBusqueda(string queryStrings)
+    //{
+    //    var httpResponse = await repositorio.Get<List<UsuarioDTO>>("api/Usuarios/filtrar?" + queryStrings);
+    //    paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+    //    Usuarios = httpResponse.Response;
+    //}
+
+    private async Task RealizarBusqueda(string queryStrings)
+    {
+        var httpResponse = await repositorio.Get<PaginadorGenerico<UsuarioDTO>>("api/Usuarios/filtrar?" + queryStrings);
+        var resultado = httpResponse.Response.Resultado;
+        var resultadoexport = httpResponse.Response.ResultadoAExportar;
+
+        paginaActual = httpResponse.Response.PaginaActual;
+        paginasTotales = httpResponse.Response.TotalPaginas;
+
+        Usuarios = (List<UsuarioDTO>)resultado;
+        UsuariosExport = (List<UsuarioDTO>)resultadoexport;
+    }
+
+    private string GenerarQueryString()
+    {
+        //si el diccionario es nulo, no hacer nada si no es nulo lo inicializaos
+        if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["estacionid"] = estacionseleccionada;
+        queryStringsDict["pagina"] = paginaActual.ToString();
+
+        //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
+        var valoresporDefecto = new List<string>() { "false", "", "0" };
+
+        //construir ruta para compartir categoria=7&titulo=lenovo...
+        //en el where exluimos los valores por defecto
+        //en select le pasamos la llave y el valor y con encode codificamos el valor como por ejemplo espacion en blanco y evitar inyeccion sql
+        return string.Join("&", queryStringsDict
+            .Where(x => !valoresporDefecto.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+    }
+
+    private async Task LimpiarOnClick()
+    {
+        estacionseleccionada = "0";
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    #endregion
+
+    #region FiltroporEstacion
+
+    public Estacion EstacionSeleccionada { get; set; }
+
+    private async Task<IEnumerable<Estacion>> BuscarEstaciones(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Estacion>>($"api/Estacion/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private void CargarEstacionFiltro(Estacion item)
+    {
+        @if (item != null)
+        {
+            EstacionSeleccionada = item;
+            estacionseleccionada = EstacionSeleccionada.Idestacion.ToString();
+        }
+    }
+
+    #endregion
+
     private async Task BorrarUsuario(UsuarioDTO usuarioDTO)
     {
-        string mensajeconfirmacion = $"¿Desea borrar este usuario: {usuarioDTO.Nombre+" "+usuarioDTO.Apellido_Paterno}?";
+        string mensajeconfirmacion = $"¿Desea borrar este usuario: {usuarioDTO.Nombre + " " + usuarioDTO.Apellido_Paterno}?";
         var confirmado = await JS.Confirm("Confirmar", mensajeconfirmacion, IJSRuntimeExtensionMethods.TipoMensajeSweetAlert.question);
         if (confirmado)
         {
@@ -124,4 +257,90 @@
             }
         }
     }
+
+    #region Exportar Excel
+
+    private void ExportExcel()
+    {
+        if (UsuariosExport != null)
+        {
+            var listadousuarios = from x in UsuariosExport
+                                 select new { x.Nombre, x.Apellido_Paterno, x.Apellido_Materno, x.NumeroEmpleado, x.Contraseña };
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //creamos un package
+            using (var package = new ExcelPackage())
+            {
+                //creamos una hoja de trabajo y le agregamos el nombre
+                var sheet = package.Workbook.Worksheets.Add("Lista de Usuarios");
+
+                //Empezamos a escribir sobre ella.
+                var rowindex = 1;
+
+                //if (string.IsNullOrEmpty(statusCurso) && int.Parse(cursoseleccionado) == 0 && int.Parse(cursoseleccionado) == 0)
+                //{
+                //    sheet.Cells[1, 1].Value = "Status de los Cursos";
+                //}                
+
+                if (int.Parse(estacionseleccionada) > 0)
+                {
+                    sheet.Cells[1, 1].Value = "Usuarios de la Estación:" + " " + EstacionSeleccionada.Nombre;
+                }
+                else
+                {
+                    sheet.Cells[1, 1].Value = "Listado de Usuarios";
+                }
+
+                sheet.Cells[1, 1, 1, 3].Merge = true; //Hago un Merge de primeras 5 columnas para poner el titulo.
+                sheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                sheet.Cells[1, 1].Style.Font.Bold = true;
+                sheet.Cells[1, 1].Style.Font.Color.SetColor(ColorTranslator.FromHtml("#000000"));
+
+                //sheet.Cells[1, 1].AddComment("Listado de recibos", "Masanasa"); //Se puede poner un comentario en una celda
+                rowindex = 2;
+
+                //Pongo los encabezados del excel
+                var col = 1;
+                sheet.Cells[rowindex, col++].Value = "Número de Empleado";
+                sheet.Cells[rowindex, col++].Value = "Empleado";
+                sheet.Cells[rowindex, col++].Value = "Contraseña";              
+
+                rowindex = 3;
+
+                //Recorro el listado y los ponemos en el Excel
+                foreach (var item in listadousuarios)
+                {
+                    col = 1;
+                    sheet.Cells[rowindex, col++].Value = item.NumeroEmpleado;
+                    sheet.Cells[rowindex, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;//fue para alinear la primera columa ya que por defaulr venia a la izquierda
+                    sheet.Cells[rowindex, col++].Value = item.Nombre + " " + item.Apellido_Paterno+" "+ item.Apellido_Materno;
+                    sheet.Cells[rowindex, col++].Value = item.Contraseña;                   
+
+                    rowindex++;
+                }
+
+                sheet.Cells[rowindex, 2].Value = "Total:";
+                sheet.Cells[rowindex, 3].Value = UsuariosExport.Count;
+
+                sheet.Cells[rowindex, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;//alinaer horizontalmente a la izquierda
+                sheet.Cells[rowindex, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                sheet.DefaultColWidth = 25;//ancho predefinido a las columnas
+
+                // Ancho de celdas, marca error
+                //sheet.Cells.AutoFitColumns();
+
+                //Establezco diseño al excel utilizando un diseño predefinido
+                var range = sheet.Cells[2, 1, rowindex, 3]; //el dos es hacia arriba la celda y el uno para que inice en la primera columna
+                var tableBody = sheet.Tables.Add(range, "tabla");
+                tableBody.TableStyle = OfficeOpenXml.Table.TableStyles.Medium4;
+
+                //descargar el archivo
+                JS.GuardarComo("ListadodeUsuarios.xlsx", package.GetAsByteArray());
+            }
+        }
+    }
+
+    #endregion
 }

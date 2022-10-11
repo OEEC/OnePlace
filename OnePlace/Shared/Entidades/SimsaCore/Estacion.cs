@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
     public partial class Estacion
     {
+        [Key]
         public int Idestacion { get; set; }
         public int? Codgas { get; set; }
         public string Nomcg { get; set; }
@@ -33,5 +35,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idusuario { get; set; }
         public int? Estatus { get; set; }
         public int? Idrazonsocial { get; set; }
+
+        //propiedades de navegacion
+        public List<Empleado> Empleados { get; set; }
     }
 }
