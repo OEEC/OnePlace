@@ -200,7 +200,7 @@ else
                             }
                             else
                             {
-                                <Texto Typo="Typo.normal" Class="text-danger"> No exiten datos</Texto>
+                            <Texto Typo="Typo.normal" Class="text-danger">No hay registro</Texto>
                             }
                         </div>
                     </div>
@@ -248,7 +248,7 @@ else
                                 else
                                 {
                                     <Texto Typo="Typo.body2" Class="mb-1">
-                                        @DetallesEmpleado.Persona.Fchnac.Value.ToString("dd MMM yyyy")
+                                        @DetallesEmpleado.Persona.Fchnac.ToString("dd MMM yyyy")
                                     </Texto>
                                 }
                             </div>
@@ -267,14 +267,7 @@ else
                             </div>
                             <div class="col">
                                 <Texto Typo="Typo.body2" Class="mb-1">
-                                    @if (DetallesEmpleado.Persona.Fchnac == null)
-                                    {
-                                        <text>No hay registro</text>
-                                    }
-                                    else
-                                    {
-                                        @DetallesEmpleado.Persona.Edad
-                                    }
+                                    @DetallesEmpleado.Persona.Edad
                                 </Texto>
                             </div>
                         </div>

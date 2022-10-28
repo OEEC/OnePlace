@@ -245,7 +245,7 @@
                                             {
                                                 @(item.Empleado.Puesto.Puesto1+" "+"/");
                                             }
-                                            @item.Empleado.Persona.Fchnac.Value.ToString("MMMM dd")
+                                            @item.Empleado.Persona.Fchnac.ToString("MMMM dd")
                                         </span>
                                     </div>
                                 </div>
@@ -467,8 +467,8 @@ else
                             <div class="col-md-6 h-100">
                                 <div class="d-flex btn-reveal-trigger">
                                     <div class="calendar">
-                                        <Texto Typo="Typo.normal" Class="calendar-month">@item.Empleado.Persona.Fchnac.Value.ToString("MMM")</Texto>
-                                        <Texto Typo="Typo.normal" Class="calendar-day">@item.Empleado.Persona.Fchnac.Value.ToString("dd")</Texto>
+                                        <Texto Typo="Typo.normal" Class="calendar-month">@item.Empleado.Persona.Fchnac.ToString("MMM")</Texto>
+                                        <Texto Typo="Typo.normal" Class="calendar-day">@item.Empleado.Persona.Fchnac.ToString("dd")</Texto>
                                     </div>
                                     <div class="flex-1 position-relative ps-3">
                                         <Texto Typo="Typo.h6" Class="fs-0 mb-0"><Texto Typo="Typo.normal" Class="text-primary">@item.Empleado.Persona.Nombre</Texto></Texto>
@@ -480,7 +480,7 @@ else
                                                 }
                                             </Texto>
                                         </Texto>
-                                        <Texto Typo="Typo.body2" Class="text-1000 mb-0"><Texto Typo="Typo.small">Fecha de nacimiento: @item.Empleado.Persona.Fchnac.Value.ToString("MM/dd/yyyy")</Texto></Texto>
+                                        <Texto Typo="Typo.body2" Class="text-1000 mb-0"><Texto Typo="Typo.small">Fecha de nacimiento: @item.Empleado.Persona.Fchnac.ToString("MM/dd/yyyy")</Texto></Texto>
                                         <div class="border-dashed-bottom my-3"></div>
                                     </div>
                                 </div>
@@ -490,6 +490,9 @@ else
                 </ListadoGenerico>
             </div>
         </CardBody>
+         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+            <Paginacion PaginaActual="paginaActualListadeCumple" PaginaSeleccionada="paginaSeleccionadaListaCumple" PaginasTotales="paginasTotalesListaCumple" />
+        </CardFooter>
     </Card>   
     <br />
     <Card Class="card mb-3">
@@ -645,12 +648,27 @@ else
         }
     }
 
-    private async Task CargarListadodeCumpleañeros()
+    private int paginaActualListadeCumple = 1;
+    private int paginasTotalesListaCumple;
+
+    private async Task paginaSeleccionadaListaCumple(int pagina)
     {
-        var responseHttp = await repositorio.Get<List<EmpleadoPersonaDTO>>("api/Birthday/listadecumpleaneros");
+        //la pagina actual va hacer igual a la pagina que me envie el componete
+        paginaActualListadeCumple = pagina;
+        await CargarListadodeCumpleañeros(pagina);
+    }
+
+    private async Task CargarListadodeCumpleañeros(int pagina = 1)
+    {
+        var responseHttp = await repositorio.Get<List<EmpleadoPersonaDTO>>($"api/Birthday/listadecumpleaneros?pagina={pagina}");
         if (!responseHttp.Error)
         {
             ListadodeCumpleñeros = responseHttp.Response;
+
+            //atra vez de la variable conteo y totalpaginas extremos dichos datos de la respuesta http
+            var conteo = responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault();
+            //hacemos un parse para transformar de string a numero entero
+            paginasTotalesListaCumple = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
         }
     }
 

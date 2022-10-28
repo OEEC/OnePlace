@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -13,9 +14,15 @@ namespace OnePlace.Shared.Entidades
     public class Promocion
     {
         public int PromocionId { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Nombre { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Descripcion { get; set; }
         public DateTime? FechadeRegistro { get; set; }
+
+        [Required(ErrorMessage = "El campo Fecha Termino es requerido")]
         public DateTime? FechadeTermino { get; set; }
         public TipodePromocion TipodePromociones { get; set; }
         public LugardeVisualizacion LugardeVisualizacion { get; set; }

@@ -33,7 +33,7 @@ namespace OnePlace.Server.Controllers
 
         [Route("listadecumpleaneros")]
         [HttpGet]
-        public async Task<ActionResult<List<EmpleadoPersonaDTO>>> GetListado()
+        public async Task<ActionResult<List<EmpleadoPersonaDTO>>> GetListado([FromQuery] PaginacionDTO paginacion)
         {
             //traemos el listado de empleados
             List<Empleado> empleados = (from e in context.Empleados
@@ -72,13 +72,6 @@ namespace OnePlace.Server.Controllers
             //recorremos el listado de empleados para extraer su fecha de nacimiento 
             foreach (var item in empleados)
             {
-                //separamos la fecha de nacimiento en variables de tipo entero para mandarlas al metodo que obtendra el proximo cumpleaños
-                string fechadenacimiento = item.Persona.Fchnac.ToString();
-                DateTime myDateTime = DateTime.Parse(fechadenacimiento);
-                int dia = Convert.ToInt32(myDateTime.Day);
-                int mes = Convert.ToInt32(myDateTime.Month);
-                int ano = Convert.ToInt32(myDateTime.Year);
-
                 if (string.IsNullOrEmpty(item.Img))
                 {
                     if (item.Persona.Sexo == "M")
@@ -94,9 +87,44 @@ namespace OnePlace.Server.Controllers
 
                 var model = new EmpleadoPersonaDTO();
                 model.Empleado = item;
-                //model.Persona = persona;
-                //almacenamos el resultado del metodo proximocumpleaños en el dto
-                model.ProximoCumpleTodoMes = ProximoCumple.ProximoCumpleTodoMes(dia, mes, ano);
+                //model.Persona = persona; //ya viene incluido en la data del empleado por eso ya no lo ponemos lo mandamos null               
+
+                //variables
+                int dia = 0;
+                int mes = 0;
+                int ano = 0;
+
+                //por cada fecha de nacimientos obtenemos el año
+                int year = Convert.ToInt32(item.Persona.Fchnac.Year);                
+
+                //una vez obtenido el año verificamos si el año es biciesto
+                if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0))
+                {
+                    /*si es biciesto nos permite crear una fecha fuera de rango o inexistente como un 29 de febrero
+                    sino verificamos que el año es biciesto da un error:Year, Month, and Day parameters describe an un-representable DateTime
+                    ese error es por que no puedes crear una fecha que no existe por eso verificamos si el año es biciesto*/
+                    var FechaBiciesta = new DateTime(year, 2, 29);//creamos fecha del 29 de febrero
+
+                    //si la fecha de nacimientos es un 29 de febrero cambiamos el 29 por 28 para que celebren su cumpleaños cada año y no cada 4
+                    //ademas para que el valor sea permitido en el metodo ProximoCumple.ProximoCumpleTodoMes
+                    if (item.Persona.Fchnac == FechaBiciesta)
+                    {
+                        //separamos la fecha de nacimiento en variables de tipo entero para mandarlas al metodo que obtendra el proximo cumpleaños
+                        dia = 28;
+                        mes = Convert.ToInt32(item.Persona.Fchnac.Month);
+                        ano = Convert.ToInt32(item.Persona.Fchnac.Year);
+                        //almacenamos el resultado del metodo proximocumpleaños en el dto
+                        model.ProximoCumpleTodoMes = ProximoCumple.ProximoCumpleTodoMes(dia, mes, ano);
+                    }
+                }
+                else
+                {
+                    //si el año no es biciesto pasamos el dia original
+                    dia = Convert.ToInt32(item.Persona.Fchnac.Day);
+                    mes = Convert.ToInt32(item.Persona.Fchnac.Month);
+                    ano = Convert.ToInt32(item.Persona.Fchnac.Year);
+                    model.ProximoCumpleTodoMes = ProximoCumple.ProximoCumpleTodoMes(dia, mes, ano);
+                }
 
                 //una vez que tenemos el dato del empleado mas su fecha de proximo cumple en el dto la comparamos,
                 //si esta entre los dias de inicio y fin de mes lo guardamos en la lista de dto´s
@@ -106,7 +134,10 @@ namespace OnePlace.Server.Controllers
                 }
             }
 
-            return listadoempleadosconcumple;
+            var queryable = listadoempleadosconcumple.AsQueryable();
+
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros, true);
+            return queryable.Paginar(paginacion).ToList();
         }
 
         [HttpGet]
@@ -119,21 +150,48 @@ namespace OnePlace.Server.Controllers
             var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
 
             //buscamos la persona por medio del empleado que pertenece al usuario logueado
-            var persona = await context.Personas.Where(x => x.Idpersona == empleado.Idpersona).FirstOrDefaultAsync();
-
-            //separamos la fecha de nacimiento en variables de tipo entero para mandarlas al metodo que obtendra el proximo cumpleaños
-            string fechadenacimiento = persona.Fchnac.ToString();
-            DateTime myDateTime = DateTime.Parse(fechadenacimiento);
-            int dia = Convert.ToInt32(myDateTime.Day);
-            int mes = Convert.ToInt32(myDateTime.Month);
-            int ano = Convert.ToInt32(myDateTime.Year);
+            var persona = await context.Personas.Where(x => x.Idpersona == empleado.Idpersona).FirstOrDefaultAsync();           
 
             var model = new EmpleadoPersonaDTO();
             model.Empleado = empleado;
             model.Persona = persona;
             
-            //almacenamos el resultado del metodo proximocumpleaños en el dto
-            model.ProximoCumple = ProximoCumple.ProximoCumpleaños(dia, mes, ano);
+            //variables
+            int dia = 0;
+            int mes = 0;
+            int ano = 0;
+
+            //por cada fecha de nacimientos obtenemos el año
+            int year = Convert.ToInt32(persona.Fchnac.Year);
+
+            //una vez obtenido el año verificamos si el año es biciesto
+            if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0))
+            {
+                /*si es biciesto nos permite crear una fecha fuera de rango o inexistente como un 29 de febrero
+                sino verificamos que el año es biciesto da un error:Year, Month, and Day parameters describe an un-representable DateTime
+                ese error es por que no puedes crear una fecha que no existe por eso verificamos si el año es biciesto*/
+                var FechaBiciesta = new DateTime(year, 2, 29);//creamos fecha del 29 de febrero
+
+                //si la fecha de nacimientos es un 29 de febrero cambiamos el 29 por 28 para que celebren su cumpleaños cada año y no cada 4
+                //ademas para que el valor sea permitido en el metodo ProximoCumple.ProximoCumpleTodoMes
+                if (persona.Fchnac == FechaBiciesta)
+                {
+                    //separamos la fecha de nacimiento en variables de tipo entero para mandarlas al metodo que obtendra el proximo cumpleaños
+                    dia = 28;
+                    mes = Convert.ToInt32(persona.Fchnac.Month);
+                    ano = Convert.ToInt32(persona.Fchnac.Year);
+                    //almacenamos el resultado del metodo proximocumpleaños en el dto
+                    model.ProximoCumple = ProximoCumple.ProximoCumpleaños(dia, mes, ano);
+                }
+            }
+            else
+            {
+                //si el año no es biciesto pasamos el dia original
+                dia = Convert.ToInt32(persona.Fchnac.Day);
+                mes = Convert.ToInt32(persona.Fchnac.Month);
+                ano = Convert.ToInt32(persona.Fchnac.Year);
+                model.ProximoCumple = ProximoCumple.ProximoCumpleaños(dia, mes, ano);
+            }
 
             //almacenamos el codigo qr 
             var codigo = "Regalo"+model.Empleado.Noemp;

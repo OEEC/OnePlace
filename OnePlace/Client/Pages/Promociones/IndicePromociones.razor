@@ -95,17 +95,20 @@
                     @item.TipodePromociones.GetDescription()
                 </td>               
                 <td>
-                    @if (item.FechadeTermino != null && FechadeHoy >= item.FechadeTermino)
+                    @if (item.FechadeTermino != null)
                     {
-                        <span class="text-danger">
-                            @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="text-success">
-                            @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
-                        </span>
+                        @if (FechadeHoy >= item.FechadeTermino)
+                        {
+                            <span class="text-danger">
+                                @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-success">
+                                @item.FechadeTermino.Value.ToString("MM/dd/yyyy")
+                            </span>
+                        }
                     }
                 </td>
                 <td>

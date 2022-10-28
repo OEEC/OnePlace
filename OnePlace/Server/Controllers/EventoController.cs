@@ -179,13 +179,24 @@ namespace OnePlace.Server.Controllers
 
             //obtener el total de dias de un mes en este caso el actual
             int DiaFinMes = DateTime.DaysInMonth(FechaActual.Year, FechaActual.Month);
-            DateTime FechaFinal = new DateTime(FechaActual.Year, FechaActual.Month, DiaFinMes);
+            DateTime FechaFinal = new DateTime(FechaActual.Year, FechaActual.Month, DiaFinMes);          
 
             var listadeeventos = await context.Eventos.
                 Where(
                 x => x.Activo == true &&
                 x.FechaEvento >= FechaInicio && x.FechaEvento <= FechaFinal
                 ).ToListAsync();
+
+            foreach(var item in listadeeventos)
+            {
+                //si el usuario no subio imagen poner una por defecto
+                if (string.IsNullOrEmpty(item.ImgEvento))
+                {
+                    // Aquí colocas la URL de la imagen por defecto
+                    item.ImgEvento = "Img" + "/" + "Imagenotfound.jpg";
+                }
+            }
+
             return listadeeventos;
         }
     }

@@ -41,6 +41,8 @@
                     <div class="form-group">
                         <InputLabel for="fechaevento">Fecha del Evento</InputLabel>
                         <InputDate class="form-control form-control-sm" @bind-Value="@Evento.FechaEvento" />
+                        <ValidationMessage For="@(() => Evento.FechaEvento)" />
+
                     </div>
                 </div>
                 <div class="col-sm-3">

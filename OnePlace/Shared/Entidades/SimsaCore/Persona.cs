@@ -9,10 +9,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public string ApePat { get; set; }
         public string ApeMat { get; set; }
         public string Nombre { get; set; }
-        public string Sexo { get; set; }
-        public string Correo { get; set; }
-        public string Telefono { get; set; }
-        public DateTime? Fchnac { get; set; }
+        public string Sexo { get; set; }   
+        public DateTime Fchnac { get; set; }
         public string Rfc { get; set; }
         public string Curp { get; set; }
         public string Nss { get; set; }
@@ -30,20 +28,15 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                 DateTime now = DateTime.Today;
                 int Edad = 0;
 
-                if (Fchnac != null)
-                {
-                    Edad = DateTime.Today.Year - Fchnac.Value.Year;
+                Edad = DateTime.Today.Year - Fchnac.Year;
 
-                    if (DateTime.Today < Fchnac.Value.AddYears(Edad))
-                        return --Edad;
-                    else
-                        return Edad;
-                }
+                if (DateTime.Today < Fchnac.AddYears(Edad))
+                    return --Edad;
                 else
-                {
                     return Edad;
-                }
             }
         }
+        public string Correo { get; set; }
+        public string Telefono { get; set; }
     }
 }

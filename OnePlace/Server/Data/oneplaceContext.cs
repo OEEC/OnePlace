@@ -579,7 +579,7 @@ namespace OnePlace.Server.Data
                     .HasColumnType("datetime")
                     .HasColumnName("fchmod");
 
-                entity.Property(e => e.Iddepartamento).HasColumnName("iddepartamento");
+                //entity.Property(e => e.Iddepartamento).HasColumnName("iddepartamento"); //esta propiedad ya no la tiene
 
                 entity.Property(e => e.Idusuario).HasColumnName("idusuario");
 

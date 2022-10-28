@@ -10,7 +10,11 @@ namespace OnePlace.Shared.Entidades
     public class CapacitacionContinua
     {
         public int CapacitacionContinuaId { get; set; }
-        public string Nombre { get; set; }      
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
+        public string Nombre { get; set; }
+
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Descripcion { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public string Imagen { get; set; }
