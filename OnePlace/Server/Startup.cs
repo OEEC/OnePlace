@@ -51,10 +51,10 @@ namespace OnePlace.Server
 
                      //alterar la configuracion predeterminada
                      options.Password.RequireDigit = true;
-                     options.Password.RequireLowercase = true;
+                     //options.Password.RequireLowercase = true;
                      options.Password.RequireNonAlphanumeric = true;
                      options.Password.RequireUppercase = true;
-                     options.Password.RequiredLength = 8;
+                     options.Password.RequiredLength = 5;
                      options.Password.RequiredUniqueChars = 1;
                      //options.User.RequireUniqueEmail = true;
                      //options.SignIn.RequireConfirmedEmail = true;

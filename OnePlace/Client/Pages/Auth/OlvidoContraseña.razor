@@ -1,4 +1,4 @@
-﻿@page "/olvido-contraseña/{UserName}"
+﻿@page "/olvido-contraseña/{UserName}/{Nombre}"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
@@ -48,6 +48,7 @@
     //usamos  recoveryPassword  ya que contiene las propiedades unicamente necesarias para recuperar el password
     private RecoveryPassword recoveryPassword = new RecoveryPassword();
     [Parameter] public string UserName { get; set; }
+    [Parameter] public string Nombre { get; set; }
     private string UsuarioLogueado;
 
     protected override async Task OnInitializedAsync()
@@ -85,6 +86,6 @@
 
     public async Task GenerateRandomPass()
     {
-        recoveryPassword.Password = GenerarPassword.GenerateRandomPassword();
+        recoveryPassword.Password = GenerarPassword.GenerateRandomPassword(Int32.Parse(UserName), Nombre);
     }
 }

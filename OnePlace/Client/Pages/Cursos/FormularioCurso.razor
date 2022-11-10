@@ -17,21 +17,33 @@
         </CardHeader>
         <CardBody Class="card-body border-top">
             <div class="form-row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="nombre">Nombre</InputLabel>
                         <InputText class="form-control form-control-sm" id="nombre" placeholder="Nombre" @bind-Value="@Curso.Nombre" />
                         <ValidationMessage For="@(() => Curso.Nombre)" />
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputLabel for="descripcion">Descripción</InputLabel>
                         <InputTextArea class="form-control form-control-sm" id="descripcion" placeholder="Descripción" rows="1" @bind-Value="@Curso.Descripcion" />
                         <ValidationMessage For="@(() => Curso.Descripcion)" />
                     </div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <InputLabel for="tiendaoestacion">Tienda o Estación</InputLabel>
+                        <select class="form-control form-control-sm" @bind="Curso.TiendaoEstacion">
+                            @*<option value=" ">Seleccionar</option>*@
+                            @foreach (var item in Enum.GetValues(typeof(TiendaoEstacion)).Cast<TiendaoEstacion>())
+                            {
+                                <option value="@item.ToString()">@item.GetDescription()</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-3">
                     <div class="form-group">
                         <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
                     </div>

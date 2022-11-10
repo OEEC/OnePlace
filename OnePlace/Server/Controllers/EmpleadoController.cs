@@ -123,11 +123,13 @@ namespace OnePlace.Server.Controllers
                                             Variable = e.Variable,
                                             Idtipo = e.Idtipo,
                                             Fchalta = e.Fchalta,
-                                            Fchbaja = e.Fchbaja,                                          
+                                            Fchbaja = e.Fchbaja,  
+                                            ImagenesCumple = context.ImagenesCumpleEmpleado.Where(x=>x.EmpleadoId == e.Idempleado).ToList(),
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
                                             Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
-                                        }).FirstOrDefault();
+                                        })                                       
+                                        .FirstOrDefault();
 
             if (empleado == null) { return NotFound(); }
 
@@ -288,6 +290,31 @@ namespace OnePlace.Server.Controllers
 
                 return empleados;
             }
+        }
+
+        [Route("ImgCumpleEmpleado")]
+        [HttpPost]
+        public async Task<ActionResult<int>> Post(Empleado empleado)
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            List<ImagenesCumpleEmpleado> listadeimagenes = new List<ImagenesCumpleEmpleado>();
+
+            //recorremos la lsita de imagenes que trae la data del emmpleado, y por cada iteracion se crea un objeto 
+            //ImagenesCumpleEmpleado y le asignamos el idempleado ya que el que viene en la data no lo trae
+            //aqui es donde hacemos la relacion empleado-imagenescumpleempleado
+            foreach (var item in empleado.ImagenesCumple)
+            {
+                ImagenesCumpleEmpleado imagen = new ImagenesCumpleEmpleado();
+                imagen.EmpleadoId = empleado.Idempleado;
+                imagen.Imagen = item.Imagen;
+
+                listadeimagenes.Add(imagen);
+            }
+
+            context.ImagenesCumpleEmpleado.AddRange(listadeimagenes);
+            await context.SaveChangesAsync(user.Id);
+            return empleado.Idempleado;
         }
     }
 }

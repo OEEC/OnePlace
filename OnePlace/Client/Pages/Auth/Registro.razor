@@ -1,4 +1,4 @@
-﻿@page "/registro/{EmpleadoId:int}"
+﻿@page "/registro/{EmpleadoId:int}/{Nombre}"
 @inject IRepositorio repositorio
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
@@ -50,6 +50,7 @@
 @code{
 
     [Parameter] public int EmpleadoId { get; set; }
+    [Parameter] public string Nombre { get; set; }
 
     private UserInfo userInfo = new UserInfo();
 
@@ -92,6 +93,6 @@
 
     public async Task GenerateRandomPass()
     {
-        userInfo.Password = GenerarPassword.GenerateRandomPassword();
+        userInfo.Password = GenerarPassword.GenerateRandomPassword(EmpleadoId, model.Persona.Nombre);
     }
 }

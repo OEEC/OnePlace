@@ -88,7 +88,7 @@
                                             <Icono Icon="text-500 fas fa-edit" />
                                         </Enlace>
                                         <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Borrar" Icon="text-500 fas fa-trash-alt" @onclick="@(()=>BorrarUsuario(usuario))" />
-                                        <Enlace Class="btn p-0" Href=@("olvido-contraseña/"+usuario.NumeroEmpleado) data-bs-toggle="tooltip" data-bs-placement="top" title="Restablecer Contraseña">
+                                        <Enlace Class="btn p-0" Href=@("olvido-contraseña/"+usuario.NumeroEmpleado+"/"+usuario.Nombre) data-bs-toggle="tooltip" data-bs-placement="top" title="Restablecer Contraseña">
                                             <Icono Icon="text-500 oi oi-action-undo" />
                                         </Enlace>
                                     </td>

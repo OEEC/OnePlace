@@ -271,7 +271,7 @@ namespace OnePlace.Server.Reportes
             } 
 
             var textpink  = FontFactory.GetFont("Arial", 15, Font.NORMAL, BaseColor.Pink);
-            var descriptionChunk = new Chunk("¡¡Feliz Cumpleaños "+nombre+"!!"+"\n\n"+model.ProximoCumple+"\n\n“Trabajar contigo es un aprendizaje constante. Gracias por darnos tu apoyo y esfuerzo. Esta empresa no sería la misma sin ti.”\n\nAtte:\nGrupo Simsa.", textpink);
+            var descriptionChunk = new Chunk("¡¡Feliz Cumpleaños "+nombre+"!!"+"\n\n"+model.ProximoCumple.ToString("dd-MM-yyyy")+"\n\n“Trabajar contigo es un aprendizaje constante. Gracias por darnos tu apoyo y esfuerzo. Esta empresa no sería la misma sin ti.”\n\nAtte:\nGrupo Simsa.", textpink);
             Paragraph para = new Paragraph();
             para.Add(descriptionChunk);
             pdfDoc.Add(para);               

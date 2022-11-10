@@ -36,12 +36,18 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idpuesto { get; set; }
         [NotMapped]
         public virtual Puesto Puesto { get; set; }
-
         public int? Idpagadora { get; set; } //simsa core osacar
         [NotMapped]
         public virtual Pagadora Pagadora { get; set; }
-
         public int? ZonaId { get; set; }       
-        public int? Idestacion { get; set; }        
+        public int? Idestacion { get; set; }
+        public int? TiendaId { get; set; }
+        public List<ImagenesCumpleEmpleado> ImagenesCumple { get; set; }
+    }
+    public class ImagenesCumpleEmpleado
+    {
+        public int ImagenesCumpleEmpleadoId { get; set; }
+        public string Imagen { get; set; }
+        public int EmpleadoId { get; set; }
     }
 }

@@ -15,7 +15,7 @@ else
 {
     <Card Class="card mb-3">
         <CardHeader Class="card-header position-relative min-vh-25 mb-7">
-            <CardMedia Class="bg-holder rounded-soft rounded-bottom-0" Image="Img/migasolina1.jpg" />           
+            <CardMedia Class="bg-holder rounded-soft rounded-bottom-0" Image="Img/migasolina1.jpg" />
             <Avatar Class="avatar avatar-5xl avatar-profile">
                 <Imagen Class="rounded-circle img-thumbnail2 shadow-sm" Src="@DetallesEmpleado.Empleado.Img" />
             </Avatar>
@@ -38,7 +38,8 @@ else
                         }
                     </Texto>
                     <p class="text-500">Simsa, Torreón Coahuila</p>
-                    <Enlace Class="btn btn-outline-primary btn-sm px-3" Href="@("registro/"+DetallesEmpleado.Empleado.Idempleado)"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Crear Usuario</Enlace>
+                    <Enlace Class="btn btn-outline-primary btn-sm px-3" Href="@("registro/"+DetallesEmpleado.Empleado.Idempleado+"/"+DetallesEmpleado.Persona.Nombre)"><Icono Icon="fas fa-plus fs--2 mr-1"></Icono>Crear Usuario</Enlace>
+                    <Boton Class="btn btn-outline-primary btn-sm px-3" ButtonType="ButtonType.Button" @onclick="MostrarImg"><Icono Icon="fas fa-image fs--2 mr-1"></Icono>Añadir Foto</Boton>
                     <Divisor Class="border-dashed my-4 d-lg-none" />
                 </div>
                 <div class="col pl-2 pl-lg-3">
@@ -56,8 +57,8 @@ else
                                 }
                             </Texto>
                         </div>
-                    </Texto>                   
-                </div>
+                    </Texto>
+                </div>                
             </div>
         </CardBody>
     </Card>
@@ -89,13 +90,13 @@ else
                         </div>
                     </div>
                     @*<div class="row">
-                        <div class="col-5 col-sm-4">
-                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Tipo de Usuario:</Texto>
-                        </div>
-                        <div class="col">
-                            <Texto Typo="Typo.body2" Class="mb-1">@DetallesEmpleado.Empleado.TipodeUsuario.ToString()</Texto>
-                        </div>
-                    </div>*@
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Tipo de Usuario:</Texto>
+                            </div>
+                            <div class="col">
+                                <Texto Typo="Typo.body2" Class="mb-1">@DetallesEmpleado.Empleado.TipodeUsuario.ToString()</Texto>
+                            </div>
+                        </div>*@
                     <div class="row">
                         <div class="col-5 col-sm-4">
                             <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Correo:</Texto>
@@ -125,7 +126,7 @@ else
                                 <text>No hay registro</text>
                             }
                         </div>
-                    </div>                    
+                    </div>
                 </div>
 
                 <div class="col-lg col-xxl-5 mt-4 mt-lg-0 offset-xxl-1">
@@ -175,20 +176,20 @@ else
                         </div>
                     </div>
                     @*<div class="row">
-                        <div class="col-5 col-sm-4">
-                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Razón Social:</Texto>
-                        </div>
-                        <div class="col">
-                            @if (DetallesEmpleado.Empleado.RazonSocialEstacion != null)
-                            {
-                                <Texto Typo="Typo.body2">@DetallesEmpleado.Empleado.RazonSocialEstacion.Nombre</Texto>
-                            }
-                            else
-                            {
-                                <text>No hay registro</text>
-                            }
-                        </div>
-                    </div>*@
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Razón Social:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Empleado.RazonSocialEstacion != null)
+                                {
+                                    <Texto Typo="Typo.body2">@DetallesEmpleado.Empleado.RazonSocialEstacion.Nombre</Texto>
+                                }
+                                else
+                                {
+                                    <text>No hay registro</text>
+                                }
+                            </div>
+                        </div>*@
                     <div class="row">
                         <div class="col-5 col-sm-4">
                             <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Fecha de Creación:</Texto>
@@ -200,25 +201,25 @@ else
                             }
                             else
                             {
-                            <Texto Typo="Typo.normal" Class="text-danger">No hay registro</Texto>
+                                <Texto Typo="Typo.normal" Class="text-danger">No hay registro</Texto>
                             }
                         </div>
                     </div>
                     @*<div class="row">
-                        <div class="col-5 col-sm-4">
-                            <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Estado:</Texto>
-                        </div>
-                        <div class="col">
-                            @if (DetallesEmpleado.Empleado.Activo == true)
-                            {
-                                <Chips Class="badge badge-pill badge-success" Icon="ml-1 fas fa-check">&nbsp;Activo</Chips>
-                            }
-                            else
-                            {
-                                <Chips Class="badge badge-pill badge-danger" Icon="ml-1 fas fa-times">&nbsp;Inactivo</Chips>
-                            }
-                        </div>
-                    </div>*@
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Estado:</Texto>
+                            </div>
+                            <div class="col">
+                                @if (DetallesEmpleado.Empleado.Activo == true)
+                                {
+                                    <Chips Class="badge badge-pill badge-success" Icon="ml-1 fas fa-check">&nbsp;Activo</Chips>
+                                }
+                                else
+                                {
+                                    <Chips Class="badge badge-pill badge-danger" Icon="ml-1 fas fa-times">&nbsp;Inactivo</Chips>
+                                }
+                            </div>
+                        </div>*@
                     <div class="row">
                         <div class="col-5 col-sm-4">
                             <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Ver Más:</Texto>
@@ -285,7 +286,7 @@ else
                                     <text>No hay registro</text>
                                 }
                             </div>
-                        </div>                       
+                        </div>
                         <div class="row">
                             <div class="col-5 col-sm-4">
                                 <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Celular Personal:</Texto>
@@ -358,7 +359,24 @@ else
                                     @DetallesEmpleado.Persona.Calle #@DetallesEmpleado.Persona.Noext @DetallesEmpleado.Persona.Noint @DetallesEmpleado.Persona.Colonia @DetallesEmpleado.Persona.Cp, @DetallesEmpleado.Persona.Ciudad @DetallesEmpleado.Persona.Estado
                                 </Texto>
                             </div>
-                        </div>                 
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-sm-4">
+                                <Texto Typo="Typo.body2" Class="font-weight-semi-bold mb-1">Imagenes:</Texto>
+                            </div>
+                            <div class="col">
+                                <div class="row light">
+                                    @foreach (var item in DetallesEmpleado.Empleado.ImagenesCumple)
+                                    {
+                                        <div class="col-sm-6 col-lg-4 mb-4">
+                                            <div class="card bg-dark text-white overflow-hidden light" style="max-width: 30rem;">
+                                                <div class="card-img-top"><img class="img-fluid" src="@item.Imagen" alt="Card image" /></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
@@ -366,6 +384,16 @@ else
         <CardFooter Class="card-footer border-top bg-transparent"></CardFooter>
     </Card>
     <br />
+
+    <ModalContent EsVisible="VerModalImg" BotonesModal="ModalContent.TiposdeBoton.BotonOnclick" OnClose="closeModalImg" MetodoOnclick="AñadirFoto" Titulo="Subir Foto de Cumpleaños">  
+        <div class="form-row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" Label="Imagen" />
+                </div>
+            </div>
+        </div>
+    </ModalContent>
 }
 
 @code {
@@ -387,6 +415,23 @@ else
         user = authState.User;
 
         await CargarDetalles();
+
+        //controlar las imagenes subidad
+        if (DetallesEmpleado.Empleado.ImagenesCumple != null && DetallesEmpleado.Empleado.ImagenesCumple.Count > 0)
+        {
+            foreach (var item in DetallesEmpleado.Empleado.ImagenesCumple)
+            {
+                //sino hay imagen no hacemos nada, pero si hay imagen la guardamos en la variable imagenUrl
+                if (!string.IsNullOrWhiteSpace(item.Imagen))
+                {
+                    imagenURL2 = item.Imagen;//guardar imagen en la variable
+                    listadeimagenesURL.Add(imagenURL2);//esto solo se hace para enviar una lista de imagenes al componente inputmultipleimg
+
+                    //aqui si podemos comentar esto ya que el editar la imagen es lo unico que se hace no editas nada mas
+                    //item.Imagen = null;//volvemos null la imagen que ya tenia, si el usuario no cambia la imagen nunca, entonces nunca la enviamos
+                }
+            }
+        }
     }
 
     private async Task CargarDetalles()
@@ -421,7 +466,66 @@ else
         VerMas = !VerMas;
     }
 
-    #endregion   
+    #endregion
+
+    #region ModalImagenes
+
+    private Boolean VerModalImg = false;
+
+    public void MostrarImg()
+    {
+        VerModalImg = true;
+    }
+
+    private void closeModalImg()
+    {
+        VerModalImg = false;
+    }
+
+    public List<ImagenesCumpleEmpleado> listadeimagenes = new List<ImagenesCumpleEmpleado>();
+    //para editar
+    private string imagenURL2;
+    public List<string> listadeimagenesURL = new List<string>();
+
+    //este metodo actualiza las imagenes con las nuevas imagenes seleccionadas
+    private void ImagenesSeleccionadas(List<string> imagenesBase64)
+    {
+        //recorremos el listado de string que nos envio el componente
+        foreach (var item in imagenesBase64)
+        {
+            //por cada iteracion creamos un new ImagenesCumpleEmpleado, y le asignamos el string a la propiedad imagen del objecto
+            ImagenesCumpleEmpleado imagen = new ImagenesCumpleEmpleado()
+            {
+                Imagen = item
+            };
+
+            //cada nuevo objecto ImagenesCumpleEmpleado lo guardamos en una lista
+            listadeimagenes.Add(imagen);
+        }
+
+        //la lista llena de objetos ImagenesCumpleEmpleado la igualamos a la lista de imagenes en el objeto empleado       
+        DetallesEmpleado.Empleado.ImagenesCumple = listadeimagenes;
+
+        //hacemos null las propiedades
+        imagenURL2 = null;
+        listadeimagenesURL = null;
+    }
+
+    async Task AñadirFoto()
+    {
+        var httpResponse = await repositorio.Post("api/Empleado/ImgCumpleEmpleado", DetallesEmpleado.Empleado);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Foto Asignada");
+            navigationManager.NavigateTo($"detalles-empleado/{EmpleadoId}");
+        }
+    }
+
+    #endregion
 }
 
 

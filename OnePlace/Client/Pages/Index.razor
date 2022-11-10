@@ -39,7 +39,7 @@
                             </div>
                         </div> -->
                         <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
-                    </div>                  
+                    </div>
                 </div>
                 @*se saco del div namenu para poder dar clic al boton de deslogueo sin que se esconda el navmenu*@
                 <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
@@ -50,7 +50,7 @@
                     <div class="row g-5 py-5">
                         <div class="col-lg-6 text-center text-lg-start">
                             <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
-                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>                         
+                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
                             <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Ver Más</a>
                             <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
                         </div>
@@ -136,17 +136,17 @@
                     <h6 class="position-relative d-inline text-primarysimsa pl-4">Cursos</h6>
                     <h2 class="mt-2">Lo Que Puedes Aprender</h2>
                 </div>
-                @if (ListadeCursos == null)
+                @if (ListadeCursosUser == null)
                 {
                     <LoadingSpinner IsLoading="Procesando" />
                 }
                 else
                 {
                     <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
-                        @foreach (var item in ListadeCursos)
+                        @foreach (var item in ListadeCursosUser)
                         {
                             //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
-                            if(FechadeHoy >= item.FechaFinal)
+                            if (FechadeHoy >= item.FechaFinal)
                             {
 
                             }
@@ -164,7 +164,7 @@
                                         <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
                                     </div>
                                 </div>
-                            }                           
+                            }
                         }
                     </div>
                 }
@@ -226,17 +226,27 @@
                     }
                 </div>
                 <div class="owl-carousel cumple-carousel wow fadeInUp" data-wow-delay="0.1s">
-                    @if (ListadodeCumpleñeros != null)
+                    @if (ListadodeCumpleñerosUser != null)
                     {
-                        @foreach (var item in ListadodeCumpleñeros)
+                        @foreach (var item in ListadodeCumpleñerosUser)
                         {
                             <div class="item">
                                 <div class="team-item">
                                     <div class="d-flex">
                                         <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>                                          
+                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
                                         </div>
-                                        <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
+                                        @if (item.Empleado.ImagenesCumple != null && item.Empleado.ImagenesCumple.Count > 0)
+                                        {
+                                            @foreach (var item2 in item.Empleado.ImagenesCumple)
+                                            {
+                                                <img class="img-fluidsimsa rounded w-100" src="@item2.Imagen" alt="">
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
+                                        }
                                     </div>
                                     <div class="px-4 py-3">
                                         <h5 class="fw-bold m-0">@item.Empleado.Persona.Nombre</h5>
@@ -378,7 +388,7 @@
                                             }
                                             else
                                             {
-                                               <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" Icon="text-500 fas fa-download" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))" />
+                                                <BotonIcono Class="btn p-0 ms-2" ButtonType="ButtonType.Button" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" Icon="text-500 fas fa-download" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))" />
                                             }
                                         </p>
                                         <img src="@EmpleadoPersonaDTO.CodigoQR" class="text-left" style="width:80px; height:80px;" />
@@ -460,9 +470,9 @@ else
         </CardHeader>
         <CardBody Class="card-body fs--1">
             <div class="row">
-                <ListadoGenerico Listado="ListadodeCumpleñeros">
+                <ListadoGenerico Listado="ListadodeCumpleñerosAdmin">
                     <HayRegistrosCompleto>
-                        @foreach (var item in ListadodeCumpleñeros)
+                        @foreach (var item in ListadodeCumpleñerosAdmin)
                         {
                             <div class="col-md-6 h-100">
                                 <div class="d-flex btn-reveal-trigger">
@@ -490,10 +500,10 @@ else
                 </ListadoGenerico>
             </div>
         </CardBody>
-         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
+        <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
             <Paginacion PaginaActual="paginaActualListadeCumple" PaginaSeleccionada="paginaSeleccionadaListaCumple" PaginasTotales="paginasTotalesListaCumple" />
         </CardFooter>
-    </Card>   
+    </Card>
     <br />
     <Card Class="card mb-3">
         <CardHeader Class="card-header">
@@ -501,12 +511,16 @@ else
                 <div class="col-md-auto">
                     <Texto Typo="Typo.h5" Class="mb-3 mb-md-0">Cursos</Texto>
                 </div>
-                @*<div class="col-md-auto">
-                        <Enlace Class="btn btn-sm btn-outline-secondary border-300 mr-2" Href="lista-producto">
-                            <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
-                        </Enlace>
-                        <Enlace Class="btn btn-sm btn-primary" Href="checkout">Ver Compra</Enlace>
-                    </div>*@
+                <div class="col-md-auto">
+                    @*<Enlace Class="btn btn-sm btn-outline-secondary border-300 mr-2" Href="lista-producto">
+                        <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
+                    </Enlace>*@
+                    @*<Enlace Class="btn btn-sm btn-primary" Href="checkout">Ver Compra</Enlace>*@
+                    <Boton Class="btn btn-primary btn-sm" @onclick="verModalQR">
+                        <Icono Icon="fas fa-qrcode"></Icono>
+                        Generar Código
+                    </Boton>
+                </div>
             </div>
         </CardHeader>
         <CardBody Class="card-body p-0">
@@ -520,13 +534,13 @@ else
                     </div>
                 </div>
             </div>
-            @if (ListadeCursos == null)
+            @if (ListadeCursosAdmin == null)
             {
                 <LoadingSpinner IsLoading="Procesando" />
             }
             else
             {
-                @foreach (var item in ListadeCursos)
+                @foreach (var item in ListadeCursosAdmin)
                 {
                     <div class="row no-gutters align-items-center px-1 border-bottom border-200">
                         <div class="col-8 py-3 px-2 px-md-3">
@@ -572,7 +586,11 @@ else
         </CardFooter>
     </Card>
     <br />
-    <br />
+    <br />    
+
+    <ModalContent EsVisible="VerModalQR" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalQR" Titulo="Código QR">
+        <Imagen Class="img-thumbnail3" Src="@("api/Codigo/")"></Imagen>       
+    </ModalContent>   
 }
 
 @code {
@@ -582,7 +600,8 @@ else
     [CascadingParameter] public App MyApp { get; set; }
 
     public EmpleadoPersonaDTO EmpleadoPersonaDTO { get; set; }
-    public List<EmpleadoPersonaDTO> ListadodeCumpleñeros { get; set; }
+    public List<EmpleadoPersonaDTO> ListadodeCumpleñerosAdmin { get; set; }
+    public List<EmpleadoPersonaDTO> ListadodeCumpleñerosUser { get; set; }
     public DateTime FechadeHoy;
     public DateTime UltimoDiaParaDescargarCupon;
     public DateTime FechaDespuesdeCumple;
@@ -613,16 +632,17 @@ else
 
             await CargarEstadoCumple();
             await CargarCumple();
-            await CargarEventos();            
+            await CargarEventos();
+            await CargarCursosUser();
         }
         else
         {
             MyApp.SetLayout(typeof(MainLayout));
+            await CargarCursosAdmin();
         }
 
         await CargarListadodeCumpleañeros();
         await CargarCarrusel();
-        await CargarCursos();
     }
 
     #region Cumpleaños
@@ -660,15 +680,17 @@ else
 
     private async Task CargarListadodeCumpleañeros(int pagina = 1)
     {
-        var responseHttp = await repositorio.Get<List<EmpleadoPersonaDTO>>($"api/Birthday/listadecumpleaneros?pagina={pagina}");
-        if (!responseHttp.Error)
+        var httpResponse = await repositorio.Get<PaginadorGenerico<EmpleadoPersonaDTO>>($"api/Birthday/listadecumpleaneros?pagina={pagina}");
+        if (!httpResponse.Error)
         {
-            ListadodeCumpleñeros = responseHttp.Response;
+            var resultado = httpResponse.Response.Resultado;
+            var resultadoexport = httpResponse.Response.ResultadoAExportar;
 
-            //atra vez de la variable conteo y totalpaginas extremos dichos datos de la respuesta http
-            var conteo = responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault();
-            //hacemos un parse para transformar de string a numero entero
-            paginasTotalesListaCumple = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+            paginaActualListadeCumple = httpResponse.Response.PaginaActual;
+            paginasTotalesListaCumple = httpResponse.Response.TotalPaginas;
+
+            ListadodeCumpleñerosAdmin = (List<EmpleadoPersonaDTO>)resultado;
+            ListadodeCumpleñerosUser = (List<EmpleadoPersonaDTO>)resultadoexport;
         }
     }
 
@@ -695,7 +717,7 @@ else
         {
             await CargarListadodeCumpleañeros();
             await CargarCarrusel();
-            await CargarCursos();
+            await CargarCursosUser();
 
             await JS.InvokeVoidAsync("Animacion");
             firstRender = false;
@@ -848,7 +870,7 @@ else
         else
         {
             await CargarEstadoCumple();
-            StateHasChanged();           
+            StateHasChanged();
         }
     }
 
@@ -867,7 +889,8 @@ else
     #region Cursos
 
     private bool Procesando = true;
-    public List<Curso> ListadeCursos { get; set; }
+    public List<Curso> ListadeCursosAdmin { get; set; }
+    public List<Curso> ListadeCursosUser { get; set; }
 
     private int paginaActual = 1;
     private int paginasTotales;
@@ -875,15 +898,15 @@ else
     private async Task paginaSeleccionada(int pagina)
     {
         paginaActual = pagina;
-        await CargarCursos(pagina);
+        await CargarCursosAdmin(pagina);
     }
 
-    private async Task CargarCursos(int pagina = 1)
+    private async Task CargarCursosAdmin(int pagina = 1)
     {
-        var responseHttp = await repositorio.Get<List<Curso>>($"api/Curso?pagina={pagina}");
+        var responseHttp = await repositorio.Get<List<Curso>>($"api/Curso/listadecursosadmin?pagina={pagina}");
         if (!responseHttp.Error)
         {
-            ListadeCursos = responseHttp.Response;
+            ListadeCursosAdmin = responseHttp.Response;
             Procesando = false;
 
             var conteo = responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault();
@@ -891,5 +914,41 @@ else
         }
     }
 
-    #endregion   
+    private async Task CargarCursosUser()
+    {
+        var responseHttp = await repositorio.Get<List<Curso>>($"api/Curso/listadecursosuser");
+        if (!responseHttp.Error)
+        {
+            ListadeCursosUser = responseHttp.Response;
+            Procesando = false;
+        }
+    }
+
+    #endregion
+
+    #region GenerarCodigoQR    
+
+    //public QRcodigo QRCodigo = new QRcodigo();
+    //string Resultado { get; set; } = "";
+    //private async Task GenerarQR()
+    //{
+    //    QRCodigo.Codigo = "https://innovacion2.dgl.com.mx/oneplace";
+    //    var responseHttp = await repositorio.Post<QRcodigo, string>($"api/Codigo", QRCodigo);
+    //    Resultado = responseHttp.Response;
+    //}
+
+    public bool VerModalQR = false;   
+
+    public async Task verModalQR()
+    {
+        VerModalQR = true;
+        await JS.InvokeVoidAsync("downloadFromUrl", new { Url = $"api/Codigo", FileName = "codigoqr.jpeg" });
+    }
+
+    private void closeModalQR()
+    {
+        VerModalQR = false;
+    }
+
+    #endregion
 }

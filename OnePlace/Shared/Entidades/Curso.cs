@@ -83,6 +83,7 @@ namespace OnePlace.Shared.Entidades
                 }
             }
         }
+        public TiendaoEstacion TiendaoEstacion { get; set; }
     }
     public class Tema
     {
@@ -164,5 +165,11 @@ namespace OnePlace.Shared.Entidades
         SinCompletar,
         Terminado,
               
+    }
+    public enum TiendaoEstacion
+    {
+        [Description("Estación")]
+        Estacion,
+        Tienda,
     }
 }

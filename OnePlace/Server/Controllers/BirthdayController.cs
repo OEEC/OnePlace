@@ -33,8 +33,10 @@ namespace OnePlace.Server.Controllers
 
         [Route("listadecumpleaneros")]
         [HttpGet]
-        public async Task<ActionResult<List<EmpleadoPersonaDTO>>> GetListado([FromQuery] PaginacionDTO paginacion)
+        public async Task<ActionResult<PaginadorGenerico<EmpleadoPersonaDTO>>> GetListado([FromQuery] ParametrosBusquedaEquiposReparacion parametrosBusqueda)        
         {
+            PaginadorGenerico<EmpleadoPersonaDTO> _PaginadorConceptos;
+
             //traemos el listado de empleados
             List<Empleado> empleados = (from e in context.Empleados
                                         select new Empleado
@@ -53,6 +55,7 @@ namespace OnePlace.Server.Controllers
                                             Idtipo = e.Idtipo,
                                             Fchalta = e.Fchalta,
                                             Fchbaja = e.Fchbaja,
+                                            ImagenesCumple = context.ImagenesCumpleEmpleado.Where(x => x.EmpleadoId == e.Idempleado).ToList(),
                                             Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
@@ -60,6 +63,7 @@ namespace OnePlace.Server.Controllers
                                         }).ToList();
 
             List<EmpleadoPersonaDTO> listadoempleadosconcumple = new List<EmpleadoPersonaDTO>();
+            List<EmpleadoPersonaDTO> listabuffer = new List<EmpleadoPersonaDTO>();
 
             //fijar una fecha en este caso una fecha de inicio
             DateTime FechaActual = DateTime.Now;
@@ -130,14 +134,52 @@ namespace OnePlace.Server.Controllers
                 //si esta entre los dias de inicio y fin de mes lo guardamos en la lista de dto´s
                 if (model.ProximoCumpleTodoMes >= FechaInicio && model.ProximoCumpleTodoMes <= FechaFinal)
                 {
-                    listadoempleadosconcumple.Add(model);
+                    listadoempleadosconcumple.Add(model);                    
                 }
             }
 
-            var queryable = listadoempleadosconcumple.AsQueryable();
+            //buffer con el total de cumpleañeros sin paginacion
+            listabuffer = listadoempleadosconcumple;
 
-            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros, true);
-            return queryable.Paginar(paginacion).ToList();
+            var queryable = listadoempleadosconcumple.AsQueryable();          
+
+            #region PAGINACION          
+
+            int _TotalRegistros = 0;
+            int _TotalPaginas = 0;
+
+            // Número total de registros de la coleccion 
+            _TotalRegistros = queryable.Count();
+
+            // Obtenemos la 'página de registros' de la coleccion 
+            queryable = queryable.Skip((parametrosBusqueda.Pagina - 1) * parametrosBusqueda.CantidadRegistros)
+                                               .Take(parametrosBusqueda.CantidadRegistros);
+
+            // Número total de páginas de la coleccion
+            _TotalPaginas = (int)Math.Ceiling((double)_TotalRegistros / parametrosBusqueda.CantidadRegistros);
+
+            //Instanciamos la 'Clase de paginación' y asignamos los nuevos valores
+            _PaginadorConceptos = new PaginadorGenerico<EmpleadoPersonaDTO>()
+            {
+                RegistrosPorPagina = parametrosBusqueda.CantidadRegistros,
+                TotalRegistros = _TotalRegistros,
+                TotalPaginas = _TotalPaginas,
+                PaginaActual = parametrosBusqueda.Pagina,
+                Resultado = queryable.ToList(),//filtrado por categoria mas paginacion
+                ResultadoAExportar = listabuffer
+            };
+            return _PaginadorConceptos;
+
+            #endregion
+        }
+        public class ParametrosBusquedaEquiposReparacion
+        {
+            public int Pagina { get; set; } = 1;
+            public int CantidadRegistros { get; set; } = 10;
+            public PaginacionDTO Paginacion
+            {
+                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
+            }          
         }
 
         [HttpGet]
@@ -223,6 +265,6 @@ namespace OnePlace.Server.Controllers
             var estado = await context.EstadodeCumpleaños.Where(x => x.UserId == user.Id).FirstOrDefaultAsync();
             if (estado == null) { return NotFound(); }
             return estado;
-        }
+        }       
     }
 }

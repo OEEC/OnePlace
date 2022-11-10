@@ -160,13 +160,30 @@ namespace OnePlace.Server.Controllers
             }
         }
 
-        //endpoints para cursos en la pagina de inicio
+        //endpoints para cursos en la pagina de inicio user
+        [Route("listadecursosuser")]
         [HttpGet]
-        public async Task<ActionResult<List<Curso>>> Get([FromQuery] PaginacionDTO paginacion)
+        public async Task<ActionResult<List<Curso>>> Get()
         {
-            var queryable = context.Cursos.Where(x => x.Activo == true).AsQueryable();
+            //buscamos un empleado por el usuario logueado
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
 
-            foreach (var item in queryable)
+            List<Curso> listadecursos = new List<Curso>();
+
+            //si el empleado pertenece a una estacion, obtenemos los cursos por estaciones
+            if (empleado.Idestacion != null && empleado.Idestacion > 0)
+            {
+                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Estacion && x.Activo == true).ToListAsync();
+            }
+
+            //si el empleado pertenece a una tienda, obtenemos los cursos por tiendas
+            if (empleado.TiendaId != null && empleado.TiendaId > 0)
+            {
+                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Tienda && x.Activo == true).ToListAsync();
+            }            
+
+            foreach (var item in listadecursos)
             {
                 //si el usuario no subio imagen poner una por defecto
                 if (string.IsNullOrEmpty(item.Imagen))
@@ -175,9 +192,8 @@ namespace OnePlace.Server.Controllers
                     item.Imagen = "Img" + "/" + "Imagenotfound.jpg";
                 }
             }
-
-            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros);
-            return await queryable.Paginar(paginacion).ToListAsync();
+           
+            return listadecursos;
         }
 
         [Route("DetalleCurso/{id}")]
@@ -332,6 +348,27 @@ namespace OnePlace.Server.Controllers
             #endregion
 
             return Ok();
+        }
+
+        //endpoints para cursos en la pagina de inicio admin
+        [Route("listadecursosadmin")]
+        [HttpGet]
+        public async Task<ActionResult<List<Curso>>> Get([FromQuery] PaginacionDTO paginacion)
+        {
+            var queryable = context.Cursos.Where(x => x.Activo == true).AsQueryable();
+
+            foreach (var item in queryable)
+            {
+                //si el usuario no subio imagen poner una por defecto
+                if (string.IsNullOrEmpty(item.Imagen))
+                {
+                    // Aquí colocas la URL de la imagen por defecto
+                    item.Imagen = "Img" + "/" + "Imagenotfound.jpg";
+                }
+            }
+
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadRegistros);
+            return await queryable.Paginar(paginacion).ToListAsync();
         }
 
         //terminar cursos por fecha usando jobs , este job solo se ejecuta si se le da clic al boton que llama a esta api, no se hace automatico

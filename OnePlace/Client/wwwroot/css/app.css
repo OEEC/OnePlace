@@ -469,3 +469,17 @@ h5, .h5 {
 .text-200 {
     color: #5e6e82 !important;
 }
+
+/*codigo para qr*/
+.img-thumbnail3 {
+    padding: 0.25rem;
+    background-color: #EFD233;
+    border: 3px solid #EFD233;
+    border-radius: 0.25rem;
+    -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    /* max-width: 100%;
+            height: auto;*/
+    width: 96px;
+    height: 96px;
+}

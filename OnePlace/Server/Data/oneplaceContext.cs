@@ -700,6 +700,7 @@ namespace OnePlace.Server.Data
         public virtual DbSet<Tipo> Tipos { get; set; }
         public virtual DbSet<Usuario> Usuarios { get; set; }
         public virtual DbSet<Zona> Zonas { get; set; }
+        public virtual DbSet<Tienda> Tienda { get; set; }
 
         #endregion
 
@@ -729,6 +730,7 @@ namespace OnePlace.Server.Data
         public DbSet<VideosCapacitacion> VideosCapacitacion { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; }
+        public DbSet<ImagenesCumpleEmpleado> ImagenesCumpleEmpleado { get; set; }
 
         #endregion
     }

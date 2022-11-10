@@ -42,6 +42,18 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
+                        <InputLabel for="tiendaoestacion">Tienda o Estación</InputLabel>
+                        <select class="form-control form-control-sm" @bind="Capacitacion.TiendaoEstacion">
+                            @*<option value=" ">Seleccionar</option>*@
+                            @foreach (var item in Enum.GetValues(typeof(TiendaoEstacion)).Cast<TiendaoEstacion>())
+                            {
+                                <option value="@item.ToString()">@item.GetDescription()</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
                         <InputLabel for="zona">Zona</InputLabel>
                         <SelectorMultiple Seleccionados="Seleccionadas" NoSeleccionados="NoSeleccionadas" />
                     </div>
@@ -87,7 +99,6 @@
 
     private List<SelectorMultipleModel> Seleccionadas { get; set; } = new List<SelectorMultipleModel>();
     private List<SelectorMultipleModel> NoSeleccionadas { get; set; } = new List<SelectorMultipleModel>();
-
 
     protected async override Task OnInitializedAsync()
     {

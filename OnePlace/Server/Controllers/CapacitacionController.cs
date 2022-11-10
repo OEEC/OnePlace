@@ -215,17 +215,31 @@ namespace OnePlace.Server.Controllers
 
             if (empleado != null)
             {
-                //buscamos las zonas relacionadas al empleado
+                //buscamos las capacitaciones relacionadas a la zona del empleado
                 var listacapacitacionzona = await context.CapacitacionContinuaZona.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
                               
                 //recorremos las zonas ligadas a una capacitacion, para obtener las capacitaciones por zona
                 foreach (var item in listacapacitacionzona)
                 {
-                    var capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId)
-                        .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
-                        .FirstOrDefaultAsync();
+                    CapacitacionContinua capacitacioncontinua = new CapacitacionContinua();
 
-                    //solo agregar las promociones que no se han vencido
+                    //si el empleado pertenece a una estacion, obtenemos las capacitaciones por la zona del empleado y por estaciones
+                    if (empleado.Idestacion != null && empleado.Idestacion > 0)
+                    {
+                        capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.Estacion)
+                           .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
+                           .FirstOrDefaultAsync();
+                    }
+
+                    //si el empleado pertenece a una tienda, obtenemos las capacitaciones por la zona del empleado y por tiendas
+                    if (empleado.TiendaId != null && empleado.TiendaId > 0)
+                    {
+                        capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.Tienda)
+                          .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
+                          .FirstOrDefaultAsync();
+                    }                   
+
+                    //si la capacitacion no es null la agregamos a la lista
                     if (capacitacioncontinua != null)
                     {
                         listadecapacitaciones.Add(capacitacioncontinua);

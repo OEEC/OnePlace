@@ -30,3 +30,13 @@ function saveAsFile(filename, bytesBase64) {
 //    var blob = new Blob(byteArrays, { type: 'application/pdf' });
 //    return blob;
 //}
+
+//funcion para descargar una imagen se convirtio de ts a js
+function downloadFromUrl(options) {
+    var _a;
+    var anchorElement = document.createElement('a');
+    anchorElement.href = options.url;
+    anchorElement.download = (_a = options.fileName) !== null && _a !== void 0 ? _a : '';
+    anchorElement.click();
+    anchorElement.remove();
+}

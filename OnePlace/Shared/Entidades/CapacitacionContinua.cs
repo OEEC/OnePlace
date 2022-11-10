@@ -19,6 +19,7 @@ namespace OnePlace.Shared.Entidades
         public DateTime? FechaRegistro { get; set; }
         public string Imagen { get; set; }
         public bool Activo { get; set; }
+        public TiendaoEstacion TiendaoEstacion { get; set; }
         public List<VideosCapacitacion> ListadeVideos { get; set; }
         public List<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; } = new List<CapacitacionContinuaZona>();
     }
