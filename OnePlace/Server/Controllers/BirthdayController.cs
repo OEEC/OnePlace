@@ -78,15 +78,18 @@ namespace OnePlace.Server.Controllers
             {
                 if (string.IsNullOrEmpty(item.Img))
                 {
-                    if (item.Persona.Sexo == "M")
+                    if(item.Persona != null)
                     {
-                        // Aquí colocas la URL de la imagen por defecto
-                        item.Img = "Img" + "/" + "hombre3d.jpg";
-                    }
-                    else
-                    {
-                        item.Img = "Img" + "/" + "mujer3d.jpg";
-                    }
+                        if (item.Persona.Sexo == "M")
+                        {
+                            // Aquí colocas la URL de la imagen por defecto
+                            item.Img = "Img" + "/" + "hombre3d.jpg";
+                        }
+                        else
+                        {
+                            item.Img = "Img" + "/" + "mujer3d.jpg";
+                        }
+                    }                  
                 }
 
                 var model = new EmpleadoPersonaDTO();

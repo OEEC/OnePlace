@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using OnePlace.Client.Service;
 using OnePlace.Server.Data;
 using OnePlace.Server.Extenciones;
 using OnePlace.Server.Helpers;
@@ -30,7 +31,7 @@ namespace OnePlace.Server
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }       
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -87,7 +88,15 @@ namespace OnePlace.Server
             services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
 
             //servicio custom para usar un job de hangfire 
-            services.AddScoped<ITerminarCursoFechaServicio, TerminarCursoFechaServicio>();            
+            services.AddScoped<ITerminarCursoFechaServicio, TerminarCursoFechaServicio>();
+            services.AddScoped<IApiaBdService, ApiaBdService>();
+            services.AddScoped<IApiEmpleadosService, ApiEmpleadosService>();
+
+            //servicio para consumir api rest externa del lado del server
+            services.AddHttpClient<ISimsacoreService, SimsaCoreService>(client =>
+            {
+                client.BaseAddress = new Uri("https://innovacion.dgl.com.mx/");
+            });
 
             //agremaos el servicios de addhttpcontextaccesor
             services.AddHttpContextAccessor();         
@@ -119,7 +128,7 @@ namespace OnePlace.Server
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();            
 
-            app.UseRouting();
+            app.UseRouting();           
 
             //creamos un middlewaer de autenticacion y autorizacion
             app.UseAuthentication();
@@ -134,6 +143,12 @@ namespace OnePlace.Server
 
             //se ejecutara cada mes , A las 00:00, el día 1 del mes
             RecurringJob.AddOrUpdate<ITerminarCursoFechaServicio>("JobTerminarCursoFecha", servicio => servicio.TerminarCursoporFecha(), "0 0 1 */1 *" );
+            RecurringJob.AddOrUpdate<IApiaBdService>("JobApiaBd", servicio => servicio.DatosdeApiABaseDatos(), "0 0 1 */1 *");
+            //A las 12:00 p.m, sólo los domingos
+            RecurringJob.AddOrUpdate<IApiEmpleadosService>("JobApiEmpleados", servicio => servicio.DatosdeApiABaseDatosEmpleados(), "0 0 12 * * SUN");
+            
+            //A las 12:00:00 p. m., todos los domingos, todos los meses
+            //0 0 12 ? * SUN *
 
             app.UseEndpoints(endpoints =>
             {

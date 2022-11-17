@@ -24,7 +24,9 @@ else
                     {
                         <Texto Typo="Typo.body2" Class="fs--1 mb-0 text-600">Vence el día: @Curso.FechaFinal.Value.ToString("MM/dd/yyyy")</Texto>
                     }
-                    <Texto Typo="Typo.body2" Class="fs--1 mb-0 text-600">Tienda o Estación: @Curso.TiendaoEstacion.GetDescription()</Texto>
+                    <Texto Typo="Typo.body2" Class="fs--1 mb-0 text-600">Tienda o Estación:
+                        <Texto Typo="Typo.body2" Class="fs--1 mb-0 text-success">@Curso.TiendaoEstacion.GetDescription()</Texto>
+                    </Texto>
                     @if (user.IsInRole("Administrador"))
                     {
                         <Enlace Class="btn btn-dark btn-sm mr-1 mb-1" type="button" Href="@("crear-temas/"+Curso.CursoId)">

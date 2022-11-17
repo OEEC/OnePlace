@@ -11,7 +11,6 @@ namespace OnePlace.Client.Repositorios
     public class Repositorio : IRepositorio
     {
         private readonly HttpClient httpClient;
-
         public Repositorio(HttpClient httpClient)
         {
             this.httpClient = httpClient;

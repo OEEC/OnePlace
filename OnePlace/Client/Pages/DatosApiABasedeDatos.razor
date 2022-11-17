@@ -1,0 +1,94 @@
+﻿@page "/actualizar-registros"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensaje mostrarMensajes
+@attribute [Authorize(Roles = "Administrador")]
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5>Actualizar Registros</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-sm text-center">
+                <thead>
+                    <tr>
+                        <th scope="col">Persona</th>
+                        <th scope="col">Empleado</th>
+                        <th scope="col">Estación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>                        
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="ActualizarPersona">
+                                <i class="fas fa-user"></i>
+                                Persona
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-sm" @onclick="ActualizarEmpleado">                               
+                                <i class="fas fa-user-tie"></i>
+                                Empleado
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" @onclick="ActualizarEstacion">
+                                <i class="fas fa-gas-pump"></i>
+                                Estación
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private Estacion Estacion = new Estacion();
+
+    public async Task ActualizarEstacion()
+    {
+        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarEstacion", Estacion);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Estaciones Actualizadas");
+        }
+    }
+
+    private Empleado Empleado = new Empleado();
+
+    public async Task ActualizarEmpleado()
+    {
+        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarEmpleado", Empleado);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Empleados Actualizados");
+        }
+    }
+
+    private Persona Persona = new Persona();
+
+    public async Task ActualizarPersona()
+    {
+        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarPersona", Persona);
+        @if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Personas Actualizadas");
+        }
+    }
+}

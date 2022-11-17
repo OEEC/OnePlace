@@ -1,9 +1,86 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
+    public partial class Employee
+    {
+        [JsonProperty("idempleado")]
+        public int Idempleado { get; set; }
+
+        [JsonProperty("img")]
+        public string Img { get; set; }
+
+        [JsonProperty("noemp")]
+        public string Noemp { get; set; }
+
+        [JsonProperty("correo")]
+        public string Correo { get; set; }
+
+        [JsonProperty("telefono")]
+        public string Telefono { get; set; }
+
+        [JsonProperty("nomina")]
+        public double? Nomina { get; set; }
+
+        [JsonProperty("variable")]
+        public double? Variable { get; set; }
+
+        [JsonProperty("idtipo")]
+        public int? Idtipo { get; set; }
+
+        [JsonProperty("idestatus")]
+        public string Idestatus { get; set; }
+
+        [JsonProperty("fchalata")]
+        public DateTime? Fchalta { get; set; }
+
+        [JsonProperty("fchactualizado")]
+        public DateTime? Fchactualizado { get; set; }
+
+        [JsonProperty("actualizado_por")]
+        public int? Actualizado_por { get; set; }
+
+        [JsonProperty("fchbaja")]
+        public DateTime? Fchbaja { get; set; }
+
+        [JsonProperty("borrado_por")]
+        public int? Borrado_por { get; set; }
+
+        [JsonProperty("idpersona")]
+        public int? Idpersona { get; set; }
+
+        [JsonProperty("iddepartamento")]
+        public int? Iddepartamento { get; set; }
+
+        [JsonProperty("idarea")]
+        public int? Idarea { get; set; }
+
+        [JsonProperty("idpuesto")]
+        public int? Idpuesto { get; set; }
+
+        [JsonProperty("idpagadora")]
+        public int? Idpagadora { get; set; } 
+
+        [JsonProperty("idzona")]
+        public int? ZonaId { get; set; }
+
+        [JsonProperty("idestacion")]
+        public int? Idestacion { get; set; }
+
+        [JsonProperty("idtienda")]
+        public int? TiendaId { get; set; }
+      
+    }
+    public class ResultObjectEmployee
+    {
+        //esto en el json es un array y adentro contiene mas propiedades esta por jerarquia de niveles
+        [JsonProperty("empleados")]
+        public List<Employee> ListadeEmpleados { get; set; }
+    }
+
     public partial class Empleado
     {
         public int Idempleado { get; set; }      

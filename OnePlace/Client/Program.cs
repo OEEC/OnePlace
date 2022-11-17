@@ -41,6 +41,12 @@ namespace OnePlace.Client
             //poner la interface y el servicio de repositorios
             services.AddScoped<IRepositorio, Repositorio>();
 
+            //servicio para consumir api rest externa del lado del cliente
+            services.AddHttpClient<ISimsacoreService, SimsaCoreService>(client =>
+            {
+                client.BaseAddress = new Uri("https://innovacion.dgl.com.mx/");
+            });
+
             //ponemos la instancia a servir cuando se nos pida un IMostrarMensajes 
             services.AddScoped<IMostrarMensaje, MostrarMensajes>();
 

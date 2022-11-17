@@ -1,0 +1,44 @@
+﻿@*@page "/zonas"
+@inject ISimsacoreService service
+@using OnePlace.Shared.Entidades.SimsaCore
+
+@if (ListaMarcas == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div>
+        <div class="row">
+            @foreach (var item in ListaMarcas)
+            {
+                <div class="card pokeCard mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">@item.Nombre</h4>                        
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code{    
+
+    public List<Station> ListaMarcas { get; set; }
+    ResultObjectStation result { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        result = await service.GetAllEstaciones();
+
+        List<Station> marcas = new List<Station>();
+
+        foreach (var item in result.ListadeEstaciones)
+        {
+            marcas.Add(item);
+        }
+
+        ListaMarcas = marcas;
+    }
+}*@

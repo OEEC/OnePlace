@@ -1,0 +1,54 @@
+﻿@page "/pokemons"
+@inject IPokeService pokeservice
+@using OnePlace.Shared.PokeModels
+
+@if (Pokemons == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div>
+        @for (int i = 0; i < NumberOfRows; i++)
+        {
+            <div class="row">
+                @*restringir numero de columnas a 6,apartir del 6 iterame los siguientes 6*@
+                @foreach (var poke in Pokemons.Skip(i * 6).Take(6))
+                {
+                    <div class="card pokeCard mb-4">
+                        <div class="card-body">
+                            <h4 class="card-title">@poke.Name</h4>
+                            <img src="@poke.Sprite.Front" class="img-fluid" alt="@poke.Name"/>                                
+                        </div>
+                       
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code{ 
+
+    public int NumberOfRows { get; set; } = 5;
+
+    public List<Pokemon> Pokemons { get; set; }
+
+    ResultObject result { get; set; }
+
+    PaginationParameters paginationParameters = new PaginationParameters();
+
+    protected override async Task OnInitializedAsync()
+    {
+        result = await pokeservice.GetAllPokemons(paginationParameters);
+
+        List<Pokemon> pokemons = new List<Pokemon>();
+
+        foreach (var poke in result.Pokemons)
+        {
+            pokemons.Add(await pokeservice.GetPokemon(poke.Name));
+        }
+
+        Pokemons = pokemons;
+    }
+}
