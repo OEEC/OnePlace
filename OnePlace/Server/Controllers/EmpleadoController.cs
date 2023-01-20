@@ -201,6 +201,10 @@ namespace OnePlace.Server.Controllers
             {
                 queryable = queryable.Where(x => x.Division != null && x.Division.ToLower().Contains(parametrosBusqueda.Division.ToLower()));
             }
+            if (!string.IsNullOrEmpty(parametrosBusqueda.Division))
+            {
+                queryable = queryable.Where(x => x.Departamento.Iddepartamento  == parametrosBusqueda.DepartamentoId);
+            }
             //if (parametrosBusqueda.Activo == true)
             //{
             //    mostrar = false;
@@ -234,6 +238,7 @@ namespace OnePlace.Server.Controllers
             public int DepartamentoId { get; set; }
             public string Division { get; set; }
             public bool Activo { get; set; }
+
         }
 
         //buscar empleados para filtro
