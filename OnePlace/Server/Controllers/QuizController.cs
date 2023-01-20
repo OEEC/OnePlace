@@ -570,6 +570,8 @@ namespace OnePlace.Server.Controllers
                                  select new Empleado
                                  {
                                      Noemp = z.Noemp,
+                                     Fchbaja = z.Fchbaja,
+                                     Division= z.Division,
                                      Persona = context.Personas.Where(x => x.Idpersona == z.Idpersona).FirstOrDefault(),
 
                                  }).FirstOrDefault()
@@ -611,6 +613,8 @@ namespace OnePlace.Server.Controllers
                                          select new Empleado
                                          {
                                              Noemp = z.Noemp,
+                                             Fchbaja = z.Fchbaja,
+                                             Division = z.Division,
                                              Persona = context.Personas.Where(x => x.Idpersona == z.Idpersona).FirstOrDefault(),
 
                                          }).FirstOrDefault()

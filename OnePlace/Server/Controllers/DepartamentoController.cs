@@ -46,5 +46,30 @@ namespace OnePlace.Server.Controllers
                 return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
             }
         }
+
+        [HttpGet("{razonId:int}")]
+        public async Task<ActionResult<List<Departamento>>> GetDepartamentoByRazonId(int razonId)
+        {
+            var departamentos = await context.Departamentos.Where(x => x.Idempresa == razonId).ToListAsync();
+            return Ok(departamentos);
+        }
+
+        //buscar razon social para filtro
+        [HttpGet("razon/buscar/{textoBusqueda}")]
+        public async Task<ActionResult<List<Empresa>>> GetRazon(string textoBusqueda)
+        {
+            if (textoBusqueda.Length > 3)
+            {
+                if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Empresa>(); }
+                textoBusqueda = textoBusqueda.ToLower();
+                return await context.Empresas.Where(x => x.Razonsocial.ToLower().Contains(textoBusqueda)).ToListAsync();
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(textoBusqueda)) { return new List<Empresa>(); }
+                textoBusqueda = textoBusqueda.ToLower();
+                return await context.Empresas.Where(x => x.Razonsocial.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
+            }
+        }
     }
 }

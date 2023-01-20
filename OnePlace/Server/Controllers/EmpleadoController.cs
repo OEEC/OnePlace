@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -123,7 +125,8 @@ namespace OnePlace.Server.Controllers
                                             Variable = e.Variable,
                                             Idtipo = e.Idtipo,
                                             Fchalta = e.Fchalta,
-                                            Fchbaja = e.Fchbaja,  
+                                            Fchbaja = e.Fchbaja,
+                                            Division = e.Division,
                                             ImagenesCumple = context.ImagenesCumpleEmpleado.Where(x=>x.EmpleadoId == e.Idempleado).ToList(),
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
@@ -155,7 +158,7 @@ namespace OnePlace.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<Empleado>>> Get([FromQuery] ParametrosBusqueda parametrosBusqueda)
         {
-            bool mostrar = true;          
+            bool mostrar = true;
 
             //para obtener una union de dos tablas que no estan unidas por fk, se realiza una consulta linq
             //se crea un nuevo objeto empleado pero se tiene que poner toda su data y como propiedad de navegacion
@@ -177,6 +180,7 @@ namespace OnePlace.Server.Controllers
                                             Idtipo = e.Idtipo,
                                             Fchalta = e.Fchalta,
                                             Fchbaja = e.Fchbaja,
+                                            Division = e.Division,
                                             Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
@@ -192,6 +196,10 @@ namespace OnePlace.Server.Controllers
             if (parametrosBusqueda.DepartamentoId != 0)
             {
                 queryable = queryable.Where(x => x.Iddepartamento == parametrosBusqueda.DepartamentoId);
+            }
+            if (!string.IsNullOrEmpty(parametrosBusqueda.Division))
+            {
+                queryable = queryable.Where(x => x.Division != null && x.Division.ToLower().Contains(parametrosBusqueda.Division.ToLower()));
             }
             //if (parametrosBusqueda.Activo == true)
             //{
@@ -224,6 +232,7 @@ namespace OnePlace.Server.Controllers
             }
             public int EmpleadoId { get; set; }
             public int DepartamentoId { get; set; }
+            public string Division { get; set; }
             public bool Activo { get; set; }
         }
 
@@ -253,6 +262,7 @@ namespace OnePlace.Server.Controllers
                                                 Idtipo = e.Idtipo,
                                                 Fchalta = e.Fchalta,
                                                 Fchbaja = e.Fchbaja,
+                                                Division = e.Division,
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),                                              
                                             })
                                             .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))                                            
@@ -282,6 +292,7 @@ namespace OnePlace.Server.Controllers
                                                 Idtipo = e.Idtipo,
                                                 Fchalta = e.Fchalta,
                                                 Fchbaja = e.Fchbaja,
+                                                Division = e.Division,
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             })
                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))

@@ -20,14 +20,14 @@
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
                             <BlazoredTypeahead SearchMethod="BuscarEmpleados"
-                                               MaximumSuggestions="100"
-                                               Context="empleado"
-                                               TValue="Empleado"
-                                               TItem="Empleado"
-                                               ValueExpression="@(()=>EmpleadoSeleccionado)"
-                                               Value="@EmpleadoSeleccionado"
-                                               ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
-                                               placeholder="Buscar Empleados">
+                                           MaximumSuggestions="100"
+                                           Context="empleado"
+                                           TValue="Empleado"
+                                           TItem="Empleado"
+                                           ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                           Value="@EmpleadoSeleccionado"
+                                           ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                           placeholder="Buscar Empleados">
                                 <SelectedTemplate>
                                     @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
                                 </SelectedTemplate>
@@ -43,14 +43,14 @@
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
                             <BlazoredTypeahead SearchMethod="BuscarCursos"
-                                               MaximumSuggestions="100"
-                                               Context="curso"
-                                               TValue="Curso"
-                                               TItem="Curso"
-                                               ValueExpression="@(()=>CursoSeleccionado)"
-                                               Value="@CursoSeleccionado"
-                                               ValueChanged="@((Curso item) => CargarCursoFiltro(item))"
-                                               placeholder="Buscar Cursos">
+                                           MaximumSuggestions="100"
+                                           Context="curso"
+                                           TValue="Curso"
+                                           TItem="Curso"
+                                           ValueExpression="@(()=>CursoSeleccionado)"
+                                           Value="@CursoSeleccionado"
+                                           ValueChanged="@((Curso item) => CargarCursoFiltro(item))"
+                                           placeholder="Buscar Cursos">
                                 <SelectedTemplate>
                                     @curso.Nombre
                                 </SelectedTemplate>
@@ -66,14 +66,14 @@
                     <div class="d-inline-block mr-3">
                         <div class="input-group input-group-sm d-flex align-items-center">
                             <BlazoredTypeahead SearchMethod="BuscarEstaciones"
-                                               MaximumSuggestions="100"
-                                               Context="estacion"
-                                               TValue="Estacion"
-                                               TItem="Estacion"
-                                               ValueExpression="@(()=>EstacionSeleccionada)"
-                                               Value="@EstacionSeleccionada"
-                                               ValueChanged="@((Estacion item) => CargarEstacionFiltro(item))"
-                                               placeholder="Buscar Estaciones">
+                                           MaximumSuggestions="100"
+                                           Context="estacion"
+                                           TValue="Estacion"
+                                           TItem="Estacion"
+                                           ValueExpression="@(()=>EstacionSeleccionada)"
+                                           Value="@EstacionSeleccionada"
+                                           ValueChanged="@((Estacion item) => CargarEstacionFiltro(item))"
+                                           placeholder="Buscar Estaciones">
                                 <SelectedTemplate>
                                     @estacion.Nombre
                                 </SelectedTemplate>
@@ -127,10 +127,10 @@
                         </div>
                     }
                     @*<div class="d-inline-block mr-3">
-                        <div class="input-group input-group-sm d-flex align-items-center">
-                            <button class="btn btn-sm btn-danger" @onclick="TerminarCursoFecha">Terminar Cursos</button>
-                        </div>
-                    </div>*@
+                <div class="input-group input-group-sm d-flex align-items-center">
+                <button class="btn btn-sm btn-danger" @onclick="TerminarCursoFecha">Terminar Cursos</button>
+                </div>
+                </div>*@
                 </div>
             </div>
         </CardHeader>
@@ -397,7 +397,16 @@
         if (ListadeCursoEstadosExport != null)
         {
             var listadoequipos = from x in ListadeCursoEstadosExport
-                                 select new { x.Empleado.Noemp, x.Empleado.Persona.Nombre, x.Empleado.Persona.ApePat, x.Curso, x.EstadoCurso };
+                                 select new
+                                 {
+                                     x.Empleado.Noemp,
+                                     x.Empleado.Persona.Nombre,
+                                     x.Empleado.Persona.ApePat,
+                                     x.Curso,
+                                     x.EstadoCurso,
+                                     x.Empleado.Fchbaja,
+                                     x.Empleado.Division
+                                 };
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -448,7 +457,7 @@
                 //    sheet.Cells[1, 1].Value = "Total de Cursos sin Terminar:" + " " + CursoSeleccionado.Nombre + " " + "&" + " " + "que estan en CTN";
                 //}
 
-                sheet.Cells[1, 1, 1, 4].Merge = true; //Hago un Merge de primeras 5 columnas para poner el titulo.
+                sheet.Cells[1, 1, 1, 6].Merge = true; //Hago un Merge de primeras 5 columnas para poner el titulo.
                 sheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 sheet.Cells[1, 1].Style.Font.Bold = true;
                 sheet.Cells[1, 1].Style.Font.Color.SetColor(ColorTranslator.FromHtml("#000000"));
@@ -462,6 +471,8 @@
                 sheet.Cells[rowindex, col++].Value = "Empleado";
                 sheet.Cells[rowindex, col++].Value = "Curso";
                 sheet.Cells[rowindex, col++].Value = "Status";
+                sheet.Cells[rowindex, col++].Value = "Status Empleado";
+                sheet.Cells[rowindex, col++].Value = "Tipo";
 
                 rowindex = 3;
 
@@ -474,15 +485,17 @@
                     sheet.Cells[rowindex, col++].Value = item.Nombre + " " + item.ApePat;
                     sheet.Cells[rowindex, col++].Value = item.Curso.Nombre;
                     sheet.Cells[rowindex, col++].Value = item.EstadoCurso.GetDescription();
+                    sheet.Cells[rowindex, col++].Value = item.Fchbaja != null ? "Inactivo" : "Activo";
+                    sheet.Cells[rowindex, col++].Value = item.Division != null ? item.Division : "";
 
-                    rowindex++;
+    rowindex++;
                 }
 
-                sheet.Cells[rowindex, 3].Value = "Total:";
-                sheet.Cells[rowindex, 4].Value = ListadeCursoEstadosExport.Count;
+                sheet.Cells[rowindex, 5].Value = "Total:";
+                sheet.Cells[rowindex, 6].Value = ListadeCursoEstadosExport.Count;
 
-                sheet.Cells[rowindex, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;//alinaer horizontalmente a la izquierda
-                sheet.Cells[rowindex, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                sheet.Cells[rowindex, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;//alinaer horizontalmente a la izquierda
+                sheet.Cells[rowindex, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
 
                 sheet.DefaultColWidth = 25;//ancho predefinido a las columnas
 
@@ -490,7 +503,7 @@
                 //sheet.Cells.AutoFitColumns();
 
                 //Establezco diseño al excel utilizando un diseño predefinido
-                var range = sheet.Cells[2, 1, rowindex, 4]; //el dos es hacia arriba la celda y el uno para que inice en la primera columna
+                var range = sheet.Cells[2, 1, rowindex, 6]; //el dos es hacia arriba la celda y el uno para que inice en la primera columna
                 var tableBody = sheet.Tables.Add(range, "tabla");
                 tableBody.TableStyle = OfficeOpenXml.Table.TableStyles.Medium4;
 
@@ -501,7 +514,18 @@
     }
 
     #endregion
-
+    public string TiendaEstacion(int? t, int? e)
+    {
+        if (t != null)
+        {
+            return "Tienda";
+        }
+        if (e != null)
+        {
+            return "Estacion";
+        }
+        return "";
+    }
     #region ReactivarCurso
 
     public async Task ReactivarCurso(CursoEstado cursoestado)

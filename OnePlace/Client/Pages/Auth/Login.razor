@@ -21,24 +21,35 @@
         <InputPassword class="form-control form-control-sm" PlaceHolder="Contraseña" @bind-Value="@userInfoLogin.Password" />
         <ValidationMessage For="@(() => userInfoLogin.Password)" />
     </div>
-    <Boton ButtonType="ButtonType.Submit" Class="btn btn-dark btn-sm btn-block">Inicio de Sesión</Boton>
-    <Divisor />   
+    <Boton ButtonType="ButtonType.Submit" Class="btn btn-dark btn-sm btn-block">
+        Inicio de Sesión
+        @if (loading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+        }
+    </Boton>
+    <Divisor />
 </EditForm>
 
-@code{
+@code {
 
-    private UserInfoLogin userInfoLogin = new UserInfoLogin();   
+    private UserInfoLogin userInfoLogin = new UserInfoLogin();
+    private bool loading = false;
 
     private async Task LoginUsuario()
     {
+        loading = true;
         var httpResponse = await repositorio.Post<UserInfoLogin, UserToken>("api/Cuentas/Login", userInfoLogin);
 
         if (httpResponse.Error)
         {
+            loading = false;
             await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
         }
         else
         {
+            loading = false;
             await loginService.Login(httpResponse.Response.Token);
             navigationManager.NavigateTo("inicio");
         }

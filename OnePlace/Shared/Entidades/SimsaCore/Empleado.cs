@@ -72,6 +72,9 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
         [JsonProperty("idtienda")]
         public int? TiendaId { get; set; }
+
+        [JsonProperty("division")]
+        public string? Division { get; set; }
       
     }
     public class ResultObjectEmployee
@@ -119,6 +122,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? ZonaId { get; set; }       
         public int? Idestacion { get; set; }
         public int? TiendaId { get; set; }
+        public string? Division { get; set; }
         public List<ImagenesCumpleEmpleado> ImagenesCumple { get; set; }
     }
     public class ImagenesCumpleEmpleado

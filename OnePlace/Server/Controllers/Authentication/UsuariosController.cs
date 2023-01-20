@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,11 +68,11 @@ namespace OnePlace.Server.Controllers
                 {
                     //por cada empleado obtenemos un usuario para guardarlo en la lista de usuarios por estacion
                     var usuario = await context.Users.Where(x => x.Idempleado == item.Idempleado && x.Activo == true).FirstOrDefaultAsync();
-                    
-                    if(usuario != null)
+
+                    if (usuario != null)
                     {
                         listadeusuarios.Add(usuario);
-                    }                                  
+                    }
                 }
 
                 //actualizamos la lista inicial de usuarios por la lista de usuarios filtrado por estacion
@@ -91,7 +92,7 @@ namespace OnePlace.Server.Controllers
                 //    Apellido_Paterno = x.ApellidoPaterno
                 //})
                 //.ToList();//hacemos un mapeo hacia usuariodto
-         
+
                 #endregion
             }
 
@@ -153,7 +154,7 @@ namespace OnePlace.Server.Controllers
             //    Apellido_Paterno = x.ApellidoPaterno
             //})
             //.ToListAsync();//hacemos un mapeo hacia usuariodto
-        
+
             #endregion
         }
         public class ParametrosBusqueda
@@ -164,11 +165,11 @@ namespace OnePlace.Server.Controllers
             {
                 get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
             }
-            public int EstacionId { get; set; }           
+            public int EstacionId { get; set; }
         }
 
         //con esta peticion traemos el listado de roles desde la bd
-        [HttpGet("roles")]      
+        [HttpGet("roles")]
         public async Task<ActionResult<List<RolDTO>>> Get()
         {
             //mapeamos hacia rolesdto donde el rolid es igual a id
@@ -176,7 +177,7 @@ namespace OnePlace.Server.Controllers
         }
 
         //creamos las peticiones para asignar y eliminar un rol en el httpost le pasamos los metodos creados en editarusuario.razor
-        [HttpPost("asignarRol")]        
+        [HttpPost("asignarRol")]
         public async Task<ActionResult> AsignarRolUsuario(EditarRolDTO editarRolDTO)
         {
             //lo buscamos por su id con findbyid
@@ -208,7 +209,7 @@ namespace OnePlace.Server.Controllers
             return NoContent();
         }
 
-        [HttpPost("removerRol")]       
+        [HttpPost("removerRol")]
         public async Task<ActionResult> RemoverUsuarioRol(EditarRolDTO editarRolDTO)
         {
             var usuario = await userManager.FindByIdAsync(editarRolDTO.UserId);
@@ -230,7 +231,7 @@ namespace OnePlace.Server.Controllers
         //}
 
         [Route("Desactivar")]
-        [HttpPut]       
+        [HttpPut]
         public async Task<ActionResult> PutDesactivar(UsuarioDTO usuarioDTO)
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
@@ -243,7 +244,7 @@ namespace OnePlace.Server.Controllers
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
-        }       
+        }
         public async Task AsignarTipodeUsuario(EditarRolDTO editarRolDTO)
         {
             //lo buscamos por su id con findbyid
@@ -266,6 +267,62 @@ namespace OnePlace.Server.Controllers
             context.Entry(oldusuario).CurrentValues.SetValues(usuario);
 
             await context.SaveChangesAsync();
-        }       
+        }
+
+        [HttpPost("crear")]
+        public async Task<ActionResult<List<Empleado>>> CreeateNewUsers(Empleado empleado)
+        {
+            List<Empleado> empleados = (from e in context.Empleados
+                                        where e.Fchbaja == null
+                                        select new Empleado
+                                        {
+                                            Idempleado = e.Idempleado,
+                                            Idpersona = e.Idpersona,
+                                            Img = e.Img,
+                                            Noemp = e.Noemp,
+                                            Correo = e.Correo,
+                                            Telefono = e.Telefono,
+                                            Iddepartamento = e.Iddepartamento,
+                                            Idarea = e.Idarea,
+                                            Idpuesto = e.Idpuesto,
+                                            Nomina = e.Nomina,
+                                            Variable = e.Variable,
+                                            Idtipo = e.Idtipo,
+                                            Fchalta = e.Fchalta,
+                                            Fchbaja = e.Fchbaja,
+                                            Division = e.Division,
+                                            Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
+                                        }).ToList();
+            foreach (var item in empleados)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = item.Noemp,
+                    noemp = item.Noemp,
+                    Idempleado = item.Idempleado,
+                    Nombre = item.Persona.Nombre,
+                    ApellidoMaterno = item.Persona.ApeMat,
+                    ApellidoPaterno = item.Persona.ApePat,
+                    //Empleado = null,
+                    ContraseñaTextoPlano = $"S1msa*{item.Noemp}",
+                    Activo = true
+                };
+                if (!context.Users.Any(x => x.noemp == user.noemp))
+                {
+                    var result = await userManager.CreateAsync(user, user.ContraseñaTextoPlano);
+                    
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(user, "Usuario");
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+                }
+            }
+            return Ok();
+        }
+
     }
 }

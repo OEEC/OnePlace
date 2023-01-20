@@ -45,25 +45,49 @@
                 </div>
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
-                        <BlazoredTypeahead SearchMethod="BuscarDepartamentos"
+                        <BlazoredTypeahead SearchMethod="BuscarRazon"
                                            MaximumSuggestions="100"
-                                           Context="depto"
-                                           TValue="Departamento"
-                                           TItem="Departamento"
-                                           ValueExpression="@(()=>DepartamentoSeleccionado)"
-                                           Value="@DepartamentoSeleccionado"
-                                           ValueChanged="@((Departamento item) => CargarEmpleadosFiltro2(item))"
-                                           placeholder="Buscar Departamentos">
+                                           Context="empr"
+                                           TValue="Empresa"
+                                           TItem="Empresa"
+                                           ValueExpression="@(()=>EmpresaSeleccionada)"
+                                           Value="@EmpresaSeleccionada"
+                                           ValueChanged="@((Empresa item) => CargarEmpleadosFiltro3(item))"
+                                           placeholder="Buscar Razon Social">
                             <SelectedTemplate>
-                                @depto.Departamento1
+                                @empr.Razonsocial
                             </SelectedTemplate>
                             <ResultTemplate>
-                                @depto.Departamento1
+                                @empr.Razonsocial
                             </ResultTemplate>
                             <NotFoundTemplate>
                                 Lo sentimos, no hay deptos con esos datos.
                             </NotFoundTemplate>
                         </BlazoredTypeahead>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
+                        <select class="form-control form-control-sm" @bind="divisionSeleccionada">
+                            <option value="0">-- Seleccione Departamento --</option>
+                            @foreach (var item in Departamentos)
+                            {
+                                <option value="@item.Iddepartamento">@item.Departamento1</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
+                        <select class="form-control form-control-sm" @bind="divisionSeleccionada">
+                            <option value="0">-- Seleccione Division --</option>
+                            @foreach (var item in Divisiones)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
                     </div>
                 </div>
                 <div class="d-inline-block mr-3">
@@ -89,7 +113,13 @@
                     {
                         @if (item.Persona != null)
                         {
-                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img" VerDetalles="true" VerEditar="false" />
+                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img"
+                                VerDetalles="@(item.Fchbaja != null ? false : true)" VerEditar="false">
+                                <stateEmpleado>
+                                    <div class="mt-auto @(item.Fchbaja != null ? "bg-danger":"bg-success")" style="border-radius:7px;height:15px;width:15px;position:absolute;top:55%;left:55%;">
+                                    </div>
+                                </stateEmpleado>
+                            </CardPerfil>
                         }
                     }
                 </div>
@@ -111,11 +141,15 @@
     public List<Empleado> Empleados { get; set; }
     private int paginaActual = 1;
     private int paginasTotales;
+    string[] Divisiones = new string[] { "ESTACION", "TIENDA" };
+    List<Departamento> Departamentos = new List<Departamento>();
 
     //incluir mas parametros si se requieren
     string empleadoseleccionado = "0";
     string departamentoseleccionado = "0";
     private bool Activo = false;
+    private string divisionSeleccionada = "0";
+    string razonSeleccionada = "0";
 
     #region CargarEmpleados
     protected async override Task OnInitializedAsync()
@@ -176,6 +210,14 @@
         {
             int.TryParse(queryStringsDict["pagina"], out paginaActual);
         }
+        if (queryStringsDict.ContainsKey("division"))
+        {
+            divisionSeleccionada = queryStringsDict["division"];
+        }
+        if (queryStringsDict.ContainsKey("razon"))
+        {
+            divisionSeleccionada = queryStringsDict["razon"];
+        }
     }
 
     private async Task RealizarBusqueda(string queryStrings)
@@ -193,6 +235,8 @@
         queryStringsDict["departamentoid"] = departamentoseleccionado;
         queryStringsDict["activo"] = Activo.ToString();
         queryStringsDict["pagina"] = paginaActual.ToString();
+        queryStringsDict["division"] = divisionSeleccionada;
+        queryStringsDict["razon"] = razonSeleccionada;
 
         //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
         var valoresporDefecto = new List<string>() { "false", "", "0" };
@@ -211,6 +255,8 @@
         departamentoseleccionado = "0";
         Activo = false;
         paginaActual = 1;
+        razonSeleccionada = "0";
+        divisionSeleccionada = "0";
         await Cargar();
     }
 
@@ -241,9 +287,30 @@
 
     public Departamento DepartamentoSeleccionado { get; set; }
 
+    public Empresa EmpresaSeleccionada { get; set; }
+
     private async Task<IEnumerable<Departamento>> BuscarDepartamentos(string searchText)
     {
         var responseHttp = await repositorio.Get<List<Departamento>>($"api/Departamento/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private async Task GetDepartamentos()
+    {
+        var response = await repositorio.Get<List<Departamento>>($"api/Departamento/{razonSeleccionada}");
+        if (response.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await response.GetBody());
+        }
+        else
+        {
+            Departamentos = response.Response;
+        }
+    }
+
+    private async Task<IEnumerable<Empresa>> BuscarRazon(string searchText)
+    {
+        var responseHttp = await repositorio.Get<List<Empresa>>($"api/Departamento/razon/buscar/{searchText}");
         return responseHttp.Response;
     }
 
@@ -253,6 +320,17 @@
         {
             DepartamentoSeleccionado = item;
             departamentoseleccionado = DepartamentoSeleccionado.Iddepartamento.ToString();
+        }
+    }
+
+    private async void CargarEmpleadosFiltro3(Empresa item)
+    {
+        @if (item != null)
+        {
+            EmpresaSeleccionada = item;
+            razonSeleccionada = EmpresaSeleccionada.Idempresa.ToString();
+            await GetDepartamentos();
+            StateHasChanged();
         }
     }
 

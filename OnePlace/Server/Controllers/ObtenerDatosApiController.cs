@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OnePlace.Client.Service;
 using OnePlace.Server.Data;
 using OnePlace.Shared.Entidades.SimsaCore;

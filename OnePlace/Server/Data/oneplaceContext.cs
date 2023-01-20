@@ -215,6 +215,7 @@ namespace OnePlace.Server.Data
                     .HasColumnName("telefono");
 
                 entity.Property(e => e.Variable).HasColumnName("variable");
+                entity.Property(e => e.Division).HasColumnName("division");
             });
 
             modelBuilder.Entity<Empresa>(entity =>

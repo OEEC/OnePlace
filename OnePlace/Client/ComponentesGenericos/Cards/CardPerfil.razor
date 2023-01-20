@@ -2,7 +2,10 @@
 
 <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
     <div class="bg-white p-3 h-100perfil">
-
+        @if (stateEmpleado != null)
+        {
+            @stateEmpleado
+        }
         <Avatar AvatarImgClass="img-thumbnail img-fluid rounded-circle mb-3 shadow-sm" Image="@Imagen" alt="" width="100"></Avatar>
 
         @if (VerDetalles == true)
@@ -37,3 +40,6 @@
     </div>
 </div>
 
+@code{
+    [Parameter] public RenderFragment stateEmpleado { get; set; }
+}
