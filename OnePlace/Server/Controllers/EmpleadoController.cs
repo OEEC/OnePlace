@@ -201,10 +201,6 @@ namespace OnePlace.Server.Controllers
             {
                 queryable = queryable.Where(x => x.Division != null && x.Division.ToLower().Contains(parametrosBusqueda.Division.ToLower()));
             }
-            if (!string.IsNullOrEmpty(parametrosBusqueda.Division))
-            {
-                queryable = queryable.Where(x => x.Departamento.Iddepartamento  == parametrosBusqueda.DepartamentoId);
-            }
             //if (parametrosBusqueda.Activo == true)
             //{
             //    mostrar = false;
@@ -220,7 +216,6 @@ namespace OnePlace.Server.Controllers
                     item.Img = "Img" + "/" + "usuario.png";
                 }
             }
-
             //paginacion
             await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros,true);
             var listaARetornar = queryable.Paginar(parametrosBusqueda.Paginacion).ToList();

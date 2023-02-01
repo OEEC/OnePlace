@@ -69,7 +69,7 @@
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
                         @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
-                        <select class="form-control form-control-sm" @bind="divisionSeleccionada">
+                        <select class="form-control form-control-sm" @bind="departamentoseleccionado">
                             <option value="0">-- Seleccione Departamento --</option>
                             @foreach (var item in Departamentos)
                             {
