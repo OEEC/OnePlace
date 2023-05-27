@@ -31,226 +31,6 @@ namespace OnePlace.Server.Controllers
             this.simsacoreService = simsacoreService;
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Zona zzona)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllZonas();
-
-        //    List<Zona> listadezonas = new List<Zona>();
-
-        //    foreach (var item in resultadoapirest.Zonas)
-        //    {
-        //        Zona zona = new Zona();
-        //        zona.ZonaId = item.ZonaId;
-        //        zona.Zona1 = item.Zona1;
-        //        zona.Idestatus = item.Idestatus;
-        //        zona.Fchcreacion = item.Fchcreacion;
-        //        zona.Fchmod = item.Fchmod;
-        //        zona.Fchbaja = item.Fchbaja;
-        //        zona.Idusuario = item.Idusuario;
-
-        //        var existe = await context.Zonas.AnyAsync(x => x.ZonaId == item.ZonaId);
-        //        if (!existe)
-        //        {
-        //            listadezonas.Add(zona);
-        //        }
-        //    }
-
-        //    context.Zonas.AddRange(listadezonas);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Empresa empresa1)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllRazonesSociales();
-
-        //    List<Empresa> listadeempresas = new List<Empresa>();
-
-        //    foreach (var item in resultadoapirest.ListadeRazonesSociales)
-        //    {
-        //        Empresa empresa = new Empresa();
-        //        empresa.Idempresa = item.Idempresa;
-        //        empresa.Rfc = item.Rfc;
-        //        empresa.Patronal = item.Patronal;
-        //        empresa.Razonsocial = item.Domicilio;
-        //        empresa.Idestatus = item.Idestatus;
-        //        empresa.Fchcreacion = item.Fchcreacion;
-        //        empresa.Fchmod = item.Fchmod;
-        //        empresa.Fchbaja = item.Fchbaja;
-        //        empresa.Idusuario = item.Idusuario;
-
-        //        var existe = await context.Empresas.AnyAsync(x => x.Idempresa == item.Idempresa);
-        //        if (!existe)
-        //        {
-        //            listadeempresas.Add(empresa);
-        //        }
-        //    }
-
-        //    context.Empresas.AddRange(listadeempresas);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Marca marca1)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllMarcas();
-
-        //    List<Marca> listademarcas = new List<Marca>();
-
-        //    foreach (var item in resultadoapirest.ListadeMrcas)
-        //    {
-        //        Marca marca = new Marca();
-        //        marca.Idmarca = item.Idmarca;
-        //        marca.Idempresa = item.Idempresa;
-        //        marca.Img = item.Img;
-        //        marca.Marca1 = item.Marca1;        
-        //        marca.Idtipo = item.Idtipo;
-        //        marca.Idestatus = item.Idestatus;
-        //        marca.Fchcreacion = item.Fchcreacion;
-        //        marca.Fchmod = item.Fchmod;
-        //        marca.Fchbaja = item.Fchbaja;
-        //        marca.Idusuario = item.Idusuario;
-
-        //        var existe = await context.Marcas.AnyAsync(x => x.Idmarca == item.Idmarca);
-        //        if (!existe)
-        //        {
-        //            listademarcas.Add(marca);
-        //        }
-        //    }
-
-        //    context.Marcas.AddRange(listademarcas);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Departamento depto1)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllDepartamentos();
-
-        //    List<Departamento> listadedepartamentos = new List<Departamento>();
-
-        //    foreach (var item in resultadoapirest.ListadeDepartamentos)
-        //    {
-        //        Departamento depto = new Departamento();
-        //        depto.Iddepartamento = item.Iddepartamento;
-        //        depto.Idempresa = item.Idempresa;
-        //        depto.Departamento1 = item.Departamento1;               
-        //        depto.Fchcreacion = item.Fchcreacion;
-        //        depto.Fchmod = item.Fchmod;
-        //        depto.Fchbaja = item.Fchbaja;
-        //        depto.Idusuario = item.Idusuario;
-        //        //depto.Idestatus = item.Idestatus;
-
-        //        var existe = await context.Departamentos.AnyAsync(x => x.Iddepartamento == item.Iddepartamento);
-        //        if (!existe)
-        //        {
-        //            listadedepartamentos.Add(depto);
-        //        }
-        //    }
-
-        //    context.Departamentos.AddRange(listadedepartamentos);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Area area1)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllAreas();
-
-        //    List<Area> listadeareas = new List<Area>();
-
-        //    foreach (var item in resultadoapirest.ListadeAreas)
-        //    {
-        //        Area area = new Area();
-        //        area.Idarea = item.Idarea;
-        //        area.Iddepartamento = item.Iddepartamento;
-        //        area.Area1 = item.Area1;
-
-        //        #region ConvertirStringenDatetime
-        //        ////verificar si la fecha no viene null
-        //        //if (!String.IsNullOrEmpty(item.Fchcreacion))
-        //        //{          
-        //        //    //reemplazar el guin por un slash
-        //        //    var fechacreacion = item.Fchcreacion.Replace(@"-", "/");
-        //        //    //convertir string en fecha
-        //        //    area.Fchcreacion = DateTime.ParseExact(fechacreacion, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture);                   
-        //        //}
-        //        //if(!String.IsNullOrEmpty(item.Fchmod))
-        //        //{
-        //        //    var fechamod = item.Fchmod.Replace(@"-", "/");
-        //        //    area.Fchmod = DateTime.ParseExact(fechamod, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture);                    
-        //        //}
-        //        //if(!String.IsNullOrEmpty(item.Fchbaja))
-        //        //{
-        //        //    var fechabaja = item.Fchbaja.Replace(@"-", "/");
-        //        //   area.Fchbaja = DateTime.ParseExact(fechabaja, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture);                    
-        //        //}
-        //        #endregion
-
-        //        area.Fchcreacion = item.Fchcreacion;
-        //        area.Fchmod = item.Fchmod;
-        //        area.Fchbaja = item.Fchbaja;
-
-        //        area.Idusuario = item.Idusuario;               
-
-        //        var existe = await context.Areas.AnyAsync(x => x.Idarea == item.Idarea);
-        //        if (!existe)
-        //        {
-        //            listadeareas.Add(area);
-        //        }
-        //    }
-
-        //    context.Areas.AddRange(listadeareas);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> Post(Puesto puesto1)
-        //{
-        //    var user = await _userManager.GetUserAsync(HttpContext.User);
-
-        //    var resultadoapirest = await simsacoreService.GetAllPuestos();
-
-        //    List<Puesto> listadepuestos = new List<Puesto>();
-
-        //    foreach (var item in resultadoapirest.ListadePuestos)
-        //    {
-        //        Puesto puesto = new Puesto();
-        //        puesto.Idpuesto = item.Idpuesto;               
-        //        puesto.Puesto1 = item.Puesto1;
-        //        puesto.Fchcreacion = item.Fchcreacion;
-        //        puesto.Fchmod = item.Fchmod;
-        //        puesto.Fchbaja = item.Fchbaja;
-        //        puesto.Idusuario = item.Idusuario;
-
-        //        var existe = await context.Puestos.AnyAsync(x => x.Idpuesto == item.Idpuesto);
-        //        if (!existe)
-        //        {
-        //            listadepuestos.Add(puesto);
-        //        }
-        //    }
-
-        //    context.Puestos.AddRange(listadepuestos);
-        //    await context.SaveChangesAsync(user.Id);
-        //    return Ok();
-        //}
-
         [Route("ActualizarPersona")]
         [HttpPost]
         public async Task<ActionResult> PostPersona(Persona persona1)
@@ -375,11 +155,18 @@ namespace OnePlace.Server.Controllers
                 empleado.Actualizado_por = item.Actualizado_por;
                 empleado.Fchbaja = item.Fchbaja;
                 empleado.Borrado_por = item.Borrado_por;
+                empleado.Division = item.Division;
 
-                var existe = await context.Empleados.AnyAsync(x => x.Idempleado == item.Idempleado);
-                if (!existe)
+                var existe = await context.Empleados.FirstOrDefaultAsync(x => x.Idempleado == item.Idempleado);
+                if (existe == null)
                 {
                     listadeempleados.Add(empleado);
+                }
+                else
+                {
+                    existe.Fchalta = item.Fchalta;
+                    existe.Division = item.Division;
+                    context.Empleados.Update(existe);
                 }
             }
 

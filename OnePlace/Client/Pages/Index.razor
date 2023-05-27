@@ -255,7 +255,7 @@
                                             {
                                                 @(item.Empleado.Puesto.Puesto1+" "+"/");
                                             }
-                                            @item.Empleado.Persona.Fchnac.ToString("MMMM dd")
+                                            @item.Empleado.Persona.Fchnac?.ToString("MMMM dd")
                                         </span>
                                     </div>
                                 </div>
@@ -477,8 +477,8 @@ else
                             <div class="col-md-6 h-100">
                                 <div class="d-flex btn-reveal-trigger">
                                     <div class="calendar">
-                                        <Texto Typo="Typo.normal" Class="calendar-month">@item.Empleado.Persona.Fchnac.ToString("MMM")</Texto>
-                                        <Texto Typo="Typo.normal" Class="calendar-day">@item.Empleado.Persona.Fchnac.ToString("dd")</Texto>
+                                        <Texto Typo="Typo.normal" Class="calendar-month">@item.Empleado.Persona.Fchnac?.ToString("MMM")</Texto>
+                                        <Texto Typo="Typo.normal" Class="calendar-day">@item.Empleado.Persona.Fchnac?.ToString("dd")</Texto>
                                     </div>
                                     <div class="flex-1 position-relative ps-3">
                                         <Texto Typo="Typo.h6" Class="fs-0 mb-0"><Texto Typo="Typo.normal" Class="text-primary">@item.Empleado.Persona.Nombre</Texto></Texto>
@@ -490,7 +490,7 @@ else
                                                 }
                                             </Texto>
                                         </Texto>
-                                        <Texto Typo="Typo.body2" Class="text-1000 mb-0"><Texto Typo="Typo.small">Fecha de nacimiento: @item.Empleado.Persona.Fchnac.ToString("MM/dd/yyyy")</Texto></Texto>
+                                        <Texto Typo="Typo.body2" Class="text-1000 mb-0"><Texto Typo="Typo.small">Fecha de nacimiento: @item.Empleado.Persona.Fchnac?.ToString("MM/dd/yyyy")</Texto></Texto>
                                         <div class="border-dashed-bottom my-3"></div>
                                     </div>
                                 </div>

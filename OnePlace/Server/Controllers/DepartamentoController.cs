@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnePlace.Server.Data;
+using OnePlace.Server.Helpers;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
@@ -46,12 +47,17 @@ namespace OnePlace.Server.Controllers
                 return await context.Departamentos.Where(x => x.Departamento1.ToLower().Contains(textoBusqueda)).Take(50).ToListAsync();
             }
         }
-
+        //busca los departamenros por la razon social
         [HttpGet("{razonId:int}")]
         public async Task<ActionResult<List<Departamento>>> GetDepartamentoByRazonId(int razonId)
         {
-            var departamentos = await context.Departamentos.Where(x => x.Idempresa == razonId).ToListAsync();
-            return Ok(departamentos);
+            var departamentos = await context.area_departamento_empresa
+                .Where( x => x.Idempresa == razonId)
+                .Include( x => x.Departamento)
+                .ToListAsync();
+            //Variable creada para hacer un disctinct de departamentos para no traer departamentos repetidos
+            var departamentosEnum = departamentos.DistinctBy(x => x.Departamento.Departamento1);
+            return Ok(departamentosEnum.ToList());
         }
 
         //buscar razon social para filtro

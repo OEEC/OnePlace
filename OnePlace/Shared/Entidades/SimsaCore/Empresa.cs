@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
@@ -54,5 +55,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public DateTime? Fchmod { get; set; }
         public DateTime? Fchbaja { get; set; }
         public int? Idusuario { get; set; }
+
+        [NotMapped] public ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }
     }
 }

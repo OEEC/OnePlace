@@ -249,7 +249,7 @@ else
                                 else
                                 {
                                     <Texto Typo="Typo.body2" Class="mb-1">
-                                        @DetallesEmpleado.Persona.Fchnac.ToString("dd MMM yyyy")
+                                        @DetallesEmpleado.Persona.Fchnac?.ToString("dd MMM yyyy")
                                     </Texto>
                                 }
                             </div>
@@ -268,7 +268,8 @@ else
                             </div>
                             <div class="col">
                                 <Texto Typo="Typo.body2" Class="mb-1">
-                                    @DetallesEmpleado.Persona.Edad
+                                @*@DetallesEmpleado.Edad*@
+                                @Edad
                                 </Texto>
                             </div>
                         </div>
@@ -409,12 +410,15 @@ else
 
     private bool Procesando = true;
 
+    int Edad = 0;
+
     protected async override Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
         user = authState.User;
 
         await CargarDetalles();
+        returnEdad();
 
         //controlar las imagenes subidad
         if (DetallesEmpleado.Empleado.ImagenesCumple != null && DetallesEmpleado.Empleado.ImagenesCumple.Count > 0)
@@ -526,6 +530,16 @@ else
     }
 
     #endregion
+
+    public int returnEdad()
+    {
+        DateTime now = DateTime.Today;
+        Edad = DetallesEmpleado.Persona.Fchnac.Value.Year;
+
+        Edad = now.Year - Edad;
+
+        return Edad;
+    }
 }
 
 

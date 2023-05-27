@@ -44,7 +44,7 @@ namespace OnePlace.Client
             //servicio para consumir api rest externa del lado del cliente
             services.AddHttpClient<ISimsacoreService, SimsaCoreService>(client =>
             {
-                client.BaseAddress = new Uri("https://innovacion.dgl.com.mx/");
+                client.BaseAddress = new Uri("http://localhost/api_limpieza");
             });
 
             //ponemos la instancia a servir cuando se nos pida un IMostrarMensajes 

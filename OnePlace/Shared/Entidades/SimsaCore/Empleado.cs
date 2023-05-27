@@ -34,7 +34,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         [JsonProperty("idestatus")]
         public string Idestatus { get; set; }
 
-        [JsonProperty("fchalata")]
+        [JsonProperty("fchalta")]
         public DateTime? Fchalta { get; set; }
 
         [JsonProperty("fchactualizado")]
@@ -73,7 +73,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         [JsonProperty("idtienda")]
         public int? TiendaId { get; set; }
 
-        [JsonProperty("division")]
+        [JsonProperty("divicion")]
         public string? Division { get; set; }
       
     }

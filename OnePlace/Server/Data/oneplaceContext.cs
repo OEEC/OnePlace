@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Hosting;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
 
@@ -672,6 +674,12 @@ namespace OnePlace.Server.Data
             modelBuilder.Entity<PromocionZona>().HasKey(x => new { x.PromocionId, x.ZonaId });
             modelBuilder.Entity<CapacitacionContinuaZona>().HasKey(x => new { x.CapacitacionContinuaId, x.ZonaId });
 
+            modelBuilder.Entity<AreaDepartamentoEmpresa>().HasKey(bc => new { bc.Iddepartamento, bc.Idempresa });
+
+            modelBuilder.Entity<AreaDepartamentoEmpresa>().HasOne(x => x.Empresa).WithMany( ade => ade.AreaDepartamentoEmpresas).HasForeignKey(e => e.Idempresa);
+            modelBuilder.Entity<AreaDepartamentoEmpresa>().HasOne(x => x.Departamento).WithMany(ade => ade.AreaDepartamentoEmpresas).HasForeignKey(d => d.Iddepartamento);
+            // modelBuilder.Entity<AreaDepartamentoEmpresa>().HasNoKey().HasOne(x => x.Empresa).WithMany().HasForeignKey(x => x.Idempresa);
+
             var roleAdmin = new IdentityRole()
             { Id = "f2e8377a-a95f-4e57-ac21-392bb3240cb4", Name = "Administrador", NormalizedName = "Administrador" };
             modelBuilder.Entity<IdentityRole>().HasData(roleAdmin);
@@ -702,6 +710,7 @@ namespace OnePlace.Server.Data
         public virtual DbSet<Usuario> Usuarios { get; set; }
         public virtual DbSet<Zona> Zonas { get; set; }
         public virtual DbSet<Tienda> Tienda { get; set; }
+        public DbSet<AreaDepartamentoEmpresa> area_departamento_empresa { get; set; }
 
         #endregion
 

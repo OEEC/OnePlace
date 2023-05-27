@@ -57,9 +57,24 @@ namespace OnePlace.Server.Controllers
         //    return listadodeempleados;
         //}
 
-        #endregion       
+        #endregion
 
         #region GetEmpleadosinFiltros
+
+        public class ParametrosBusqueda
+        {
+            public int Pagina { get; set; } = 1;
+            public int CantidadRegistros { get; set; } = 12;
+            public PaginacionDTO Paginacion
+            {
+                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
+            }
+            public int EmpleadoId { get; set; }
+            public int DepartamentoId { get; set; }
+            public string Division { get; set; }
+            public bool Activo { get; set; }
+
+        }
 
         //[HttpGet]
         //public async Task<ActionResult<List<Empleado>>> GetEmp([FromQuery] PaginacionDTO paginacion)
@@ -220,20 +235,6 @@ namespace OnePlace.Server.Controllers
             await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, parametrosBusqueda.CantidadRegistros,true);
             var listaARetornar = queryable.Paginar(parametrosBusqueda.Paginacion).ToList();
             return listaARetornar;
-        }
-        public class ParametrosBusqueda
-        {
-            public int Pagina { get; set; } = 1;
-            public int CantidadRegistros { get; set; } = 12;
-            public PaginacionDTO Paginacion
-            {
-                get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
-            }
-            public int EmpleadoId { get; set; }
-            public int DepartamentoId { get; set; }
-            public string Division { get; set; }
-            public bool Activo { get; set; }
-
         }
 
         //buscar empleados para filtro

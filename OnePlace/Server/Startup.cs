@@ -37,7 +37,7 @@ namespace OnePlace.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //Añadimos nuestro DBContext
+            //Aï¿½adimos nuestro DBContext
             string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<oneplaceContext>
                 (options => options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
@@ -46,9 +46,9 @@ namespace OnePlace.Server
             services.AddIdentity<ApplicationUser, IdentityRole>(
                  options =>
                  {
-                     /*De forma predeterminada, requiere que las contraseñas contengan un carácter en mayúsculas,
-                     un carácter en minúsculas, un dígito y un carácter no Identity alfanumérico.
-                     Las contraseñas deben tener al menos seis caracteres.*/
+                     /*De forma predeterminada, requiere que las contraseï¿½as contengan un carï¿½cter en mayï¿½sculas,
+                     un carï¿½cter en minï¿½sculas, un dï¿½gito y un carï¿½cter no Identity alfanumï¿½rico.
+                     Las contraseï¿½as deben tener al menos seis caracteres.*/
 
                      //alterar la configuracion predeterminada
                      options.Password.RequireDigit = true;
@@ -95,7 +95,8 @@ namespace OnePlace.Server
             //servicio para consumir api rest externa del lado del server
             services.AddHttpClient<ISimsacoreService, SimsaCoreService>(client =>
             {
-                client.BaseAddress = new Uri("https://innovacion.dgl.com.mx/");
+                client.BaseAddress = new Uri("https://api_simsacore.dgl.com.mx/");
+                client.Timeout = TimeSpan.FromMinutes(5);
             });
 
             //agremaos el servicios de addhttpcontextaccesor
@@ -141,10 +142,10 @@ namespace OnePlace.Server
             //var input = DateTime.Parse("2014-12-31 00:00:00");
             //var str = string.Format("0 0 * * task", input(n));           
 
-            //se ejecutara cada mes , A las 00:00, el día 1 del mes
+            //se ejecutara cada mes , A las 00:00, el dï¿½a 1 del mes
             RecurringJob.AddOrUpdate<ITerminarCursoFechaServicio>("JobTerminarCursoFecha", servicio => servicio.TerminarCursoporFecha(), "0 0 1 */1 *" );
             RecurringJob.AddOrUpdate<IApiaBdService>("JobApiaBd", servicio => servicio.DatosdeApiABaseDatos(), "0 0 1 */1 *");
-            //A las 12:00 p.m, sólo los domingos
+            //A las 12:00 p.m, sï¿½lo los domingos
             RecurringJob.AddOrUpdate<IApiEmpleadosService>("JobApiEmpleados", servicio => servicio.DatosdeApiABaseDatosEmpleados(), "0 0 12 * * SUN");
             
             //A las 12:00:00 p. m., todos los domingos, todos los meses

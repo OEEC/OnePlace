@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
@@ -38,7 +40,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
     }
 
     public partial class Departamento
-    {
+    {   
         public int Iddepartamento { get; set; }
         public int? Idempresa { get; set; }
         public string Departamento1 { get; set; }
@@ -46,5 +48,9 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public DateTime? Fchbaja { get; set; }
         public DateTime? Fchmod { get; set; }
         public int? Idusuario { get; set; }
+
+        [NotMapped] public ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }
+
+        //public virtual ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }
     }
 }
