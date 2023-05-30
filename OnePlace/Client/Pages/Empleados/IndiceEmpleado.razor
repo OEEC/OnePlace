@@ -104,6 +104,20 @@
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
                         @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
+                        <select class="form-control form-control-sm" @bind="zonaSeleccionada">
+                            <option value="0">-- Seleccione Zona --</option>
+                            @foreach (var item in Zonas)
+                            {
+                                <option value="@item.ZonaId">@item.Zona1</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        @*no aparecera la opcion de baja por que todo el filtro se hace con equipos activos para ver las bajas tiene su propio filtro de inactivos*@
                         <select class="form-control form-control-sm" @bind="divisionSeleccionada">
                             <option value="0">-- Seleccione Division --</option>
                             @foreach (var item in Divisiones)
@@ -168,6 +182,7 @@
     private int paginasTotales;
     string[] Divisiones = new string[] { "ESTACION", "TIENDA" };
     List<AreaDepartamentoEmpresa> Departamentos = new List<AreaDepartamentoEmpresa>();
+    List<Zona> Zonas = new List<Zona>();
 
     //incluir mas parametros si se requieren
     string empleadoseleccionado = "0";
@@ -175,6 +190,7 @@
     private bool Activo = false;
     private string divisionSeleccionada = "0";
     string razonSeleccionada = "0";
+    string zonaSeleccionada = "0";
 
     #region CargarEmpleados
     protected async override Task OnInitializedAsync()
@@ -184,6 +200,7 @@
 
         var url = navigationManager.Uri;//aqui aplicamos el diccionario de string
         var queries = navigationManager.ObtenerQueryStrings(url);
+        await GetZonas();
         //si es la primera vez que el usuario entra esto estaria a nulo
         if (queries == null)
         {
@@ -243,6 +260,10 @@
         {
             divisionSeleccionada = queryStringsDict["razon"];
         }
+        if (queryStringsDict.ContainsKey("zona"))
+        {
+            zonaSeleccionada = queryStringsDict["zona"];
+        }
     }
 
     private async Task RealizarBusqueda(string queryStrings)
@@ -262,6 +283,7 @@
         queryStringsDict["pagina"] = paginaActual.ToString();
         queryStringsDict["division"] = divisionSeleccionada;
         queryStringsDict["razon"] = razonSeleccionada;
+        queryStringsDict["zona"] = zonaSeleccionada;
 
         //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
         var valoresporDefecto = new List<string>() { "false", "", "0" };
@@ -282,6 +304,7 @@
         paginaActual = 1;
         razonSeleccionada = "0";
         divisionSeleccionada = "0";
+        zonaSeleccionada = "0";
         await Cargar();
     }
 
@@ -330,6 +353,19 @@
         else
         {
             Departamentos = response.Response;
+        }
+    }
+
+    private async Task GetZonas()
+    {
+        var response = await repositorio.Get<List<Zona>>($"api/Zona/zonas");
+        if (response.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await response.GetBody());
+        }
+        else
+        {
+            Zonas = response.Response;
         }
     }
 

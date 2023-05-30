@@ -74,6 +74,8 @@ namespace OnePlace.Server.Controllers
             public string Division { get; set; }
             public bool Activo { get; set; }
 
+            public int zona { get; set; }
+
         }
 
         //[HttpGet]
@@ -196,10 +198,11 @@ namespace OnePlace.Server.Controllers
                                             Fchalta = e.Fchalta,
                                             Fchbaja = e.Fchbaja,
                                             Division = e.Division,
+                                            ZonaId = e.ZonaId,
                                             Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
                                             Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
-                                            Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
+                                            Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault(),
                                         }).ToList();          
 
             var queryable = empleados.OrderBy(x => x.Idpersona).AsQueryable();
@@ -211,6 +214,10 @@ namespace OnePlace.Server.Controllers
             if (parametrosBusqueda.DepartamentoId != 0)
             {
                 queryable = queryable.Where(x => x.Iddepartamento == parametrosBusqueda.DepartamentoId);
+            }
+            if (parametrosBusqueda.zona != 0)
+            {
+                queryable = queryable.Where(x => x.ZonaId == parametrosBusqueda.zona);
             }
             if (!string.IsNullOrEmpty(parametrosBusqueda.Division))
             {
