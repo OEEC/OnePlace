@@ -259,7 +259,12 @@
                         {
                             @if (item.Persona != null)
                             {
-                                    <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img"
+                                    <CardPerfil 
+                                        Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" 
+                                        UrlDetalles="detalles-empleado" 
+                                        Id="@item.Idempleado" 
+                                        Imagen="@item.Img"
+                                        ZonaEmpleado="@item.ZonaId"
                                         VerDetalles="@(item.Fchbaja != null ? false : true)" VerEditar="false">
                                         <stateEmpleado>
                                             <div class="mt-auto @(item.Fchbaja != null ? "bg-danger":"bg-success")" style="border-radius:7px;height:15px;width:15px;position:absolute;top:55%;left:55%;">

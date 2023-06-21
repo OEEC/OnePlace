@@ -31,5 +31,12 @@ namespace OnePlace.Server.Controllers
            var zonas = await context.Zonas.ToListAsync();
             return Ok(zonas);
         }
+
+        [HttpGet("zonas/{id}")]
+        public async Task<ActionResult<Zona>> GetEmpleadoZona(int id)  
+        {
+            var zona = await context.Zonas.Where(x => x.ZonaId == id).FirstOrDefaultAsync();
+            return Ok(zona);
+        }
     }
 }
