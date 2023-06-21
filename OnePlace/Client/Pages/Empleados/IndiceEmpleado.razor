@@ -5,6 +5,7 @@
 @inject IJSRuntime JS
 @attribute [Authorize(Roles = "Administrador")]
 @using System.Security.Claims
+@using System.Diagnostics;
 
 <Card Class="card">
     <CardHeader Class="card-header">
@@ -29,13 +30,6 @@
 @*            <div class="col-md-auto">
                 <div class="d-inline-block mr-3">
                     <div class="input-group input-group-sm d-flex align-items-center">
-                        <Enlace Class="btn btn-outline-dark btn-sm" Href="usuarios"><Icono Icon="fas fa-eye" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Usuarios</Texto></Enlace>
-                    </div>
-                </div>
-            </div>*@
-            <div class="col-md-auto">
-                <div class="d-inline-block mr-3">
-                    <div class="input-group input-group-sm d-flex align-items-center">
                         <BlazoredTypeahead SearchMethod="BuscarEmpleados"
                                            MaximumSuggestions="100"
                                            Context="empleado"
@@ -45,6 +39,109 @@
                                            Value="@EmpleadoSeleccionado"
                                            ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                            placeholder="Buscar Empleados">
+                            <SelectedTemplate>
+                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay empleados con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+            </div>*@
+            <div class="col-md-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEmpleadosNoemp"
+                                           MaximumSuggestions="100"
+                                           Context="empleado"
+                                           TValue="Empleado"
+                                           TItem="Empleado"
+                                           ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                           Value="@EmpleadoSeleccionado"
+                                           ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                           placeholder="Buscar Por No Empleado">
+                            <SelectedTemplate>
+                                @empleado.Noemp
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @empleado.Noemp 
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay empleados con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEmpleadosNombre"
+                                           MaximumSuggestions="100"
+                                           Context="empleado"
+                                           TValue="Empleado"
+                                           TItem="Empleado"
+                                           ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                           Value="@EmpleadoSeleccionado"
+                                           ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                           placeholder="Buscar Por Nombre">
+                            <SelectedTemplate>
+                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay empleados con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEmpleadosApellidoPat"
+                                           MaximumSuggestions="100"
+                                           Context="empleado"
+                                           TValue="Empleado"
+                                           TItem="Empleado"
+                                           ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                           Value="@EmpleadoSeleccionado"
+                                           ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                           placeholder="Buscar Por Apellido Paterno">
+                            <SelectedTemplate>
+                                 @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                 @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                            </ResultTemplate>
+                            <NotFoundTemplate>
+                                Lo sentimos, no hay empleados con esos datos.
+                            </NotFoundTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+            </div>
+        </div>
+                <!--Segunda fila de filtro con botones-->
+        <div class="row justify-content-center align-items-center pt-3">
+            <div class="col-md-auto">
+                <div class="d-inline-block mr-3">
+                    <div class="input-group input-group-sm d-flex align-items-center">
+                        <BlazoredTypeahead SearchMethod="BuscarEmpleadosApellidoMat"
+                                           MaximumSuggestions="100"
+                                           Context="empleado"
+                                           TValue="Empleado"
+                                           TItem="Empleado"
+                                           ValueExpression="@(()=>EmpleadoSeleccionado)"
+                                           Value="@EmpleadoSeleccionado"
+                                           ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
+                                           placeholder="Buscar Por Apellido Materno">
                             <SelectedTemplate>
                                 @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
                             </SelectedTemplate>
@@ -98,7 +195,7 @@
                 </div>
             </div>
         </div>
-        <!--Segunda fila de filtro con botones-->
+        <!--Tercera fila de filtro con botones-->
         <div class="row justify-content-center align-items-center pt-3">
             <div class="col-md-auto">
                 <div class="d-inline-block mr-3">
@@ -145,25 +242,36 @@
         </div>
     </CardHeader>
     <CardBody Class="card-body p-0">
-        <ListadoGenerico Listado="Empleados">
-            <HayRegistrosCompleto>
-                <div class="row no-gutters text-center fs--1">
-                    @foreach (var item in Empleados)
-                    {
-                        @if (item.Persona != null)
+        @if (Empleados == null)
+        {
+             <div class="row text-center">
+                 <div class="col">
+                    <LoadingSpinner IsLoading="Procesando" />
+                 </div>
+             </div>
+        }
+        else
+        {
+            <ListadoGenerico Listado="Empleados">
+                <HayRegistrosCompleto>
+                    <div class="row no-gutters text-center fs--1">
+                        @foreach (var item in Empleados)
                         {
-                            <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img"
-                                VerDetalles="@(item.Fchbaja != null ? false : true)" VerEditar="false">
-                                <stateEmpleado>
-                                    <div class="mt-auto @(item.Fchbaja != null ? "bg-danger":"bg-success")" style="border-radius:7px;height:15px;width:15px;position:absolute;top:55%;left:55%;">
-                                    </div>
-                                </stateEmpleado>
-                            </CardPerfil>
+                            @if (item.Persona != null)
+                            {
+                                    <CardPerfil Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" UrlDetalles="detalles-empleado" Id="@item.Idempleado" Imagen="@item.Img"
+                                        VerDetalles="@(item.Fchbaja != null ? false : true)" VerEditar="false">
+                                        <stateEmpleado>
+                                            <div class="mt-auto @(item.Fchbaja != null ? "bg-danger":"bg-success")" style="border-radius:7px;height:15px;width:15px;position:absolute;top:55%;left:55%;">
+                                            </div>
+                                        </stateEmpleado>
+                                    </CardPerfil>
+                            }
                         }
-                    }
-                </div>
-            </HayRegistrosCompleto>
-        </ListadoGenerico>
+                    </div>
+                </HayRegistrosCompleto>
+            </ListadoGenerico>
+        }        
     </CardBody>
     <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
         <Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales"></Paginacion>
@@ -187,10 +295,16 @@
     //incluir mas parametros si se requieren
     string empleadoseleccionado = "0";
     string departamentoseleccionado = "0";
+    string nombreEmpleado = "";
+    string apellidopEmpleado = "";
+    string apellidomEmpleado = "";
     private bool Activo = false;
     private string divisionSeleccionada = "0";
     string razonSeleccionada = "0";
     string zonaSeleccionada = "0";
+    private bool Procesando = true;
+    int totalEmpleados = 0;
+    int empleadosCount = 0;
 
     #region CargarEmpleados
     protected async override Task OnInitializedAsync()
@@ -264,6 +378,18 @@
         {
             zonaSeleccionada = queryStringsDict["zona"];
         }
+        if (queryStringsDict.ContainsKey("nombre"))
+        {
+            nombreEmpleado = queryStringsDict["nombre"];
+        }
+        if (queryStringsDict.ContainsKey("apellidoPaterno"))
+        {
+            nombreEmpleado = queryStringsDict["apellidoPaterno"];
+        }
+        if (queryStringsDict.ContainsKey("apellidoMaterno"))
+        {
+            nombreEmpleado = queryStringsDict["apellidoMaterno"];
+        }
     }
 
     private async Task RealizarBusqueda(string queryStrings)
@@ -284,6 +410,9 @@
         queryStringsDict["division"] = divisionSeleccionada;
         queryStringsDict["razon"] = razonSeleccionada;
         queryStringsDict["zona"] = zonaSeleccionada;
+        queryStringsDict["nombre"] = nombreEmpleado;
+        queryStringsDict["apellidoPaterno"] = apellidopEmpleado;
+        queryStringsDict["apellidoMaterno"] = apellidomEmpleado;
 
         //quitamos de la representacion en querystring si alguno de los valores es el valor por defecto ejemplo titulo vacio o num 0
         var valoresporDefecto = new List<string>() { "false", "", "0" };
@@ -305,6 +434,9 @@
         razonSeleccionada = "0";
         divisionSeleccionada = "0";
         zonaSeleccionada = "0";
+        nombreEmpleado = "";
+        apellidopEmpleado = "";
+        apellidomEmpleado = "";
         await Cargar();
     }
 
@@ -317,6 +449,30 @@
     private async Task<IEnumerable<Empleado>> BuscarEmpleados(string searchText)
     {
         var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/{searchText}");
+        return responseHttp.Response;
+    }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleadosNombre(string nombre)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/nombre/{nombre}");
+        return responseHttp.Response;
+    }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleadosNoemp(string noemp)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/noemp/{noemp}");
+        return responseHttp.Response;
+    }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleadosApellidoPat(string apePat)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/apepat/{apePat}");
+        return responseHttp.Response;
+    }
+
+    private async Task<IEnumerable<Empleado>> BuscarEmpleadosApellidoMat(string apeMat)
+    {
+        var responseHttp = await repositorio.Get<List<Empleado>>($"api/Empleado/buscar/apemat/{apeMat}");
         return responseHttp.Response;
     }
 

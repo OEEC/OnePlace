@@ -270,7 +270,7 @@ namespace OnePlace.Server.Controllers
 
             await context.SaveChangesAsync();
         }
-
+        //Crear Usuario en base a los empleados en la base de datos
         [HttpPost("crear")]
         public async Task<ActionResult<List<Empleado>>> CreeateNewUsers(Empleado empleado)
         {
@@ -297,12 +297,27 @@ namespace OnePlace.Server.Controllers
                                                 ZonaId = e.ZonaId,
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
                                             }).ToList();
+                //Recorre la lista de empleados
                 foreach (var item in empleados)
                 {
-                    if (!string.IsNullOrEmpty(item.Noemp)) {
+                    //Si el numero de empleado no es nulo crea al empleado
+                    if (!string.IsNullOrEmpty(item.Noemp)) 
+                    {
+                        var inicialesZona = "";
+                        var zona = context.Zonas.FirstOrDefault(x => x.ZonaId == item.ZonaId);
+                        //Si no tiene zona asignada le añade un NA de lo contrario separa sus dos primeros letras en mayusculas
+                        if (zona is not null)
+                        {
+                            inicialesZona = zona.Zona1.ToUpper().Substring(0,2);
+                        }
+                        else 
+                        {
+                            inicialesZona = "NA";
+                        }
+                        //Asigna valores a objeto usuario
                         var user = new ApplicationUser
                         {
-                            UserName = item.Noemp.Trim(),
+                            UserName = item.Noemp.Trim() + inicialesZona,
                             noemp = item.Noemp,
                             Idempleado = item.Idempleado,
                             Nombre = item.Persona.Nombre,
@@ -312,9 +327,12 @@ namespace OnePlace.Server.Controllers
                             ContraseñaTextoPlano = $"S1msa*{item.Noemp}",
                             Activo = true
                         };
-                        var existUser = context.Users.FirstOrDefault(x => x.noemp == user.noemp);
+                        var existUser = context.Users.FirstOrDefault(x => x.UserName == user.UserName);
+                        Debug.WriteLine(existUser);
+                        //Si no existe ya el numero de empleado del empleado
                         if (existUser is null)
                         {
+                            Debug.WriteLine(existUser);
                             var result = await userManager.CreateAsync(user, user.ContraseñaTextoPlano);
 
                             if (result.Succeeded)
