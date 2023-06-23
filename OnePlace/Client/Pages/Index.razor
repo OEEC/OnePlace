@@ -484,6 +484,19 @@ else
                                         <Texto Typo="Typo.h6" Class="fs-0 mb-0"><Texto Typo="Typo.normal" Class="text-primary">@item.Empleado.Persona.Nombre</Texto></Texto>
                                         <Texto Typo="Typo.body2" Class="mb-1 text-700">
                                             <Texto Typo="Typo.small">
+                                                @if (item.Empleado.Area != null)
+                                                {
+                                                    @item.Empleado.Area.Area1;
+                                                }
+                                                <br/>
+                                                @if (item.Empleado.Zona != null)
+                                                {
+                                                    @item.Empleado.Zona.Zona1.ToUpper();
+                                                }
+                                            </Texto>
+                                        </Texto>
+                                        <Texto Typo="Typo.body2" Class="mb-1 text-700">
+                                            <Texto Typo="Typo.small">
                                                 @if (item.Empleado.Puesto != null)
                                                 {
                                                     @item.Empleado.Puesto.Puesto1

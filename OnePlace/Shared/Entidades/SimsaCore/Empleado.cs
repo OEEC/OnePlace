@@ -119,7 +119,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idpagadora { get; set; } //simsa core osacar
         [NotMapped]
         public virtual Pagadora Pagadora { get; set; }
-        public int? ZonaId { get; set; }       
+        public int? ZonaId { get; set; }
+        public virtual Zona Zona { get; set; }  
         public int? Idestacion { get; set; }
         public int? TiendaId { get; set; }
         public string? Division { get; set; }
