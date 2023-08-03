@@ -17,7 +17,7 @@ namespace OnePlace.Server.Data
         public string noemp { get; set; }
         public bool Activo { get; set; }
         public string ContraseñaTextoPlano { get; set; }//poder ver la contraseña sin hash
-
+        //public string UserName { get; set; }
         //propiedades de navegacion
         public int Idempleado { get; set; }//el nombre debe de ser igual al campo en la bd
         //public virtual Empleado Empleado { get; set; } // si ponemos el virtual la bd no lo reconoce por que no esta fisicamente en algun lugar esto lo hacia EF por "detras de camaras"

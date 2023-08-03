@@ -140,7 +140,7 @@
                 {
                     <LoadingSpinner IsLoading="Procesando" />
                 }
-                else
+                else if (ListadeCursosUser.Count > 1)
                 {
                     <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
                         @foreach (var item in ListadeCursosUser)
@@ -167,6 +167,32 @@
                             }
                         }
                     </div>
+                }
+                else
+                {
+                    @foreach (var item in ListadeCursosUser)
+                    {
+                        //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
+                        if (FechadeHoy >= item.FechaFinal)
+                        {
+
+                        }
+                        else
+                        {
+                            <div class="item">
+                                <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                                    <div class="service-icon flex-shrink-0">
+                                        <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                                    </div>
+                                    <h5 class="mb-3">@item.Nombre</h5>
+                                    <p class="colorgris">
+                                        @item.DescripcionCortada
+                                    </p>
+                                    <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                                </div>
+                            </div>
+                        }
+                    }
                 }
             </div>
         </div>
