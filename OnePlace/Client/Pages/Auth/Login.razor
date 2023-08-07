@@ -6,14 +6,15 @@
 @inject IMostrarMensaje mostrarMensajes
 @inject IJSRuntime JS
 
+
 <EditForm Model="@userInfoLogin" OnValidSubmit="LoginUsuario">
     <DataAnnotationsValidator />
     <div class="text-center">
         <Texto Typo="Typo.h4" Class="h4 text-gray-900 mb-4">¡Bienvenido!</Texto>
     </div>
     <div class="form-group">
-        <InputLabel for="nomempleado">Número de Empleado:</InputLabel>
-        <InputText type="nomempleado" class="form-control form-control-sm" placeholder="Número de Empleado" @bind-Value="@userInfoLogin.NumeroEmpleado" />
+        <InputLabel for="nomempleado" data-toggle="tooltip" data-placement="top" title="Nombre de usuario es compuesto con el # de empleado y las iniciales de la zona perteneciente">Nombre de Usuario:</InputLabel>
+        <InputText type="nomempleado" class="form-control form-control-sm" placeholder="Número de Empleado" @bind-Value="@userInfoLogin.NumeroEmpleado" data-toggle="tooltip" data-placement="bottom" title="Nombre de usuario es compuesto con el # de empleado y las iniciales de la zona perteneciente"/>
         <ValidationMessage For="@(() => userInfoLogin.NumeroEmpleado)" />
     </div>
     <div class="form-group">
