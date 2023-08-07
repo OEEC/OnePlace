@@ -688,6 +688,11 @@ namespace OnePlace.Server.Data
             { Id = "65f535d8-b7c6-4811-9326-491a80031f60", Name = "Usuario", NormalizedName = "Usuario" };
             modelBuilder.Entity<IdentityRole>().HasData(Usuario);
 
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Area)
+                .WithMany()
+                .HasForeignKey(x => x.Idarea);
+
             base.OnModelCreating(modelBuilder);
         }
 
