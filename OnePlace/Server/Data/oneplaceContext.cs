@@ -693,6 +693,11 @@ namespace OnePlace.Server.Data
                 .WithMany()
                 .HasForeignKey(x => x.Idarea);
 
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Estacion)
+                .WithMany()
+                .HasForeignKey(x => x.Idestacion);
+
             base.OnModelCreating(modelBuilder);
         }
 
