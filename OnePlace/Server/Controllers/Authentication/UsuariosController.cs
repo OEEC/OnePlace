@@ -64,8 +64,8 @@ namespace OnePlace.Server.Controllers
             if (parametrosBusqueda.EstacionId != 0)
             {
                 //traemos una lista de empleados que pertenezcan a una estacion, por medio de idestacion se realiza el filtro
-                var listadeempleados = await context.Empleados.Where(x => x.Idarea == parametrosBusqueda.EstacionId)
-                    .Include(x => x.Area).ToListAsync();
+                var listadeempleados = await context.Empleados.Where(x => x.Idestacion == parametrosBusqueda.EstacionId)
+                    .Include(x => x.Estacion).ToListAsync();
 
                 foreach (var item in listadeempleados)
                 {
