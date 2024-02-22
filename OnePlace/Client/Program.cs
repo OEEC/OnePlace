@@ -24,7 +24,7 @@ namespace OnePlace.Client
             builder.RootComponents.Add<App>("#app");
 
             //builder.Services.AddBaseAddressHttpClient();
-            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress), Timeout = TimeSpan.FromMinutes(10) });
 
             //llamar al metodo ConfigureServices
             ConfigureServices(builder.Services);

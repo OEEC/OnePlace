@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace OnePlace.Shared.Entidades
 {
@@ -112,6 +113,9 @@ namespace OnePlace.Shared.Entidades
         //el not mapped hace que la bd no quiera poner foreign key con la tabla empleados , no se puede por que una tabla es innodb y la otra myasam
         [NotMapped]
         public Empleado Empleado { get; set; }
+
+        [NotMapped]
+        public String NombreEmpleado { get; set; } 
     }
     public enum Evaluacion
     {

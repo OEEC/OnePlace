@@ -86,11 +86,11 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
     public partial class Empleado
     {
-        public int Idempleado { get; set; }      
+        public int Idempleado { get; set; }
         public string Img { get; set; }
         public string Noemp { get; set; }
         public string Correo { get; set; }
-        public string Telefono { get; set; }       
+        public string Telefono { get; set; }
         public double? Nomina { get; set; }
         public double? Variable { get; set; }
         public int? Idtipo { get; set; }
@@ -107,6 +107,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idpersona { get; set; }
         [NotMapped]
         public virtual Persona Persona { get; set; }
+        [NotMapped]
+        public virtual Estacion Estacion { get; set; }
         public int? Iddepartamento { get; set; }
         [NotMapped]
         public virtual Departamento Departamento { get; set; }       
@@ -119,7 +121,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idpagadora { get; set; } //simsa core osacar
         [NotMapped]
         public virtual Pagadora Pagadora { get; set; }
-        public int? ZonaId { get; set; }       
+        public int? ZonaId { get; set; }
+        public virtual Zona Zona { get; set; }  
         public int? Idestacion { get; set; }
         public int? TiendaId { get; set; }
         public string? Division { get; set; }

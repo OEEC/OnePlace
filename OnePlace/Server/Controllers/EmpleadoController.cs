@@ -75,6 +75,7 @@ namespace OnePlace.Server.Controllers
             public bool Activo { get; set; }
 
             public int zona { get; set; }
+            public string Nombre { get; set; } = "";
 
         }
 
@@ -234,7 +235,7 @@ namespace OnePlace.Server.Controllers
             {
                 if (string.IsNullOrEmpty(item.Img))
                 {
-                    // Aquí colocas la URL de la imagen por defecto
+                   // Aquí colocas la URL de la imagen por defecto
                     item.Img = "Img" + "/" + "usuario.png";
                 }
             }
@@ -304,6 +305,274 @@ namespace OnePlace.Server.Controllers
                                                 Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                             })
                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
+                                           .Take(50)
+                                           .ToListAsync();
+
+                return empleados;
+            }
+        }
+
+        //buscar empleados para filtro
+        [HttpGet("buscar/nombre/{nombre}")]
+        public async Task<ActionResult<List<Empleado>>> GetEmpleadoPorNombre(string nombre)
+        {
+            if (nombre.Length > 3)
+            {
+                if (string.IsNullOrWhiteSpace(nombre)) { return new List<Empleado>(); }
+                nombre = nombre.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                            .Where(x => x.Persona.Nombre.ToLower().Contains(nombre))
+                                            .ToListAsync();
+
+                return empleados;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(nombre)) { return new List<Empleado>(); }
+                nombre = nombre.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                           .Where(x => x.Persona.Nombre.ToLower().Contains(nombre))
+                                           .Take(50)
+                                           .ToListAsync();
+
+                return empleados;
+            }
+        }
+
+        //buscar empleados para filtro
+        [HttpGet("buscar/noemp/{noemp}")]
+        public async Task<ActionResult<List<Empleado>>> GetEmpleadoPorNoemp(string noemp)
+        {
+            if (noemp.Length > 3)
+            {
+                if (string.IsNullOrWhiteSpace(noemp)) { return new List<Empleado>(); }
+                noemp = noemp.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                            .Where(x => x.Noemp.ToLower().Contains(noemp))
+                                            .ToListAsync();
+
+                return empleados;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(noemp)) { return new List<Empleado>(); }
+                noemp = noemp.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                           .Where(x => x.Noemp.ToLower().Contains(noemp))
+                                           .Take(50)
+                                           .ToListAsync();
+
+                return empleados;
+            }
+        }
+
+        //buscar empleados para filtro
+        [HttpGet("buscar/apepat/{apellido}")]
+        public async Task<ActionResult<List<Empleado>>> GetEmpleadosApellidoPat(string apellido)
+        {
+            if (apellido.Length > 3)
+            {
+                if (string.IsNullOrWhiteSpace(apellido)) { return new List<Empleado>(); }
+                apellido = apellido.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                            .Where(x => x.Persona.ApePat.ToLower().Contains(apellido))
+                                            .ToListAsync();
+
+                return empleados;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(apellido)) { return new List<Empleado>(); }
+                apellido = apellido.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                           .Where(x => x.Persona.ApePat.ToLower().Contains(apellido))
+                                           .Take(50)
+                                           .ToListAsync();
+
+                return empleados;
+            }
+        }
+
+        //buscar empleados para filtro
+        [HttpGet("buscar/apemat/{apellido}")]
+        public async Task<ActionResult<List<Empleado>>> GetEmpleadosApellidoMat(string apellido)
+        {
+            if (apellido.Length > 3)
+            {
+                if (string.IsNullOrWhiteSpace(apellido)) { return new List<Empleado>(); }
+                apellido = apellido.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                            .Where(x => x.Persona.ApeMat.ToLower().Contains(apellido))
+                                            .ToListAsync();
+
+                return empleados;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(apellido)) { return new List<Empleado>(); }
+                apellido = apellido.ToLower();
+
+                List<Empleado> empleados = await (from e in context.Empleados
+                                                  select new Empleado
+                                                  {
+                                                      Idempleado = e.Idempleado,
+                                                      Idpersona = e.Idpersona,
+                                                      Img = e.Img,
+                                                      Noemp = e.Noemp,
+                                                      Correo = e.Correo,
+                                                      Telefono = e.Telefono,
+                                                      Iddepartamento = e.Iddepartamento,
+                                                      Idarea = e.Idarea,
+                                                      Idpuesto = e.Idpuesto,
+                                                      Nomina = e.Nomina,
+                                                      Variable = e.Variable,
+                                                      Idtipo = e.Idtipo,
+                                                      Fchalta = e.Fchalta,
+                                                      Fchbaja = e.Fchbaja,
+                                                      Division = e.Division,
+                                                      Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
+                                                  })
+                                           .Where(x => x.Persona.ApeMat.ToLower().Contains(apellido))
                                            .Take(50)
                                            .ToListAsync();
 

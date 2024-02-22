@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Dapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,7 @@ using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using static OnePlace.Server.Data.ApplicationUser;
@@ -62,7 +64,8 @@ namespace OnePlace.Server.Controllers
             if (parametrosBusqueda.EstacionId != 0)
             {
                 //traemos una lista de empleados que pertenezcan a una estacion, por medio de idestacion se realiza el filtro
-                var listadeempleados = await context.Empleados.Where(x => x.Idestacion == parametrosBusqueda.EstacionId).ToListAsync();
+                var listadeempleados = await context.Empleados.Where(x => x.Idestacion == parametrosBusqueda.EstacionId)
+                    .Include(x => x.Estacion).ToListAsync();
 
                 foreach (var item in listadeempleados)
                 {
@@ -268,60 +271,89 @@ namespace OnePlace.Server.Controllers
 
             await context.SaveChangesAsync();
         }
-
+        //Crear Usuario en base a los empleados en la base de datos
         [HttpPost("crear")]
         public async Task<ActionResult<List<Empleado>>> CreeateNewUsers(Empleado empleado)
         {
-            List<Empleado> empleados = (from e in context.Empleados
-                                        where e.Fchbaja == null
-                                        select new Empleado
-                                        {
-                                            Idempleado = e.Idempleado,
-                                            Idpersona = e.Idpersona,
-                                            Img = e.Img,
-                                            Noemp = e.Noemp,
-                                            Correo = e.Correo,
-                                            Telefono = e.Telefono,
-                                            Iddepartamento = e.Iddepartamento,
-                                            Idarea = e.Idarea,
-                                            Idpuesto = e.Idpuesto,
-                                            Nomina = e.Nomina,
-                                            Variable = e.Variable,
-                                            Idtipo = e.Idtipo,
-                                            Fchalta = e.Fchalta,
-                                            Fchbaja = e.Fchbaja,
-                                            Division = e.Division,
-                                            Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
-                                        }).ToList();
-            foreach (var item in empleados)
-            {
-                var user = new ApplicationUser
+            try { 
+                List<Empleado> empleados = (from e in context.Empleados
+                                            where e.Fchbaja == null
+                                            select new Empleado
+                                            {
+                                                Idempleado = e.Idempleado,
+                                                Idpersona = e.Idpersona,
+                                                Img = e.Img,
+                                                Noemp = e.Noemp,
+                                                Correo = e.Correo,
+                                                Telefono = e.Telefono,
+                                                Iddepartamento = e.Iddepartamento,
+                                                Idarea = e.Idarea,
+                                                Idpuesto = e.Idpuesto,
+                                                Nomina = e.Nomina,
+                                                Variable = e.Variable,
+                                                Idtipo = e.Idtipo,
+                                                Fchalta = e.Fchalta,
+                                                Fchbaja = e.Fchbaja,
+                                                Division = e.Division,
+                                                ZonaId = e.ZonaId,
+                                                Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault()
+                                            }).ToList();
+                //Recorre la lista de empleados
+                foreach (var item in empleados)
                 {
-                    UserName = item.Noemp,
-                    noemp = item.Noemp,
-                    Idempleado = item.Idempleado,
-                    Nombre = item.Persona.Nombre,
-                    ApellidoMaterno = item.Persona.ApeMat,
-                    ApellidoPaterno = item.Persona.ApePat,
-                    //Empleado = null,
-                    ContraseñaTextoPlano = $"S1msa*{item.Noemp}",
-                    Activo = true
-                };
-                if (!context.Users.Any(x => x.noemp == user.noemp))
-                {
-                    var result = await userManager.CreateAsync(user, user.ContraseñaTextoPlano);
-                    
-                    if (result.Succeeded)
+                    //Si el numero de empleado no es nulo crea al empleado
+                    if (!string.IsNullOrEmpty(item.Noemp)) 
                     {
-                        await userManager.AddToRoleAsync(user, "Usuario");
-                    }
-                    else
-                    {
-                        return BadRequest();
+                        var inicialesZona = "";
+                        var zona = context.Zonas.FirstOrDefault(x => x.ZonaId == item.ZonaId);
+                        //Si no tiene zona asignada le añade un NA de lo contrario separa sus dos primeros letras en mayusculas
+                        if (zona is not null)
+                        {
+                            inicialesZona = zona.Zona1.ToUpper().Substring(0,2);
+                        }
+                        else 
+                        {
+                            inicialesZona = "NA";
+                        }
+                        //Asigna valores a objeto usuario
+                        var user = new ApplicationUser
+                        {
+                            UserName = item.Noemp.Trim() + inicialesZona,
+                            noemp = item.Noemp,
+                            Idempleado = item.Idempleado,
+                            Nombre = item.Persona.Nombre,
+                            ApellidoMaterno = item.Persona.ApeMat,
+                            ApellidoPaterno = item.Persona.ApePat,
+                            //Empleado = null,
+                            ContraseñaTextoPlano = $"S1msa*{item.Noemp}",
+                            Activo = true
+                        };
+                        var existUser = context.Users.FirstOrDefault(x => x.UserName == user.UserName);
+                        Debug.WriteLine(existUser);
+                        //Si no existe ya el numero de empleado del empleado
+                        if (existUser is null)
+                        {
+                            Debug.WriteLine(existUser);
+                            var result = await userManager.CreateAsync(user, user.ContraseñaTextoPlano);
+
+                            if (result.Succeeded)
+                            {
+                                await userManager.AddToRoleAsync(user, "Usuario");
+                            }
+                            else
+                            {
+                                return BadRequest(result.Errors);
+                            }
+                        }
                     }
                 }
+                return Ok();
             }
-            return Ok();
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
     }

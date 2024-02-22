@@ -1,4 +1,5 @@
 ﻿@inherits SimComponentBase
+@inject IRepositorio repositorio
 
 <div class="col-6 col-md-4 col-lg-3 col-xxl-2 mb-1">
     <div class="bg-white p-3 h-100perfil">
@@ -14,12 +15,18 @@
                 <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
                     @Nombre
                 </Texto>
+                <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
+                   Zona: @zonaNombre.Zona1
+                </Texto>
             </Enlace>
         }
         else
         {
             <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
                 @Nombre
+            </Texto>
+            <Texto Typo="Typo.h6" Class="mb-1" Style="color:#2c7be5;">
+               Zona: @zonaNombre.Zona1
             </Texto>
         }
 
@@ -42,4 +49,21 @@
 
 @code{
     [Parameter] public RenderFragment stateEmpleado { get; set; }
+    [Parameter] public int? ZonaEmpleado { get; set; }
+    private Zona? zonaNombre { get; set; } =  new Zona();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await EmpleadoZona(ZonaEmpleado);
+    }
+
+
+    async Task EmpleadoZona(int? zona)
+    {
+        if (zona != null)
+        {
+            var httpResponse = await repositorio.Get<Zona>($"api/Zona/Zonas/{zona}");
+            zonaNombre = httpResponse.Response;
+        } 
+    }
 }

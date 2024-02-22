@@ -192,12 +192,13 @@ namespace OnePlace.Server.Controllers
 
             #endregion
 
+            
             #region GuardarEstadoyActividadQuiz
 
             EstadosdelQuiz estado = new EstadosdelQuiz();
             estado.EstadoQuiz = EstadoQuiz.Terminado;
             context.Add(estado);
-            await context.SaveChangesAsync(user.Id);         
+            await context.SaveChangesAsync(user.Id);
 
             //ver si en la bd ya existe una actividad con el temaid y fasecursoid pasado por parametro
             var siexisteactividad = await context.ActividadUsuarioQuiz.AnyAsync(x => x.QuizId == quiz.TemaId && x.EstadosdelQuizId == estado.EstadosdelQuizId && x.UserId == user.Id);
@@ -218,6 +219,7 @@ namespace OnePlace.Server.Controllers
             }
 
             #endregion          
+            
 
             return Id;
         }
@@ -233,7 +235,7 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             //se busca un quiz por que se necesita para actualizar la fase de termino de tema y el quiz contiene el id del tema
-            var quiz = await context.Quizzes.Where(x => x.QuizId == id).FirstOrDefaultAsync();
+            var quiz = await context.Quizzes.Where(x => x.QuizId == id).Include(x => x.Tema).FirstOrDefaultAsync();
 
             #region ObtenerEstadoQuiz 
 
@@ -339,8 +341,10 @@ namespace OnePlace.Server.Controllers
                     ActividadUsuario.TemaId = quiz.TemaId;
                     ActividadUsuario.FaseCursoId = 3;
 
+                    
+                    /*----- ERROR -------*/
                     //ver si en la bd ya existe una actividad con el temaid, fasecuroid y userid
-                    var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == ActividadUsuario.TemaId && x.FaseCursoId == ActividadUsuario.FaseCursoId && x.UserId == user.Id);
+                    /*var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == ActividadUsuario.TemaId && x.FaseCursoId == ActividadUsuario.FaseCursoId && x.UserId == user.Id);
 
                     //sino exite, agregala
                     if (!siexisteactividad)
@@ -350,7 +354,7 @@ namespace OnePlace.Server.Controllers
 
                         context.Add(ActividadUsuario);
                         await context.SaveChangesAsync(user.Id);
-                    }
+                    }*/
 
                     #endregion
                 }

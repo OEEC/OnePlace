@@ -68,7 +68,8 @@
                     <table class="table table-sm table-striped table-hover table-bordered">
                         <thead class="text-center">
                             <tr>
-                                <th>Usuario</th>
+                                <th>Nombre</th>
+                                <th>Nombre de Usuario</th>
                                 <th>Contraseña</th>
                                 <th>Acciones</th>
                             </tr>
@@ -79,6 +80,9 @@
                                 <tr>
                                     <td>
                                         @(usuario.Nombre+" "+usuario.Apellido_Paterno)
+                                    </td>
+                                    <td>
+                                        @usuario.NumeroEmpleado
                                     </td>
                                     <td>
                                         @usuario.Contraseña

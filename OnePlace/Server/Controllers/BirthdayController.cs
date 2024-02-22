@@ -11,6 +11,7 @@ using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -59,8 +60,9 @@ namespace OnePlace.Server.Controllers
 											Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
 											Departamento = context.Departamentos.Where(x => x.Iddepartamento == e.Iddepartamento).FirstOrDefault(),
 											Area = context.Areas.Where(x => x.Idarea == e.Idarea).FirstOrDefault(),
+											Zona = context.Zonas.Where(x => x.ZonaId == e.ZonaId).FirstOrDefault(),
 											Puesto = context.Puestos.Where(x => x.Idpuesto == e.Idpuesto).FirstOrDefault()
-										}).ToList();
+										}).OrderByDescending(o => o.Persona.Fchnac).ToList();
 
 			List<EmpleadoPersonaDTO> listadoempleadosconcumple = new List<EmpleadoPersonaDTO>();
 			List<EmpleadoPersonaDTO> listabuffer = new List<EmpleadoPersonaDTO>();
@@ -103,6 +105,7 @@ namespace OnePlace.Server.Controllers
 
 				if (item.Persona != null)
 				{
+					Debug.WriteLine(item.Persona.Fchnac);
 					//por cada fecha de nacimientos obtenemos el año
 					int year = Convert.ToInt32(item.Persona != null ? item.Persona.Fchnac?.Year : DateTime.MinValue.Year);
 

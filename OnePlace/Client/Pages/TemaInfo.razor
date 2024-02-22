@@ -146,7 +146,7 @@
                                             }
 
                                             @*si la fase de video fue terminada se activa el mostrarbotonquiz*@
-                                            @if (MostrarBotonQuiz == true)
+                                            @if (MostrarBotonQuiz == true || TemaQuizDTO.Tema.VideoId == 0)
                                             {
                                                 //si el quiz ya fue terminado aparece este boton, sino el boton de responder
                                                 if (TemaFaseDTO != null && TemaFaseDTO.EstadosdelQuiz.EstadoQuiz == EstadoQuiz.Terminado)
@@ -164,6 +164,8 @@
                                                     </Enlace>
                                                 }
                                             }
+
+                                            
                                         </div>
                                     </div>
                                 </CardBody>

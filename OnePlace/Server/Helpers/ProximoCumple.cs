@@ -54,7 +54,7 @@ namespace OnePlace.Server.Helpers
         {
             DateTime proximoCumple;
             //Define el proximo Cumple,
-            //En caso de que el mes de cumple, sea menor al Mes Actual, se busca el Próxima fecha que seria del año que viene
+            //En caso de que el mes de cumple, sea menor al Mes Actual, se busca la Próxima fecha que seria del año que viene
             //es por ello el AddYear(1)
             //En caso de ser mayor se toma el año actual
             if (mesCumple < DateTime.Now.Month)

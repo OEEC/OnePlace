@@ -29,7 +29,7 @@
                         <a onclick="document.getElementById('eventos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Eventos</a>
                         <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Promociones</a>
                         <a onclick="document.getElementById('cursos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cursos</a>
-                        <a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>
+                        @*<a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>*@
                         <a href="capacitacioninfoextra" class="nav-item nav-link">Capacitación</a>
                         <!-- <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Otros</a>
@@ -140,7 +140,7 @@
                 {
                     <LoadingSpinner IsLoading="Procesando" />
                 }
-                else
+                else if (ListadeCursosUser.Count > 1)
                 {
                     <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
                         @foreach (var item in ListadeCursosUser)
@@ -167,6 +167,32 @@
                             }
                         }
                     </div>
+                }
+                else
+                {
+                    @foreach (var item in ListadeCursosUser)
+                    {
+                        //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
+                        if (FechadeHoy >= item.FechaFinal)
+                        {
+
+                        }
+                        else
+                        {
+                            <div class="item">
+                                <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                                    <div class="service-icon flex-shrink-0">
+                                        <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                                    </div>
+                                    <h5 class="mb-3">@item.Nombre</h5>
+                                    <p class="colorgris">
+                                        @item.DescripcionCortada
+                                    </p>
+                                    <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                                </div>
+                            </div>
+                        }
+                    }
                 }
             </div>
         </div>
@@ -195,14 +221,14 @@
         </div>
         <!--Logos End -->
         <!-- Cumple Start -->
-        <div class="container-xxl py-5" id="cumple">
+        @*<div class="container-xxl py-5" id="cumple">
             <div class="container px-lg-5">
                 <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
                     <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
                     <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
                     @if (FechadeHoy.ToString("dd/MM/yyyy") == FechaDespuesdeCumple.ToString("dd/MM/yyyy"))
                     {
-                        @*si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada*@
+                        ,<!-- si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada -->
                         @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
                         {
 
@@ -264,7 +290,7 @@
                     }
                 </div>
             </div>
-        </div>
+        </div>*@
         <!-- Cumple End -->
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
@@ -482,6 +508,19 @@ else
                                     </div>
                                     <div class="flex-1 position-relative ps-3">
                                         <Texto Typo="Typo.h6" Class="fs-0 mb-0"><Texto Typo="Typo.normal" Class="text-primary">@item.Empleado.Persona.Nombre</Texto></Texto>
+                                        <Texto Typo="Typo.body2" Class="mb-1 text-700">
+                                            <Texto Typo="Typo.small">
+                                                @if (item.Empleado.Area != null)
+                                                {
+                                                    @item.Empleado.Area.Area1;
+                                                }
+                                                <br/>
+                                                @if (item.Empleado.Zona != null)
+                                                {
+                                                    @item.Empleado.Zona.Zona1.ToUpper();
+                                                }
+                                            </Texto>
+                                        </Texto>
                                         <Texto Typo="Typo.body2" Class="mb-1 text-700">
                                             <Texto Typo="Typo.small">
                                                 @if (item.Empleado.Puesto != null)
