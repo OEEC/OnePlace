@@ -26,6 +26,9 @@ else
     </Card>
 }
 
+<Enlace Class="btn btn-outline-primary btn-sm" Href="@("participantes-quiz/"+QuizId)"><Icono Icon="fas fa-user" data-fa-transform="shrink-3 down-2"></Icono><Texto Typo="Typo.normal" Class="d-none d-sm-inline-block ml-1">Participantes</Texto></Enlace>
+<br />
+
 @if (ListadePreguntas != null)
 {
     <Card Class="card mb-3">
@@ -106,6 +109,7 @@ else
         await CargarQuiz();
         await CargarPreguntas();
     }
+
 
     private async Task paginaSeleccionada(int pagina)
     {

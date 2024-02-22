@@ -29,7 +29,7 @@
                         <a onclick="document.getElementById('eventos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Eventos</a>
                         <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Promociones</a>
                         <a onclick="document.getElementById('cursos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cursos</a>
-                        <a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>
+                        @*<a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>*@
                         <a href="capacitacioninfoextra" class="nav-item nav-link">Capacitación</a>
                         <!-- <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Otros</a>
@@ -221,14 +221,14 @@
         </div>
         <!--Logos End -->
         <!-- Cumple Start -->
-        <div class="container-xxl py-5" id="cumple">
+        @*<div class="container-xxl py-5" id="cumple">
             <div class="container px-lg-5">
                 <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
                     <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
                     <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
                     @if (FechadeHoy.ToString("dd/MM/yyyy") == FechaDespuesdeCumple.ToString("dd/MM/yyyy"))
                     {
-                        @*si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada*@
+                        ,<!-- si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada -->
                         @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
                         {
 
@@ -290,7 +290,7 @@
                     }
                 </div>
             </div>
-        </div>
+        </div>*@
         <!-- Cumple End -->
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">

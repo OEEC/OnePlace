@@ -40,11 +40,11 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
             curso.Activo = true;
 
-            if(curso.FechaInicio == null)
+            /*if(curso.FechaInicio == null)
             {
                 string mensajeError = "Ingrese una fecha de Inicio";
                 return BadRequest(mensajeError);
-            }          
+            }*/      
 
             context.Add(curso);
             await context.SaveChangesAsync(user.Id);
