@@ -676,7 +676,7 @@ namespace OnePlace.Server.Data
 
             modelBuilder.Entity<AreaDepartamentoEmpresa>().HasKey(bc => new { bc.Iddepartamento, bc.Idempresa });
 
-            modelBuilder.Entity<AreaDepartamentoEmpresa>().HasOne(x => x.Empresa).WithMany( ade => ade.AreaDepartamentoEmpresas).HasForeignKey(e => e.Idempresa);
+            modelBuilder.Entity<AreaDepartamentoEmpresa>().HasOne(x => x.Empresa).WithMany(ade => ade.AreaDepartamentoEmpresas).HasForeignKey(e => e.Idempresa);
             modelBuilder.Entity<AreaDepartamentoEmpresa>().HasOne(x => x.Departamento).WithMany(ade => ade.AreaDepartamentoEmpresas).HasForeignKey(d => d.Iddepartamento);
             // modelBuilder.Entity<AreaDepartamentoEmpresa>().HasNoKey().HasOne(x => x.Empresa).WithMany().HasForeignKey(x => x.Idempresa);
 
@@ -697,6 +697,18 @@ namespace OnePlace.Server.Data
                 .HasOne(x => x.Estacion)
                 .WithMany()
                 .HasForeignKey(x => x.Idestacion);
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Persona)
+                .WithOne()
+                .HasForeignKey<Empleado>(x => x.Idpersona)
+                .HasPrincipalKey<Persona>(x => x.Idpersona);
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Zona)
+                .WithOne()
+                .HasForeignKey<Empleado>(x => x.ZonaId)
+                .HasPrincipalKey<Zona>(x => x.ZonaId);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -741,7 +753,7 @@ namespace OnePlace.Server.Data
         public DbSet<Pregunta> Preguntas { get; set; }
         public DbSet<Respuesta> Respuestas { get; set; }
         public DbSet<PalabrasClave> PalabrasClave { get; set; }
-        public DbSet<EstadosdelQuiz> EstadosdelQuiz { get; set; }        
+        public DbSet<EstadosdelQuiz> EstadosdelQuiz { get; set; }
         public DbSet<ActividadUsuarioQuiz> ActividadUsuarioQuiz { get; set; }
         public DbSet<CursoEstado> CursoEstado { get; set; }
         public DbSet<PromocionZona> PromocionZonas { get; set; }

@@ -9,6 +9,29 @@
         <h5>Actualizar Registros</h5>
     </div>
     <div class="card-body">
+        <div class="col-12 row mb-2">
+            <div class="col-4 pl-0">
+                <label>Zona</label>
+                <select @bind="@Zona.ZonaId" class="form-control form-control-sm">
+                    <option>-- Seleccione una zona --</option>
+                    @foreach (var _zona in Zonas)
+                    {
+                        <option value="@_zona.ZonaId">@_zona.Zona1</option>
+                    }
+                </select>
+            </div>
+            <div class="col-2 d-flex">
+                <button class="btn btn-sm btn-primary mt-auto" @onclick="@ActualizarZonas">
+                    <i class="fas fa-rotate-right"></i>
+                    Actualizar zonas
+                    @if (loadingZonas)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+                    }
+                </button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-sm text-center">
                 <thead>
@@ -24,9 +47,10 @@
                             <button class="btn btn-primary btn-sm" @onclick="ActualizarEP">
                                 <i class="fas fa-user-tie"></i>
                                 Empleados
-                                @if(loadingEmpleados){
+                                @if (loadingEmpleados)
+                                {
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    
+
                                 }
                             </button>
                         </td>
@@ -37,7 +61,7 @@
                                 @if (loadingEstaciones)
                                 {
                                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    
+
                                 }
                             </button>
                         </td>
@@ -60,36 +84,45 @@
 </div>
 
 @code {
+    private bool loadingZonas = false;
     private bool loadingEmpleados = false;
     private bool loadingEstaciones = false;
     private bool loadingUsuarios = false;
 
+    List<Zona> Zonas = new();
+    Zona Zona = new();
+
+    Dictionary<string, string> Query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Zonas();
+    }
+
     public async Task ActualizarEP()
     {
+        if (Zona.ZonaId == 0)
+        {
+            await mostrarMensajes.MostrarMensajeAdvertencia("Seleccione una zona valida");
+            return;
+        }
+
         loadingEmpleados = true;
-        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarPersona", Persona);
-        @if (httpResponse.Error)
+
+        Query["zona"] = Zona.ZonaId.ToString();
+
+        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
+
+        var httpResponse = await repositorio.Post($"api/ObtenerDatosApi/ActualizarEmpleado?{url}", new Empleado());
+        if (httpResponse.Error)
         {
             loadingEmpleados = false;
             await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
         }
         else
         {
-            Console.WriteLine("personas");
-            await mostrarMensajes.MostrarMensajeExitoso("Personas Actualizadas");
-
-            httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarEmpleado", Empleado);
-            @if (httpResponse.Error)
-            {
-                loadingEmpleados = false;
-                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
-            }
-            else
-            {
-                Console.WriteLine("empleados");
-                loadingEmpleados = false;
-                await mostrarMensajes.MostrarMensajeExitoso("Empleados Actualizados");
-            }
+            await mostrarMensajes.MostrarMensajeExitoso("Empleados Actualizados");
+            loadingEmpleados = false;
         }
     }
 
@@ -97,9 +130,20 @@
 
     public async Task ActualizarEstacion()
     {
+        if (Zona.ZonaId == 0)
+        {
+            await mostrarMensajes.MostrarMensajeAdvertencia("Seleccione una zona valida");
+            return;
+        }
+
         loadingEstaciones = true;
-        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarEstacion", Estacion);
-        @if (httpResponse.Error)
+
+        Query["zona"] = Zona.ZonaId.ToString();
+
+        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
+
+        var httpResponse = await repositorio.Post($"api/ObtenerDatosApi/ActualizarEstacion?{url}", Estacion);
+        if (httpResponse.Error)
         {
             loadingEstaciones = false;
             await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
@@ -111,41 +155,21 @@
         }
     }
 
-    private Empleado Empleado = new Empleado();
-
-    public async Task ActualizarEmpleado()
-    {
-        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarEmpleado", Empleado);
-        @if (httpResponse.Error)
-        {
-            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
-        }
-        else
-        {
-            await mostrarMensajes.MostrarMensajeExitoso("Empleados Actualizados");
-        }
-    }
-
-    private Persona Persona = new Persona();
-
-    public async Task ActualizarPersona()
-    {
-        var httpResponse = await repositorio.Post("api/ObtenerDatosApi/ActualizarPersona", Persona);
-        @if (httpResponse.Error)
-        {
-            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
-        }
-        else
-        {
-            await mostrarMensajes.MostrarMensajeExitoso("Personas Actualizadas");
-        }
-    }
-
     private async Task ActualizarUsuario()
     {
+        if (Zona.ZonaId == 0)
+        {
+            await mostrarMensajes.MostrarMensajeAdvertencia("Seleccione una zona valida");
+            return;
+        }
+
         loadingUsuarios = true;
-        var httpResponse = await repositorio.Post<Empleado>("api/usuarios/crear",new Empleado());
-        @if (httpResponse.Error)
+
+        Query["zona"] = Zona.ZonaId.ToString();
+        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
+
+        var httpResponse = await repositorio.Post<Empleado>($"api/usuarios/crear?{url}", new Empleado());
+        if (httpResponse.Error)
         {
             loadingUsuarios = false;
             await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
@@ -154,6 +178,50 @@
         {
             loadingUsuarios = false;
             await mostrarMensajes.MostrarMensajeExitoso("Usuarios creados");
+        }
+    }
+
+    private async Task Obtener_Zonas()
+    {
+        try
+        {
+            var httpResponse = await repositorio.Get<List<Zona>>("api/zona/zonas");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Zonas = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task ActualizarZonas()
+    {
+        try
+        {
+            loadingZonas = true;
+            var httpResponse = await repositorio.Post<Zona>("api/ObtenerDatosApi/ActualizarZona", new Zona());
+            if (httpResponse.Error)
+            {
+                loadingZonas = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                await Obtener_Zonas();
+                loadingZonas = false;
+                await mostrarMensajes.MostrarMensajeExitoso("zonas actualizadas");
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace OnePlace.Client
             builder.RootComponents.Add<App>("#app");
 
             //builder.Services.AddBaseAddressHttpClient();
-            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress), Timeout = TimeSpan.FromMinutes(10) });
+            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress), Timeout = TimeSpan.FromMinutes(15) });
 
             //llamar al metodo ConfigureServices
             ConfigureServices(builder.Services);
@@ -54,7 +54,7 @@ namespace OnePlace.Client
             services.AddScoped<IJsApiService, JsApiService>();
 
             //servicio para boton de quitar navmenu
-            services.AddSingleton<ViewOptionService>();       
+            services.AddSingleton<ViewOptionService>();
 
             //agregar las funciondes de Microsoft.AspNetCore.Components.Authorization
             services.AddAuthorizationCore();

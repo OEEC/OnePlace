@@ -490,7 +490,7 @@
 }
 else
 {
-    <Card Class="card mb-3 mb-lg-0">
+    @* <Card Class="card mb-3 mb-lg-0">
         <CardHeader Class="card-header bg-light d-flex justify-content-between">
             <Texto Typo="Typo.h5" Class="mb-0">Cumpleaños del Mes</Texto>
         </CardHeader>
@@ -543,7 +543,7 @@ else
             <Paginacion PaginaActual="paginaActualListadeCumple" PaginaSeleccionada="paginaSeleccionadaListaCumple" PaginasTotales="paginasTotalesListaCumple" />
         </CardFooter>
     </Card>
-    <br />
+    <br /> *@
     <Card Class="card mb-3">
         <CardHeader Class="card-header">
             <div class="row justify-content-between">
@@ -680,7 +680,7 @@ else
             await CargarCursosAdmin();
         }
 
-        await CargarListadodeCumpleañeros();
+        // await CargarListadodeCumpleañeros();
         await CargarCarrusel();
     }
 
