@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
@@ -91,13 +92,13 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Estatus { get; set; }
 
         [JsonProperty("idrazonsocial")]
-        public int? Idrazonsocial { get; set; }       
+        public int? Idrazonsocial { get; set; }
     }
     public class ResultObjectStation
     {
         //esto en el json es un array y adentro contiene mas propiedades esta por jerarquia de niveles
         [JsonProperty("estaciones")]
-        public List<Station> ListadeEstaciones { get; set; }
+        public List<Estacion> ListadeEstaciones { get; set; }
     }
     public partial class Estacion
     {
@@ -125,13 +126,13 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public double? Latitud { get; set; }
         public double? Longitud { get; set; }
         public string Qr { get; set; }
-        public string Fchcreacion { get; set; }
-        public string Fchmodificacion { get; set; }
+        [JsonIgnore] public string Fchcreacion { get; set; }
+        [JsonIgnore] public string Fchmodificacion { get; set; }
         public int? Idusuario { get; set; }
         public int? Estatus { get; set; }
         public int? Idrazonsocial { get; set; }
 
         //propiedades de navegacion
-        public List<Empleado> Empleados { get; set; }
+        [NotMapped] public List<Empleado> Empleados { get; set; }
     }
 }

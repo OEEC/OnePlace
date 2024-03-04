@@ -41,19 +41,29 @@ namespace OnePlace.Shared.Entidades.SimsaCore
     {
         //esto en el json es un array y adentro contiene mas propiedades esta por jerarquia de niveles
         [JsonProperty("razonesSociales")]
-        public List<Company> ListadeRazonesSociales { get; set; }
+        public List<Empresa> ListadeRazonesSociales { get; set; }
     }
     public partial class Empresa
     {
+        [JsonProperty("idempresa")]
         public int Idempresa { get; set; }
+        [JsonProperty("rfc")]
         public string Rfc { get; set; }
+        [JsonProperty("patronal")]
         public string Patronal { get; set; }
+        [JsonProperty("razonsocial")]
         public string Razonsocial { get; set; }
+        [JsonProperty("domicilio")]
         public string Domicilio { get; set; }
+        [JsonProperty("idestatus")]
         public int? Idestatus { get; set; }
+        [JsonProperty("fchcreacion"), JsonIgnore]
         public DateTime? Fchcreacion { get; set; }
+        [JsonProperty("fchmod"), JsonIgnore]
         public DateTime? Fchmod { get; set; }
+        [JsonProperty("fchbaja"), JsonIgnore]
         public DateTime? Fchbaja { get; set; }
+        [JsonProperty("idusuario")]
         public int? Idusuario { get; set; }
 
         [NotMapped] public ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }
