@@ -84,6 +84,10 @@ namespace OnePlace.Shared.Entidades
             }
         }
         public TiendaoEstacion TiendaoEstacion { get; set; }
+        [NotMapped] public List<Zona> Zonas { get; set; }
+        [NotMapped] public List<CursoZona> CursoZonas { get; set; }
+        [NotMapped] public List<Zona> ZonasSeleccionadas { get; set; } = new();
+        [NotMapped] public List<Zona> ZonasNoSeleccionadas { get; set; } = new();
     }
     public class Tema
     {

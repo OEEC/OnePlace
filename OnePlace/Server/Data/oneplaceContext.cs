@@ -710,6 +710,16 @@ namespace OnePlace.Server.Data
                 .HasForeignKey<Empleado>(x => x.ZonaId)
                 .HasPrincipalKey<Zona>(x => x.ZonaId);
 
+            modelBuilder.Entity<CursoZona>().HasKey(cz => new { cz.Id_Curso, cz.Id_Zona });
+
+            modelBuilder.Entity<Curso>()
+                .HasMany(x => x.Zonas)
+                .WithMany(x => x.Cursos)
+                .UsingEntity<CursoZona>(
+                l => l.HasOne(x => x.Zona).WithMany(x => x.CursoZonas).HasForeignKey(x => x.Id_Zona).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Curso).WithMany(x => x.CursoZonas).HasForeignKey(x => x.Id_Curso).OnDelete(DeleteBehavior.Restrict)
+                );
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -763,7 +773,7 @@ namespace OnePlace.Server.Data
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; }
         public DbSet<ImagenesCumpleEmpleado> ImagenesCumpleEmpleado { get; set; }
-
+        public DbSet<CursoZona> CursoZona { get; set; }
         #endregion
     }
 }

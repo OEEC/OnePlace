@@ -36,7 +36,7 @@ namespace OnePlace.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> Post(Promocion promocion)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);  
+            var user = await _userManager.GetUserAsync(HttpContext.User);
             promocion.Activo = true;
             promocion.LugardeVisualizacion = LugardeVisualizacion.PantallaPrincipal;
             context.Add(promocion);
@@ -49,7 +49,7 @@ namespace OnePlace.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<Promocion>>> Get([FromQuery] ParametrosBusqueda parametrosBusqueda)
         {
-            bool mostrar = true;           
+            bool mostrar = true;
 
             //List<Promocion> promociones = (from p in context.Promociones
             //                            select new Promocion
@@ -69,8 +69,8 @@ namespace OnePlace.Server.Controllers
 
             //query para traer las promociones
             var queryable = context.Promociones.Where(x => x.Activo == mostrar)
-                .Include(x=>x.PromocionZona).ThenInclude(x=>x.Zona)
-                .OrderBy(x => x.PromocionId).AsQueryable();             
+                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
+                .OrderBy(x => x.PromocionId).AsQueryable();
 
             if (parametrosBusqueda.PromocionId != 0)
             {
@@ -106,19 +106,19 @@ namespace OnePlace.Server.Controllers
             public bool Activo { get; set; }
         }
 
-        [HttpGet("{id}")]       
+        [HttpGet("{id}")]
         public async Task<ActionResult<PromocionVisualizarDTO>> Get(int id)
         {
             var promocion = await context.Promociones.Where(x => x.PromocionId == id)
                 .Include(x => x.Imagenes)
-                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)               
+                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
                 .FirstOrDefaultAsync();
 
-            if (promocion == null) { return NotFound(); }    
+            if (promocion == null) { return NotFound(); }
 
             var model = new PromocionVisualizarDTO();
             model.Promocion = promocion;
-            model.Zonas = promocion.PromocionZona.Select(x => x.Zona).ToList();        
+            model.Zonas = promocion.PromocionZona.Select(x => x.Zona).ToList();
             return model;
         }
 
@@ -137,7 +137,7 @@ namespace OnePlace.Server.Controllers
             var model = new PromocionZonaActualizacionDTO();
             model.Promocion = promocionVisualizarDTO.Promocion;
             model.ZonasNoSeleccionadas = zonasNoSeleccionadas;
-            model.ZonasSeleccionadas = promocionVisualizarDTO.Zonas;           
+            model.ZonasSeleccionadas = promocionVisualizarDTO.Zonas;
             return model;
         }
 
@@ -166,8 +166,8 @@ namespace OnePlace.Server.Controllers
 
             await context.Database.ExecuteSqlInterpolatedAsync($"delete from PromocionZonas WHERE PromocionId = {promo.PromocionId};");
 
-           
-            promoDB.PromocionZona = promo.PromocionZona;           
+
+            promoDB.PromocionZona = promo.PromocionZona;
 
             await context.SaveChangesAsync(user.Id);
             return NoContent();
@@ -211,7 +211,7 @@ namespace OnePlace.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Zona>>> GetEvent()
         {
-            var listadezonas = await context.Zonas.ToListAsync();              
+            var listadezonas = await context.Zonas.ToListAsync();
             return listadezonas;
         }
 
@@ -241,18 +241,21 @@ namespace OnePlace.Server.Controllers
                         .Include(x => x.Imagenes)
                         .FirstOrDefaultAsync();
 
-                    //solo agregar las promociones que no se han vencido
-                    if (FechadeHoy >= promocion.FechadeTermino)
+                    if (promocion is not null)
                     {
+                        //solo agregar las promociones que no se han vencido
+                        if (FechadeHoy >= promocion.FechadeTermino)
+                        {
 
-                    }
-                    else
-                    {
-                        listadepromocionescarrusel.Add(promocion);
+                        }
+                        else
+                        {
+                            listadepromocionescarrusel.Add(promocion);
+                        }
                     }
                 }
-            }       
-            
+            }
+
             return listadepromocionescarrusel;
         }
     }

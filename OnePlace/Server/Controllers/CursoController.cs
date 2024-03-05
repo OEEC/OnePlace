@@ -26,12 +26,12 @@ namespace OnePlace.Server.Controllers
     {
         private readonly oneplaceContext context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IBackgroundJobClient backgroundJobClient;        
+        private readonly IBackgroundJobClient backgroundJobClient;
         public CursoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IBackgroundJobClient backgroundJobClient)
         {
             this.context = context;
             this.backgroundJobClient = backgroundJobClient;
-            _userManager = userManager;           
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -44,12 +44,19 @@ namespace OnePlace.Server.Controllers
             {
                 string mensajeError = "Ingrese una fecha de Inicio";
                 return BadRequest(mensajeError);
-            }*/      
+            }*/
 
             context.Add(curso);
             await context.SaveChangesAsync(user.Id);
+
+            foreach (var item in curso.CursoZonas)
+                item.Id_Curso = curso.CursoId;
+
+            context.AddRange(curso.CursoZonas);
+            await context.SaveChangesAsync();
+
             return curso.CursoId;
-        }     
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Curso>> Get(int id)
@@ -57,6 +64,15 @@ namespace OnePlace.Server.Controllers
             var curso = await context.Cursos.Where(x => x.CursoId == id)
                .Include(x => x.LisadeTemas).FirstOrDefaultAsync();
             if (curso == null) { return NotFound(); }
+
+            var zonas = context.Zonas.ToList();
+            if (zonas is null) { return NotFound(); }
+
+            if (curso.Zonas is not null)
+                foreach (var item in zonas)
+                    if (!curso.Zonas.Any(x => x.ZonaId == item.ZonaId))
+                        curso.ZonasNoSeleccionadas.Add(item);
+
             return curso;
         }
 
@@ -71,6 +87,12 @@ namespace OnePlace.Server.Controllers
             {
                 curso.Imagen = oldcurso.Imagen;
             }
+
+            foreach (var item in curso.CursoZonas)
+                item.Id_Curso = curso.CursoId;
+
+            context.RemoveRange(oldcurso.CursoZonas);
+            context.AddRange(curso.CursoZonas);
 
             context.Entry(oldcurso).CurrentValues.SetValues(curso);
 
@@ -139,10 +161,10 @@ namespace OnePlace.Server.Controllers
             {
                 get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
             }
-            public int CursoId { get; set; }           
+            public int CursoId { get; set; }
             public bool Activo { get; set; }
         }
-        
+
         [HttpGet("buscar/{textoBusqueda}")]
         public async Task<ActionResult<List<Curso>>> GetCurso(string textoBusqueda)
         {
@@ -174,14 +196,16 @@ namespace OnePlace.Server.Controllers
             //si el empleado pertenece a una estacion, obtenemos los cursos por estaciones
             if (empleado.Idestacion != null && empleado.Idestacion > 0)
             {
-                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Estacion && x.Activo == true).ToListAsync();
+                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Estacion && x.Activo == true && x.Zonas.Any(x => x.ZonaId == empleado.ZonaId))
+                    .Include(x => x.Zonas).IgnoreAutoIncludes().ToListAsync();
             }
 
             //si el empleado pertenece a una tienda, obtenemos los cursos por tiendas
             if (empleado.TiendaId != null && empleado.TiendaId > 0)
             {
-                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Tienda && x.Activo == true).ToListAsync();
-            }            
+                listadecursos = await context.Cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.Tienda && x.Activo == true && x.Zonas.Any(x => x.ZonaId == empleado.ZonaId))
+                    .Include(x => x.Zonas).IgnoreAutoIncludes().ToListAsync();
+            }
 
             foreach (var item in listadecursos)
             {
@@ -192,7 +216,7 @@ namespace OnePlace.Server.Controllers
                     item.Imagen = "Img" + "/" + "Imagenotfound.jpg";
                 }
             }
-           
+
             return listadecursos;
         }
 
@@ -202,7 +226,7 @@ namespace OnePlace.Server.Controllers
         {
             var fechadehoy = DateTime.Today;
             //solo traer los cursos que no estan vencidos, esto evita que lleguen al curso por url, aun y cuando ya no se muestran en pantalla
-            var curso = await context.Cursos.Where(x => x.CursoId == id && fechadehoy <= x.FechaFinal)
+            var curso = await context.Cursos.Where(x => x.CursoId == id)
                .Include(x => x.LisadeTemas).FirstOrDefaultAsync();
             if (curso == null) { return NotFound(); }
             return curso;
@@ -248,7 +272,7 @@ namespace OnePlace.Server.Controllers
                     listactividadesquizfiltradaporreprobado.Add(actividad);
                 }
             }
-        
+
             #endregion
 
             #region ActividadUsuario
@@ -285,7 +309,7 @@ namespace OnePlace.Server.Controllers
                     {
                         listadequizzes.Add(quiz);
                     }
-                }               
+                }
             }
 
             //recorremos el listado de quizzes y luego recorremos cada pregunta de cada quiz, para obtener un listado de preguntas que pertenezcan a ese quiz 

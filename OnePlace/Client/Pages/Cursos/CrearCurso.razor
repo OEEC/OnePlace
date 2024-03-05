@@ -4,10 +4,16 @@
 @inject IMostrarMensaje mostrarMensajes
 @attribute [Authorize(Roles = "Administrador")]
 
-<FormularioCurso OnValidSubmit="Crear" Curso="Curso" Titulo="Crear Curso" />
+<FormularioCurso OnValidSubmit="Crear" Curso="Curso" Titulo="Crear Curso" ZonasNoSeleccionadas="Zonas"/>
 
 @code {
     private Curso Curso = new Curso();
+    private List<Zona> Zonas = new List<Zona>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Zonas();
+    }
 
     async Task Crear()
     {
@@ -20,6 +26,26 @@
         {
             await mostrarMensajes.MostrarMensajeExitoso("Curso Creado");
             navigationManager.NavigateTo("indice-cursos");
+        }
+    }
+
+    private async Task Obtener_Zonas()
+    {
+        try
+        {
+            var httpResponse = await repositorio.Get<List<Zona>>("api/zona/zonas");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Zonas = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
         }
     }
 }

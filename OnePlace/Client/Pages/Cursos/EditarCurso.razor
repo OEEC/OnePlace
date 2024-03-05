@@ -10,12 +10,15 @@
 }
 else
 {
-    <FormularioCurso Curso="Curso" OnValidSubmit="Editar" Es_EditarCurso="true" Titulo="Editar Curso" />
+    <FormularioCurso Curso="Curso" OnValidSubmit="Editar" Es_EditarCurso="true" Titulo="Editar Curso" ZonasNoSeleccionadas="ZonasNoSeleccionadas" ZonasSeleccionadas="ZonaSeleccionadas" />
 }
 
 @code {
     [Parameter] public int CursoId { get; set; }
     Curso Curso;
+
+    private List<Zona> ZonaSeleccionadas = new List<Zona>();
+    private List<Zona> ZonasNoSeleccionadas = new List<Zona>();
 
     protected async override Task OnInitializedAsync()
     {
@@ -34,6 +37,8 @@ else
         else
         {
             Curso = httpResponse.Response;
+            ZonaSeleccionadas = Curso.Zonas;
+            ZonasNoSeleccionadas = Curso.ZonasNoSeleccionadas;
         }
     }
 

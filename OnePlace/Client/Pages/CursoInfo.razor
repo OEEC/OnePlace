@@ -291,15 +291,17 @@
         var responseHttp = await repositorio.Get<Curso>($"api/Curso/DetalleCurso/{CursoId}");
         if (responseHttp.Error)
         {
-            if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                navigationManager.NavigateTo("");
-            }
-            else
-            {
+            // if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            // {
+            //     navigationManager.NavigateTo("");
+            // }
+            // else
+            // {
+            //     var mensajeError = await responseHttp.GetBody();
+            //     await mostrarMensajes.MostrarMensajeError(mensajeError);
+            // }
                 var mensajeError = await responseHttp.GetBody();
                 await mostrarMensajes.MostrarMensajeError(mensajeError);
-            }
         }
         else
         {

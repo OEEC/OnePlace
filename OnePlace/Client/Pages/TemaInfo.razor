@@ -39,7 +39,7 @@
                         <div class="col-lg-6 text-center text-lg-start">
                             <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
                             <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
-                            @if(TemaQuizDTO != null)
+                            @if (TemaQuizDTO != null)
                             {
                                 <a href="cursoinfoextra/@TemaQuizDTO.Tema.CursoId" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Regresar al Curso</a>
                             }
@@ -53,7 +53,6 @@
             </div>
         </div>
         <!-- Navbar & Hero End -->
-
         <!--Temas-->
 
         <div class="container-xxl py-5" id="temas">
@@ -73,49 +72,49 @@
                             <div class="card card-timeline px-2 border-none mb-3">
                                 <ul class="bs4-order-tracking">
                                     @*
-                                        1-Recorre la lista de fases para dibujar los <li>.
-                                        2-Despues Recorre la lista de actividades, coparando contra la lista de fases por su fasecursoid,
-                                        y donde encuentre una actividad marcada como completa, almacenara el valor en una variable llamada fasecompleta,
-                                        que a su vez se pasa al class de los <li> para asi poder actualizar el css que pintara el <li> de color.
-                                        3-Los <li> no estan dentro del foreach del listado de actividades ya que dicho listado puede traer solo un objeto
-                                        y por lo tanto solo se dibujaria en pantalla un <li>, por eso se realiza en el foreach de listado de fases ya que
-                                        asi se dibujaran todos los <li> por cada fase que exista en la bd.
-                                        4-La compraracion por fasecursoid se hace en el where, ya que si solo se recorre el listado de actividades
-                                        y luego en un if se hace la compracion, se dibujaran mas <li> de los que vienen de la bd por que se estaran recorrriendo
-                                        dos foreach, por eso es mejor filtrar la lista antes de recorrerla.
-                                        5-Si la variable FaseCompleta se pone de manera global no se actualizan los colores,
-                                        necesitarias un statehaschanged, pero si lo pones se queda ciclado
-                                        6-Con el componente Lista ListaItem no se actualizan las variables globales,
-                                        por eso mejor se quito y se uso un <ul><li> puro de html.
-                                    *@
-                                     @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
+                            1-Recorre la lista de fases para dibujar los <li>.
+                            2-Despues Recorre la lista de actividades, coparando contra la lista de fases por su fasecursoid,
+                            y donde encuentre una actividad marcada como completa, almacenara el valor en una variable llamada fasecompleta,
+                            que a su vez se pasa al class de los <li> para asi poder actualizar el css que pintara el <li> de color.
+                            3-Los <li> no estan dentro del foreach del listado de actividades ya que dicho listado puede traer solo un objeto
+                            y por lo tanto solo se dibujaria en pantalla un <li>, por eso se realiza en el foreach de listado de fases ya que
+                            asi se dibujaran todos los <li> por cada fase que exista en la bd.
+                            4-La compraracion por fasecursoid se hace en el where, ya que si solo se recorre el listado de actividades
+                            y luego en un if se hace la compracion, se dibujaran mas <li> de los que vienen de la bd por que se estaran recorrriendo
+                            dos foreach, por eso es mejor filtrar la lista antes de recorrerla.
+                            5-Si la variable FaseCompleta se pone de manera global no se actualizan los colores,
+                            necesitarias un statehaschanged, pero si lo pones se queda ciclado
+                            6-Con el componente Lista ListaItem no se actualizan las variables globales,
+                            por eso mejor se quito y se uso un <ul><li> puro de html.
+                            *@
+                                    @foreach (var faseitem in TemaFaseDTO.ListadodeFases)
+                                    {
+                                        bool FaseCompleta = false;
+                                        @foreach (var actividad in TemaFaseDTO.ListadeActividades.Where(x => x.FaseCursoId == faseitem.FaseCursoId))
                                         {
-                                            bool FaseCompleta = false;                                            
-                                            @foreach (var actividad in TemaFaseDTO.ListadeActividades.Where(x => x.FaseCursoId == faseitem.FaseCursoId))
-                                            {
-                                                FaseCompleta = actividad.IsComplete;                                                
-                                            }
-
-                                            @if (FaseCompleta == true)
-                                            {
-                                                MostrarBotonQuiz = true;
-                                                <li class="step active">
-                                                    <div>
-                                                        <i class="@faseitem.Icono" />
-                                                    </div>
-                                                    @faseitem.FaseNombre
-                                                </li>
-                                            }
-                                            else
-                                            {
-                                                <li class="step">
-                                                    <div>
-                                                        <i class="@faseitem.Icono" />
-                                                    </div>
-                                                    @faseitem.FaseNombre
-                                                </li>
-                                            }
+                                            FaseCompleta = actividad.IsComplete;
                                         }
+
+                                        @if (FaseCompleta == true)
+                                        {
+                                            MostrarBotonQuiz = true;
+                                            <li class="step active">
+                                                <div>
+                                                    <i class="@faseitem.Icono" />
+                                                </div>
+                                                @faseitem.FaseNombre
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="step">
+                                                <div>
+                                                    <i class="@faseitem.Icono" />
+                                                </div>
+                                                @faseitem.FaseNombre
+                                            </li>
+                                        }
+                                    }
                                 </ul>
                             </div>
 
@@ -152,20 +151,24 @@
                                                 if (TemaFaseDTO != null && TemaFaseDTO.EstadosdelQuiz.EstadoQuiz == EstadoQuiz.Terminado)
                                                 {
                                                     <Enlace Class="btn btn-warning btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
-                                                        <Icono Icon="fas fa-check-circle" />                                                     
+                                                        <Icono Icon="fas fa-check-circle" />
                                                         Ver Resultados
                                                     </Enlace>
                                                 }
                                                 else
                                                 {
-                                                    <Enlace Class="btn btn-dark btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
-                                                        <Icono Icon="oi oi-pencil" />
-                                                        Responder Cuestionario
-                                                    </Enlace>
+                                                    if (TemaQuizDTO.Quiz is not null && TemaQuizDTO.Quiz.QuizId != 0)
+                                                    {
+                                                        <Enlace Class="btn btn-dark btn-sm" Href="@("quizinfoextra/" + TemaQuizDTO.Quiz.QuizId)">
+                                                            <Icono Icon="oi oi-pencil" />
+                                                            Responder Cuestionario
+                                                        </Enlace>
+                                                    }
+
                                                 }
                                             }
 
-                                            
+
                                         </div>
                                     </div>
                                 </CardBody>
@@ -182,7 +185,7 @@
                                                     <Card Class="card-img-top">
                                                         <video id="myVideo" controls width="100%" controlslist="nodownload">
                                                             <source src="@ArchivoAdjunto.UrlLocal" type="video/mp4" />
-                                                        </video>                                                       
+                                                        </video>
                                                     </Card>
                                                     <CardBody Class="card-body">
                                                         <Texto Typo="Typo.body2" Class="card-title">@TemaQuizDTO.Tema.DescripcionVideo</Texto>
@@ -229,7 +232,6 @@
         </div>
 
         <!--Temas End-->
-
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
             <div class="container px-lg-5">
@@ -260,7 +262,6 @@
             </div>
         </div>
         <!-- Footer End -->
-
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
     </div>

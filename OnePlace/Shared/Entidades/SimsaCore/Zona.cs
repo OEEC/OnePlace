@@ -59,5 +59,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public int? Idusuario { get; set; }
         public List<PromocionZona> PromocionZona { get; set; }
         public List<CapacitacionContinuaZona> CapacitacionContinuaZona { get; set; }
+        [NotMapped] public List<Curso> Cursos { get; set; }
+        [NotMapped] public List<CursoZona> CursoZonas { get; set; }
     }
 }

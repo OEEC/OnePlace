@@ -106,28 +106,52 @@
         </div>
         <!--Eventos End-->
         <!-- Ofertas Start -->
-        @if (ListadePromociones != null && ListadePromociones.Count > 0)
-        {
-            <div class="swiper" id="promociones">
-                <div class="swiper-wrapper">
-                    @foreach (var item in ListadePromociones)
-                    {
-                        @foreach (var imagen in item.Imagenes)
+        @* @if (ListadePromociones != null && ListadePromociones.Count > 0)
+    {
+    <div class="swiper" id="promociones" style="width: 50%;">
+    <div class="swiper-wrapper">
+    @foreach (var item in ListadePromociones)
+    {
+    @foreach (var imagen in item.Imagenes)
+    {
+    <div class="swiper-slide">
+    <a href="promocioninfoextra/@item.PromocionId">
+    <img class="rounded-1 img-fluid" src="@imagen.Imagen" alt="" />
+    </a>
+    </div>
+    }
+    }
+    </div>
+    <div class="swiper-nav">
+    <div class="swiper-pagination"></div>
+    </div>
+    </div>
+    } *@
+        <div class="container-xxl py-5" id="promociones">
+            <div class="container px-lg-5">
+                <div class="row g-5">
+                    <div class="section-title position-relative mb-4 pb-2">
+                        <h6 class="position-relative text-primarysimsa pl-4">Promociones</h6>
+                    </div>
+                    <div class="d-flex flex-nowrap" style="max-width:100%;overflow:auto;">
+                        @if (ListadePromociones != null && ListadePromociones.Count > 0)
                         {
-                            <div class="swiper-slide">
-                                <a href="promocioninfoextra/@item.PromocionId">
-                                    <img class="rounded-1 img-fluid" src="@imagen.Imagen" alt="" />
-                                </a>
-                            </div>
+                            @foreach (var item in ListadePromociones)
+                            {
+                                @foreach (var imagen in item.Imagenes)
+                                {
+                                    <div style="max-width:50%;min-width:50%;max-height:100%;overflow:hidden;">
+                                        <a href="promocioninfoextra/@item.PromocionId">
+                                            <img class="rounded-1 img-fluid" src="@imagen.Imagen" alt="" />
+                                        </a>
+                                    </div>
+                                }
+                            }
                         }
-                    }
-                </div>
-                <div class="swiper-nav">
-                    <div class="swiper-pagination"></div>
+                    </div>
                 </div>
             </div>
-        }
-
+        </div>
         <!-- Ofertas End -->
         <!--Cursos-->
         <div class="container-xxl py-5" id="cursos">
@@ -142,44 +166,10 @@
                 }
                 else if (ListadeCursosUser.Count > 1)
                 {
-                    <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
+                    <div class="row justify-content-center" style="max-width:100%;max-height:600px;resize:both;overflow:auto;">
                         @foreach (var item in ListadeCursosUser)
                         {
-                            //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
-                            if (FechadeHoy >= item.FechaFinal)
-                            {
-
-                            }
-                            else
-                            {
-                                <div class="item">
-                                    <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                        <div class="service-icon flex-shrink-0">
-                                            <i class="fas fa-chalkboard-teacher fa-2x"></i>
-                                        </div>
-                                        <h5 class="mb-3">@item.Nombre</h5>
-                                        <p class="colorgris">
-                                            @item.DescripcionCortada
-                                        </p>
-                                        <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
-                }
-                else
-                {
-                    @foreach (var item in ListadeCursosUser)
-                    {
-                        //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
-                        if (FechadeHoy >= item.FechaFinal)
-                        {
-
-                        }
-                        else
-                        {
-                            <div class="item">
+                            <div style="min-width:33%;max-width:33%;">
                                 <div class="service-item d-flex flex-column justify-content-center text-center rounded">
                                     <div class="service-icon flex-shrink-0">
                                         <i class="fas fa-chalkboard-teacher fa-2x"></i>
@@ -192,6 +182,69 @@
                                 </div>
                             </div>
                         }
+                    </div>
+                    @* <div class="owl-carousel curso-carousel wow zoomIn" data-wow-delay="0.1s">
+            @foreach (var item in ListadeCursosUser)
+            {
+            //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
+            if (FechadeHoy >= item.FechaFinal)
+            {
+
+            }
+            else
+            {
+            <div class="item">
+            <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+            <div class="service-icon flex-shrink-0">
+            <i class="fas fa-chalkboard-teacher fa-2x"></i>
+            </div>
+            <h5 class="mb-3">@item.Nombre</h5>
+            <p class="colorgris">
+            @item.DescripcionCortada
+            </p>
+            <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+            </div>
+            </div>
+            }
+            }
+            </div> *@
+                }
+                else
+                {
+                    @foreach (var item in ListadeCursosUser)
+                    {
+                        <div class="item">
+                            <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                                <div class="service-icon flex-shrink-0">
+                                    <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                                </div>
+                                <h5 class="mb-3">@item.Nombre</h5>
+                                <p class="colorgris">
+                                    @item.DescripcionCortada
+                                </p>
+                                <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                            </div>
+                        </div>
+                        //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
+                        @* if (FechadeHoy >= item.FechaFinal)
+            {
+
+            }
+            else
+            {
+            <div class="item">
+            <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+            <div class="service-icon flex-shrink-0">
+            <i class="fas fa-chalkboard-teacher fa-2x"></i>
+            </div>
+            <h5 class="mb-3">@item.Nombre</h5>
+            <p class="colorgris">
+            @item.DescripcionCortada
+            </p>
+            <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+            </div>
+            </div>
+            } *@
                     }
                 }
             </div>
@@ -222,75 +275,75 @@
         <!--Logos End -->
         <!-- Cumple Start -->
         @*<div class="container-xxl py-5" id="cumple">
-            <div class="container px-lg-5">
-                <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
-                    <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
-                    <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
-                    @if (FechadeHoy.ToString("dd/MM/yyyy") == FechaDespuesdeCumple.ToString("dd/MM/yyyy"))
-                    {
-                        ,<!-- si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada -->
-                        @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
-                        {
+    <div class="container px-lg-5">
+    <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
+    <h6 class="position-relative d-inline text-primarysimsa pl-4">Cumpleaños</h6>
+    <h2 class="mt-2">¡Gracias por todo, disfruta muchísimo que lo mereces!</h2>
+    @if (FechadeHoy.ToString("dd/MM/yyyy") == FechaDespuesdeCumple.ToString("dd/MM/yyyy"))
+    {
+    ,<!-- si la variable yasedescargotarjeta es diferente de null y ademas ya es true quiere decir que ya se descargo por lo tanto no mostramos nada -->
+    @if (YaseDescargoTarjeta != null && YaseDescargoTarjeta.TarjetaDescargada == true)
+    {
 
-                        }
-                        else
-                        {
-                            /*si la fecha de hoy es mayor o igual a la fecha de cumple del usuario mas 7 dias,
-                            el boton de descargar tarjeta desaparece, sino aparece el boton de descarga*/
-                            @if (FechadeHoy > UltimoDiaParaDescargarCupon)
-                            {
+    }
+    else
+    {
+    /*si la fecha de hoy es mayor o igual a la fecha de cumple del usuario mas 7 dias,
+    el boton de descargar tarjeta desaparece, sino aparece el boton de descarga*/
+    @if (FechadeHoy > UltimoDiaParaDescargarCupon)
+    {
 
-                            }
-                            else
-                            {
-                                <span class="text-primarysimsa">Tarjeta de Regalo Descargable</span>
-                                <button class="btn btn-squarealineado text-primarysimsa bg-white my-1 manita" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))">
-                                    <i class="fas fa-gift"></i>
-                                </button>
-                            }
-                        }
-                    }
-                </div>
-                <div class="owl-carousel cumple-carousel wow fadeInUp" data-wow-delay="0.1s">
-                    @if (ListadodeCumpleñerosUser != null)
-                    {
-                        @foreach (var item in ListadodeCumpleñerosUser)
-                        {
-                            <div class="item">
-                                <div class="team-item">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                            <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
-                                        </div>
-                                        @if (item.Empleado.ImagenesCumple != null && item.Empleado.ImagenesCumple.Count > 0)
-                                        {
-                                            @foreach (var item2 in item.Empleado.ImagenesCumple)
-                                            {
-                                                <img class="img-fluidsimsa rounded w-100" src="@item2.Imagen" alt="">
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
-                                        }
-                                    </div>
-                                    <div class="px-4 py-3">
-                                        <h5 class="fw-bold m-0">@item.Empleado.Persona.Nombre</h5>
-                                        <span class="colorgris">
-                                            @if (item.Empleado.Puesto != null)
-                                            {
-                                                @(item.Empleado.Puesto.Puesto1+" "+"/");
-                                            }
-                                            @item.Empleado.Persona.Fchnac?.ToString("MMMM dd")
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    }
-                </div>
-            </div>
-        </div>*@
+    }
+    else
+    {
+    <span class="text-primarysimsa">Tarjeta de Regalo Descargable</span>
+    <button class="btn btn-squarealineado text-primarysimsa bg-white my-1 manita" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar" @onclick="@(()=>DownloadArchivo(EmpleadoPersonaDTO.Empleado.Idempleado,TipoReporte.TarjetadeCumple))">
+    <i class="fas fa-gift"></i>
+    </button>
+    }
+    }
+    }
+    </div>
+    <div class="owl-carousel cumple-carousel wow fadeInUp" data-wow-delay="0.1s">
+    @if (ListadodeCumpleñerosUser != null)
+    {
+    @foreach (var item in ListadodeCumpleñerosUser)
+    {
+    <div class="item">
+    <div class="team-item">
+    <div class="d-flex">
+    <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
+    <span class="btn btn-square text-primarysimsa bg-white my-1"><i class="fas fa-birthday-cake"></i></span>
+    </div>
+    @if (item.Empleado.ImagenesCumple != null && item.Empleado.ImagenesCumple.Count > 0)
+    {
+    @foreach (var item2 in item.Empleado.ImagenesCumple)
+    {
+    <img class="img-fluidsimsa rounded w-100" src="@item2.Imagen" alt="">
+    }
+    }
+    else
+    {
+    <img class="img-fluidsimsa rounded w-100" src="@item.Empleado.Img" alt="">
+    }
+    </div>
+    <div class="px-4 py-3">
+    <h5 class="fw-bold m-0">@item.Empleado.Persona.Nombre</h5>
+    <span class="colorgris">
+    @if (item.Empleado.Puesto != null)
+    {
+    @(item.Empleado.Puesto.Puesto1+" "+"/");
+    }
+    @item.Empleado.Persona.Fchnac?.ToString("MMMM dd")
+    </span>
+    </div>
+    </div>
+    </div>
+    }
+    }
+    </div>
+    </div>
+    </div>*@
         <!-- Cumple End -->
         <!-- Footer Start -->
         <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
@@ -391,7 +444,7 @@
                                             Feliz Cumpleaños:
                                             @if (EmpleadoPersonaDTO != null)
                                             {
-                                                @(EmpleadoPersonaDTO.Persona.Nombre+" "+EmpleadoPersonaDTO.Persona.ApePat)
+                                                @(EmpleadoPersonaDTO.Persona.Nombre + " " + EmpleadoPersonaDTO.Persona.ApePat)
                                             }
                                             !!
                                         </h5>
@@ -552,8 +605,8 @@ else
                 </div>
                 <div class="col-md-auto">
                     @*<Enlace Class="btn btn-sm btn-outline-secondary border-300 mr-2" Href="lista-producto">
-                        <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
-                    </Enlace>*@
+                <Icono Icon="fas fa-chevron-left mr-1" data-fa-transform="shrink-4"></Icono>Seguir comprando
+                </Enlace>*@
                     @*<Enlace Class="btn btn-sm btn-primary" Href="checkout">Ver Compra</Enlace>*@
                     <Boton Class="btn btn-primary btn-sm" @onclick="verModalQR">
                         <Icono Icon="fas fa-qrcode"></Icono>
@@ -568,8 +621,8 @@ else
                 <div class="col-3 col-md-4 px-3">
                     <div class="row">
                         @*<div class="col-12 col-md-4 text-right p-2 px-md-3">Descripción</div>
-                            <div class="col-12 col-md-4 text-right p-2 px-md-3">Precio</div>
-                            <div class="col-12 col-md-4 text-right p-2 px-md-3">Total</div>*@
+                    <div class="col-12 col-md-4 text-right p-2 px-md-3">Precio</div>
+                    <div class="col-12 col-md-4 text-right p-2 px-md-3">Total</div>*@
                     </div>
                 </div>
             </div>
@@ -598,26 +651,26 @@ else
                         <div class="col-4 p-3">
                             <div class="row">
                                 @*<div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">19</div>
-                                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">16</div>
-                                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">15</div>*@
+                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">16</div>
+                    <div class="col-md-4 text-right pl-0 pr-2 pr-md-3 order-0 order-md-1 mb-2 mb-md-0 text-600">15</div>*@
                             </div>
                         </div>
                     </div>
                 }
                 @*<div class="row font-weight-bold px-1">
-                        <div class="col-9 col-md-8 py-2 py-0 px-md-3 text-right text-900">
+        <div class="col-9 col-md-8 py-2 py-0 px-md-3 text-right text-900">
 
-                        </div>
-                        <div class="col px-3">
-                            <div class="row no-gutters">
-                                <div class="col-md-8 py-2 d-none d-md-block text-center">Total a Pagar</div>
-                                <div class="col-12 col-md-4 text-right py-2 pr-md-3 pl-0">
-                                    15
-                                    <div class="text-400 font-weight-normal fs--2">Incluye IVA</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+        </div>
+        <div class="col px-3">
+        <div class="row no-gutters">
+        <div class="col-md-8 py-2 d-none d-md-block text-center">Total a Pagar</div>
+        <div class="col-12 col-md-4 text-right py-2 pr-md-3 pl-0">
+        15
+        <div class="text-400 font-weight-normal fs--2">Incluye IVA</div>
+        </div>
+        </div>
+        </div>
+        </div>*@
             }
         </CardBody>
         <CardFooter Class="card-footer border-top d-flex justify-content-center bg-transparent">
@@ -625,11 +678,11 @@ else
         </CardFooter>
     </Card>
     <br />
-    <br />    
+    <br />
 
     <ModalContent EsVisible="VerModalQR" BotonesModal="ModalContent.TiposdeBoton.Cancelar" OnClose="closeModalQR" Titulo="Código QR">
-        <Imagen Class="img-thumbnail3" Src="@("api/Codigo/")"></Imagen>       
-    </ModalContent>   
+        <Imagen Class="img-thumbnail3" Src="@("api/Codigo/")"></Imagen>
+    </ModalContent>
 }
 
 @code {
@@ -965,7 +1018,7 @@ else
 
     #endregion
 
-    #region GenerarCodigoQR    
+    #region GenerarCodigoQR
 
     //public QRcodigo QRCodigo = new QRcodigo();
     //string Resultado { get; set; } = "";
@@ -976,7 +1029,7 @@ else
     //    Resultado = responseHttp.Response;
     //}
 
-    public bool VerModalQR = false;   
+    public bool VerModalQR = false;
 
     public async Task verModalQR()
     {
