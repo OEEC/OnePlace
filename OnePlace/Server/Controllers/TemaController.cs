@@ -36,7 +36,7 @@ namespace OnePlace.Server.Controllers
         [HttpPost]
         [DisableRequestSizeLimit]//permite subir archivos superiores a 30000 30MB
         //[RequestSizeLimit(52428800)]//limite 50MB
-        [RequestSizeLimit(524288000)]//limite 500MB
+        [RequestSizeLimit(5242880000)]//limite 5GB
         public async Task<ActionResult<int>> Post(TemaQuizDTO temaquizdto)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -60,21 +60,39 @@ namespace OnePlace.Server.Controllers
             await context.SaveChangesAsync(user.Id);
 
             //traemos un listado de fases
-            var listadodefases = await context.FaseCursos.ToListAsync();
+            //var listadodefases = await context.FaseCursos.ToListAsync();
 
-            //recorremos el listado de fases y por cada fase se va a crear un objeto de tipo TemaFase, con el fin de que cada tema tenga varias fases
-            foreach(var item in listadodefases)
+            ////recorremos el listado de fases y por cada fase se va a crear un objeto de tipo TemaFase, con el fin de que cada tema tenga varias fases
+            //foreach(var item in listadodefases)
+            //{
+            //    TemaFase temaFase = new TemaFase();
+            //    temaFase.TemaId = temaquizdto.Tema.TemaId;
+            //    temaFase.FaseCursoId = item.FaseCursoId;
+
+            //    temaFase.Tema = null;
+            //    temaFase.FaseCurso = null;
+
+            //    context.Add(temaFase);
+            //    await context.SaveChangesAsync(user.Id);
+            //}
+
+            FaseCurso faseCurso = new()
             {
-                TemaFase temaFase = new TemaFase();
-                temaFase.TemaId = temaquizdto.Tema.TemaId;
-                temaFase.FaseCursoId = item.FaseCursoId;
+                FaseNombre = temaquizdto.Tema.Nombre,
+                TemaId = temaquizdto.Tema.TemaId,
+            };
 
-                temaFase.Tema = null;
-                temaFase.FaseCurso = null;
+            context.Add(faseCurso);
+            await context.SaveChangesAsync(user.Id);
 
-                context.Add(temaFase);
-                await context.SaveChangesAsync(user.Id);
-            }
+            TemaFase temaFase = new()
+            {
+                TemaId = temaquizdto.Tema.TemaId,
+                FaseCursoId = faseCurso.FaseCursoId
+            };
+
+            context.Add(temaFase);
+            await context.SaveChangesAsync(user.Id);
 
             //guardamos el quiz
             //si el quiz trae por lo menos un nombre quiere decir que si querian crear un quiz, sin el if se crearia al actualizar el tema por que no seria null
@@ -97,7 +115,7 @@ namespace OnePlace.Server.Controllers
                     }
 
                     //recorremos una lista de palabras clave por cada pregunta
-                    foreach(var item2 in item.PalabrasClave)
+                    foreach (var item2 in item.PalabrasClave)
                     {
                         item2.FechadeRegistro = DateTime.Now;
                         item2.Activo = true;
@@ -112,12 +130,12 @@ namespace OnePlace.Server.Controllers
 
                 }
                 context.Add(temaquizdto.Quiz);
-            }  
-            
+            }
+
             await context.SaveChangesAsync(user.Id);
             return temaquizdto.Tema.TemaId;
         }
-       
+
         [HttpGet("{id}")]
         public async Task<ActionResult<TemaQuizDTO>> Get(int id)
         {
@@ -139,28 +157,28 @@ namespace OnePlace.Server.Controllers
                 permitira visualizar un cuestionario, no importando que el tema tenga mas cuestionarios activos y ligados a el.
             5 - Se debe crear un nuevo cuestionario para ese tema no revivir el cuestionario muerto.
             */
-              //obtenemos un quiz por tema
-              var quiz = await context.Quizzes.Where(x => x.TemaId == id && x.Activo == true)
-              .Include(x => x.LisadePreguntas).ThenInclude(x=>x.PalabrasClave)              
-              .FirstOrDefaultAsync();
+            //obtenemos un quiz por tema
+            var quiz = await context.Quizzes.Where(x => x.TemaId == id && x.Activo == true)
+            .Include(x => x.LisadePreguntas).ThenInclude(x => x.PalabrasClave)
+            .FirstOrDefaultAsync();
 
             //si el quiz es diferente de null y no trae imagen le añadimos una por defecto
-            if(quiz != null)
-            {                
+            if (quiz != null)
+            {
                 if (string.IsNullOrEmpty(quiz.Imagen))
                 {
                     // Aquí colocas la URL de la imagen por defecto
                     quiz.Imagen = "Img" + "/" + "Imagenotfound.jpg";
                 }
-            } 
+            }
 
             //retornamos un dto con ambos objetos
             var model = new TemaQuizDTO();
             model.Quiz = quiz;
-            model.Tema = tema;           
+            model.Tema = tema;
             return model;
         }
-        
+
         [HttpPut]
         public async Task<ActionResult> Put(TemaQuizDTO temaquizDTO)
         {
@@ -189,10 +207,10 @@ namespace OnePlace.Server.Controllers
                 //este quiz cumplira la funcion como el quiz enviado como parametro
                 var QuizDBEliminada = await context.Quizzes
                     .Where(x => x.TemaId == temaquizDTO.Tema.TemaId)
-                    .Include(x => x.LisadePreguntas).ThenInclude(x=>x.PalabrasClave)
+                    .Include(x => x.LisadePreguntas).ThenInclude(x => x.PalabrasClave)
                     .FirstOrDefaultAsync();
 
-                if(QuizDBEliminada != null)
+                if (QuizDBEliminada != null)
                 {
                     //se tiene que volver a buscar el mismo quiz, que buscamos arriba pero esta vez para editarlo
                     var oldQuiz = await context.Quizzes.FindAsync(QuizDBEliminada.QuizId);
@@ -228,7 +246,7 @@ namespace OnePlace.Server.Controllers
                     //actualizamos el estado del quiz a activo
                     context.Entry(oldQuiz).CurrentValues.SetValues(QuizDBEliminada);
                     await context.SaveChangesAsync(user.Id);
-                }             
+                }
             }
 
             #endregion
@@ -271,7 +289,7 @@ namespace OnePlace.Server.Controllers
                     }
                     context.Add(temaquizDTO.Quiz);
                     await context.SaveChangesAsync(user.Id);
-                }               
+                }
             }
             else
             {
@@ -343,7 +361,7 @@ namespace OnePlace.Server.Controllers
 
                 //mapeamos el quiz de la bd con el que viene como parametro               
                 QuizDB = mapper.Map(temaquizDTO.Quiz, QuizDB);
-                await context.SaveChangesAsync(user.Id);               
+                await context.SaveChangesAsync(user.Id);
             }
             #endregion
 
@@ -372,8 +390,8 @@ namespace OnePlace.Server.Controllers
         [HttpPut]
         public async Task<ActionResult> PutDesactivar(Tema tema)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);            
-            var oldtema = await context.Temas.FindAsync(tema.TemaId);           
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var oldtema = await context.Temas.FindAsync(tema.TemaId);
             context.Entry(oldtema).CurrentValues.SetValues(tema);
             await context.SaveChangesAsync(user.Id);
 
@@ -387,7 +405,7 @@ namespace OnePlace.Server.Controllers
             {
                 //busca en la tabla preguntas las preguntas que pertenecen al quiz
                 var preguntas = context.Preguntas
-                    .Include(x => x.Quiz) 
+                    .Include(x => x.Quiz)
                     .Include(x => x.PalabrasClave)
                     .Where(x => x.Quiz.QuizId == quiz.QuizId).ToList();
 
@@ -430,8 +448,8 @@ namespace OnePlace.Server.Controllers
         {
             bool mostrar = true;
             //query para traer las facturas
-            var queryable = context.Temas.Where(x => x.CursoId == id &&  x.Activo == mostrar).OrderBy(x => x.TemaId).AsQueryable();
-                      
+            var queryable = context.Temas.Where(x => x.CursoId == id && x.Activo == mostrar).OrderBy(x => x.TemaId).AsQueryable();
+
             if (parametrosBusqueda.TemaId != 0)
             {
                 queryable = queryable.Where(x => x.TemaId == parametrosBusqueda.TemaId);
@@ -464,7 +482,7 @@ namespace OnePlace.Server.Controllers
             public PaginacionDTO Paginacion
             {
                 get { return new PaginacionDTO() { Pagina = Pagina, CantidadRegistros = CantidadRegistros }; }
-            }            
+            }
             public int TemaId { get; set; }
             public bool Activo { get; set; }
         }

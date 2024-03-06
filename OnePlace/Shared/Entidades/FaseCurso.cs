@@ -11,7 +11,7 @@ namespace OnePlace.Shared.Entidades
         public int FaseCursoId { get; set; }
         public string FaseNombre { get; set; }
         public string Icono { get; set; }    
-
+        public int TemaId { get; set; }
         //propiedades de navegacion
         public List<TemaFase> TemaFase { get; set; }
     }

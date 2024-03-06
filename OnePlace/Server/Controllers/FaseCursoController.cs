@@ -89,6 +89,11 @@ namespace OnePlace.Server.Controllers
             var empleado = await context.Empleados.Where(x => x.Noemp == user.noemp).FirstOrDefaultAsync();
             actividad.Idempleado = empleado.Idempleado;
 
+            var fasecurso = context.FaseCursos.Where(x => x.TemaId == actividad.TemaId).FirstOrDefault();
+            if(fasecurso is null) { return NotFound(); }
+
+            actividad.FaseCursoId = fasecurso.FaseCursoId;
+
             //ver si en la bd ya existe una actividad con el temaid y fasecursoid pasado por parametro
             var siexisteactividad = await context.ActividadUsuarios.AnyAsync(x => x.TemaId == actividad.TemaId && x.FaseCursoId == actividad.FaseCursoId && x.UserId == actividad.UserId);
 

@@ -56,16 +56,16 @@
                     </div>
                 </div>
                 @*<div class="col-sm-6">
-                    <div class="form-group">
-                        <InputLabel for="fechainicio">Fecha de Inicio</InputLabel>
-                        <InputDate class="form-control form-control-sm" id="fechainicio" @bind-Value="@Curso.FechaInicio" />
-                    </div>
+                <div class="form-group">
+                <InputLabel for="fechainicio">Fecha de Inicio</InputLabel>
+                <InputDate class="form-control form-control-sm" id="fechainicio" @bind-Value="@Curso.FechaInicio" />
+                </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="form-group">
-                        <InputLabel for="fechainicio">Fecha Final</InputLabel>
-                        <InputDate class="form-control form-control-sm" id="fechafinal" @bind-Value="@Curso.FechaFinal" />
-                    </div>
+                <div class="form-group">
+                <InputLabel for="fechainicio">Fecha Final</InputLabel>
+                <InputDate class="form-control form-control-sm" id="fechafinal" @bind-Value="@Curso.FechaFinal" />
+                </div>
                 </div>*@
                 @if (Es_EditarCurso == true)
                 {
@@ -91,7 +91,7 @@
     </Card>
 </EditForm>
 
-@code{
+@code {
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -99,7 +99,7 @@
     [Parameter] public bool Es_EditarCurso { get; set; }
     [Parameter] public string Titulo { get; set; }
     [Parameter] public EventCallback OnValidSubmit { get; set; }
-    
+
     [Parameter] public List<Zona> ZonasSeleccionadas { get; set; } = new List<Zona>();
     [Parameter] public List<Zona> ZonasNoSeleccionadas { get; set; } = new List<Zona>();
 
@@ -115,9 +115,6 @@
         var authState = await authenticationStateTask;
         user = authState.User;
 
-        Seleccionadas = ZonasSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
-        NoSeleccionadas = ZonasNoSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
-
         if (Es_EditarCurso == false)
         {
             Curso.FechaRegistro = DateTime.Now;
@@ -131,6 +128,14 @@
         }
     }
 
+    protected override void OnParametersSet()
+    {
+        if (ZonasSeleccionadas is not null)
+            Seleccionadas = ZonasSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
+
+        if (ZonasNoSeleccionadas is not null)
+            NoSeleccionadas = ZonasNoSeleccionadas.Select(x => new SelectorMultipleModel(x.ZonaId.ToString(), x.Zona1)).ToList();
+    }
     //este metodo actualiza la imagen con la nueva imagen seleccionada
     private void ImagenSeleccionada(string imagenBase64)
     {

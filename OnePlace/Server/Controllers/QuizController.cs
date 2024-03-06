@@ -291,8 +291,9 @@ namespace OnePlace.Server.Controllers
                 model.TotalRespuestasCorrectas = respuestascorrectas;
                 model.Porcentaje = porcentaje;
 
-                //si en el quiz hay 3 respuestas correctas se evalua como aprobado sino como reprobado
-                if(respuestascorrectas >= 3)
+                ////si en el quiz hay 3 respuestas correctas se evalua como aprobado sino como reprobado
+                //if(respuestascorrectas >= 3)
+                if(porcentaje > 30)
                 {
                     estado.Evaluacion = Evaluacion.Aprobado;
 
