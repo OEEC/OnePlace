@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,20 +38,19 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
     public partial class Area
     {
-        [JsonProperty("idarea")]
+        [EpplusIgnore]
         public int Idarea { get; set; }
-        [JsonProperty("iddepartamento")]
         public int? Iddepartamento { get; set; }
         [NotMapped, JsonProperty("area")]
         public string Nombre_Area { get; set; }
         public string Area1 { get; set; }
-        [JsonProperty("fchcreacion"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchcreacion { get; set; }
-        [JsonProperty("fchmod"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchmod { get; set; }
         [JsonProperty("fchbaja"), JsonIgnore]
         public DateTime? Fchbaja { get; set; }
-        [JsonProperty("idusuario")]
         public int? Idusuario { get; set; }
+        public int? Idestatus { get; set; }
     }
 }

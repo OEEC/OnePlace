@@ -45,25 +45,18 @@ namespace OnePlace.Shared.Entidades.SimsaCore
     }
     public partial class Empresa
     {
-        [JsonProperty("idempresa")]
         public int Idempresa { get; set; }
-        [JsonProperty("rfc")]
         public string Rfc { get; set; }
-        [JsonProperty("patronal")]
         public string Patronal { get; set; }
-        [JsonProperty("razonsocial")]
         public string Razonsocial { get; set; }
-        [JsonProperty("domicilio")]
         public string Domicilio { get; set; }
-        [JsonProperty("idestatus")]
         public int? Idestatus { get; set; }
-        [JsonProperty("fchcreacion"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchcreacion { get; set; }
-        [JsonProperty("fchmod"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchmod { get; set; }
-        [JsonProperty("fchbaja"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchbaja { get; set; }
-        [JsonProperty("idusuario")]
         public int? Idusuario { get; set; }
 
         [NotMapped] public ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }

@@ -169,6 +169,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                 return string.Empty;
             }
         }
+        [NotMapped] public string Nombre_usuario { get; set; }
+        [NotMapped] public string Password_usuario { get; set; }
     }
     public class ImagenesCumpleEmpleado
     {

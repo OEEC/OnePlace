@@ -41,22 +41,19 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
     public partial class Departamento
     {
-        [JsonProperty("iddepartamento")]
         public int Iddepartamento { get; set; }
-        [JsonProperty("idempresa")]
         public int? Idempresa { get; set; }
         [JsonProperty("departamento"), NotMapped]
         public string Nombre_Departamento { get; set; }
         public string Departamento1 { get; set; }
-        [JsonProperty("fchcreacion"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchcreacion { get; set; }
-        [JsonProperty("fchbaja"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchbaja { get; set; }
-        [JsonProperty("fchmod"), JsonIgnore]
+        [JsonIgnore]
         public DateTime? Fchmod { get; set; }
-        [JsonProperty("idusuario")]
         public int? Idusuario { get; set; }
-
+        public int? Idestatus { get; set; }
         [NotMapped] public ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }
 
         //public virtual ICollection<AreaDepartamentoEmpresa> AreaDepartamentoEmpresas { get; set; }

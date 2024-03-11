@@ -1,30 +1,32 @@
 ﻿@page "/actualizar-registros"
 @inject IRepositorio repositorio
+@inject HttpClient http
 @inject NavigationManager navigationManager
 @inject IMostrarMensaje mostrarMensajes
+@inject ILogger<DatosApiABasedeDatos> Logger
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Administrador")]
 
-<div class="card mb-3">
+<div class="card">
     <div class="card-header">
-        <h5>Actualizar Registros</h5>
+        Subir archivo
     </div>
     <div class="card-body">
-        <div class="col-12 row mb-2">
-            <div class="col-4 pl-0">
-                <label>Zona</label>
-                <select @bind="@Zona.ZonaId" class="form-control form-control-sm">
-                    <option>-- Seleccione una zona --</option>
-                    @foreach (var _zona in Zonas)
+        <div class="col-12 row my-2">
+            <div class="col-3">
+                <button class="btn btn-sm btn-warning col-12" @onclick="Descargar_Catalogo">
+                    Descargar catalogos
+                    @if (loadingDownloadCatalog)
                     {
-                        <option value="@_zona.ZonaId">@_zona.Zona1</option>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
                     }
-                </select>
+                </button>
             </div>
-            <div class="col-2 d-flex">
-                <button class="btn btn-sm btn-primary mt-auto" @onclick="@ActualizarZonas">
-                    <i class="fas fa-rotate-right"></i>
-                    Actualizar zonas
-                    @if (loadingZonas)
+            <div class="col-3">
+                <button class="btn btn-sm btn-warning col-12" @onclick="Descargar_Formato">
+                    Descargar formato de empleados
+                    @if (loadingDownloadEmployeeFormat)
                     {
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
 
@@ -32,71 +34,386 @@
                 </button>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-sm text-center">
-                <thead>
-                    <tr>
-                        <th scope="col">Empleado</th>
-                        <th scope="col">Estación</th>
-                        <th scope="col">Crear Usuarios</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <button class="btn btn-primary btn-sm" @onclick="ActualizarEP">
-                                <i class="fas fa-user-tie"></i>
-                                Empleados
-                                @if (loadingEmpleados)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <div class="col-12">
 
-                                }
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" @onclick="ActualizarEstacion">
-                                <i class="fas fa-gas-pump"></i>
-                                Estación
-                                @if (loadingEstaciones)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-
-                                }
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-info btn-sm" @onclick="ActualizarUsuario">
-                                <i class="fas fa-users"></i>
-                                Crear usuarios
-                                @if (loadingUsuarios)
-                                {
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-
-                                }
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnInputFileChange" multiple />
+            @if (loadingUploadFile)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            @if (files.Count > 0)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <ul>
+                            @foreach (var item in files)
+                            {
+                                <li>
+                                    Archivo: @item.Name
+                                    <br>
+                                    @if (FileUpload(uploadResults, item.Name, Logger, out var result))
+                                    {
+                                        <span>Arichivo subido</span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            @result.ErrorMessage
+                                        </span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
+<div class="card">
+    <div class="card-header">
+        Dar de alta empleado
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="Persona" OnValidSubmit="Crear_Persona" class="col-12 row" Context="Form_Crear">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Nombre/s" placeholder="Nombre" @bind-Value="@Persona.Nombre" /> *@
+                    <input class="form-control form-control-sm" placeholder="Nombre" @bind="@Persona.Nombre" />
+                    <ValidationMessage For="@(()=>Persona.Nombre)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Apellido paterno" placeholder="Apellido paterno" @bind-Value="@Persona.ApePat" /> *@
+                    <input class="form-control form-control-sm" placeholder="Apellido paterno" @bind="@Persona.Apellido_Pat" />
+                    <ValidationMessage For="@(()=>Persona.Apellido_Pat)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Apellido materno" placeholder="Apellido materno" @bind-Value="@Persona.ApeMat" /> *@
+                    <input class="form-control form-control-sm" placeholder="Apellido materno" @bind="@Persona.Apellido_Mat" />
+                    <ValidationMessage For="@(()=>Persona.Apellido_Mat)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="No. empleado" placeholder="No. empleado" @bind-Value="@Persona.Empleado.Noemp" @oninput="Generar_Usuario" /> *@
+                    <input class="form-control form-control-sm" placeholder="No. empleado" @bind="@Persona.NoEmpleado" @oninput="Generar_Usuario" />
+                    <ValidationMessage For="@(()=>Persona.NoEmpleado)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="RFC" placeholder="RFC" @bind-Value="@Persona.RFC" /> *@
+                    <input class="form-control form-control-sm" placeholder="RFC" @bind="@Persona.RFC" />
+                    <ValidationMessage For="@(()=>Persona.RFC)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="CURP" placeholder="CURP" @bind-Value="@Persona.CURP" /> *@
+                    <input class="form-control form-control-sm" placeholder="CURP" @bind="@Persona.CURP" />
+                    <ValidationMessage For="@(()=>Persona.CURP)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="NSS" placeholder="NSS" @bind-Value="@Persona.NSS" /> *@
+                    <input class="form-control form-control-sm" placeholder="NSS" @bind="@Persona.NSS" />
+                    <ValidationMessage For="@(()=>Persona.NSS)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Correo" placeholder="Correo" @bind-Value="@Persona.Correo" /> *@
+                    <input class="form-control form-control-sm" placeholder="Correo" @bind="@Persona.Correo" />
+                    <ValidationMessage For="@(()=>Persona.Correo)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Correo" placeholder="Correo" @bind-Value="@Persona.Correo" /> *@
+                    <input class="form-control form-control-sm" placeholder="Correo de empleado" @bind="@Persona.Correo_Empleado" />
+                    <ValidationMessage For="@(()=>Persona.Correo_Empleado)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Telefono" placeholder="Telefono" @bind-Value="@Persona.Telefono" /> *@
+                    <input class="form-control form-control-sm" placeholder="Telefono" @bind="@Persona.Telefono" />
+                    <ValidationMessage For="@(()=>Persona.Telefono)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputText class="form-control form-control-sm" DisplayName="Telefono" placeholder="Telefono" @bind-Value="@Persona.Telefono" /> *@
+                    <input class="form-control form-control-sm" placeholder="Telefono de empleado" @bind="@Persona.Telefono_Empleado" />
+                    <ValidationMessage For="@(()=>Persona.Telefono_Empleado)" />
+                </div>
+                <div class="col-3 my-1">
+                    @* <InputSelect class="form-control form-control-sm" @bind-Value="Persona.Division">
+                    <option>Division</option>
+                    @foreach (var item in Division)
+                    {
+                    <option value="@item">@item</option>
+                    }
+                    </InputSelect> *@
+                    <select class="form-control form-control-sm" @bind="@Persona.Division">
+                        <option>Division</option>
+                        @foreach (var item in Division)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                    <ValidationMessage For="@(()=>Persona.Division)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Zona" TValue="int?" Listado="Zonas" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="ZonaId"
+                                    Default_Placeholder="Zona" @bind-Valor="@Persona.Id_Zona" On_Change_Method="Generar_Usuario" On_Cancel_Method="Generar_Usuario">
+                        <RenderValue Context="zona">
+                            @zona.Zona1
+                        </RenderValue>
+                        <Render Context="zona">
+                            @zona.Zona1
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Zona)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Estacion" TValue="int?" Listado="Estaciones" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="Idestacion"
+                                    Default_Placeholder="Estacion" @bind-Valor="@Persona.Id_Estacion">
+                        <RenderValue Context="est">
+                            @est.Nombre
+                        </RenderValue>
+                        <Render Context="est">
+                            @est.Nombre
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Estacion)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Empresa" TValue="int?" Listado="Empresas" FiltrarValor="Obtener_Empresas" Propiedad_Valor="Idempresa"
+                                    Default_Placeholder="Razon social" @bind-Valor="@Persona.Id_Pagadora">
+                        <RenderValue Context="emp">
+                            @emp.Razonsocial
+                        </RenderValue>
+                        <Render Context="emp">
+                            @emp.Razonsocial
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Pagadora)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Departamento" TValue="int?" Listado="Departamentos" FiltrarValor="Obtener_Departamentos" Propiedad_Valor="Iddepartamento"
+                                    Default_Placeholder="Departamento" @bind-Valor="@Persona.Id_Departamento">
+                        <RenderValue Context="dep">
+                            @dep.Departamento1
+                        </RenderValue>
+                        <Render Context="dep">
+                            @dep.Departamento1
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Departamento)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Area" TValue="int?" Listado="Areas" FiltrarValor="Obtener_Areas" Propiedad_Valor="Idarea"
+                                    Default_Placeholder="Area" @bind-Valor="@Persona.Id_Area">
+                        <RenderValue Context="area">
+                            @area.Area1
+                        </RenderValue>
+                        <Render Context="area">
+                            @area.Area1
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Area)" />
+                </div>
+                <div class="col-3 my-1">
+                    <DropDownFilter TListado="Puesto" TValue="int?" Listado="Puestos" FiltrarValor="Obtener_Puestos" Propiedad_Valor="Idpuesto"
+                                    Default_Placeholder="Puesto" @bind-Valor="@Persona.Id_Puesto">
+                        <RenderValue Context="pue">
+                            @pue.Puesto1
+                        </RenderValue>
+                        <Render Context="pue">
+                            @pue.Puesto1
+                        </Render>
+                    </DropDownFilter>
+                    <ValidationMessage For="@(()=>Persona.Id_Puesto)" />
+                </div>
+                <div class="col-3 my-1">
+                    <InputText class="form-control form-control-sm" DisplayName="Usuario" placeholder="Nombre de usuario" @bind-Value="@Persona.Nombre_Usuario" />
+                    <ValidationMessage For="@(()=>Persona.Nombre_Usuario)" />
+                </div>
+                <div class="col-3 my-1">
+                    <ToolTip>
+                        <ChildContent>
+                            <InputText class="form-control form-control-sm" DisplayName="Constraseña" placeholder="Contraseña" @bind-Value="@Persona.Password_Usuario" />
+                        </ChildContent>
+                        <TooltipContent>
+                            <p>La conseña debe tener almenos 6 caracteres, 1 letra mayuscula, 1 caracter especial y 1 numero</p>
+                        </TooltipContent>
+                    </ToolTip>
+
+                    <ValidationMessage For="@(()=>Persona.Password_Usuario)" />
+                </div>
+                <div class="col-12 my-1">
+                    <div class="col-3">
+                        <button class="btn btn-warning btn-sm col-12" type="submit">
+                            Guardar
+                            @if (loadingCrearEmpleado)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 my-1">
+    <div class="col-3">
+        <button class="btn btn-warning btn-sm" @onclick="@(()=>Actualizar_automaticamente = !Actualizar_automaticamente)">Actualizar datos automaticamente</button>
+    </div>
+</div>
+
+@if (Actualizar_automaticamente)
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5>Actualizar Registros</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="col-12 row mb-2">
+                <div class="col-4 pl-0">
+                    <label>Zona</label>
+                    <select @bind="@Zona.ZonaId" class="form-control form-control-sm">
+                        <option>-- Seleccione una zona --</option>
+                        @foreach (var _zona in Zonas)
+                        {
+                            <option value="@_zona.ZonaId">@_zona.Zona1</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-2 d-flex">
+                    <button class="btn btn-sm btn-primary mt-auto" @onclick="@ActualizarZonas">
+                        <i class="fas fa-rotate-right"></i>
+                        Actualizar zonas
+                        @if (loadingZonas)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+                        }
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm text-center">
+                    <thead>
+                        <tr>
+                            <th scope="col">Empleado</th>
+                            <th scope="col">Estación</th>
+                            <th scope="col">Crear Usuarios</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <button class="btn btn-primary btn-sm" @onclick="ActualizarEP">
+                                    <i class="fas fa-user-tie"></i>
+                                    Empleados
+                                    @if (loadingEmpleados)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+                                    }
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" @onclick="ActualizarEstacion">
+                                    <i class="fas fa-gas-pump"></i>
+                                    Estación
+                                    @if (loadingEstaciones)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+                                    }
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-sm" @onclick="ActualizarUsuario">
+                                    <i class="fas fa-users"></i>
+                                    Crear usuarios
+                                    @if (loadingUsuarios)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+
+                                    }
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            Actualizar catalogo
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-sm text-center my-1">
+                    <thead>
+                        <tr>
+                            <th scope="col">Catalogo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <button class="btn btn-primary btn-sm" @onclick="ActualizarCatalogo">
+                                    <i class="fas fa-user-tie"></i>
+                                    Catalogo
+                                    @if (loadingCatalogo)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    }
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private bool loadingZonas = false;
     private bool loadingEmpleados = false;
     private bool loadingEstaciones = false;
     private bool loadingUsuarios = false;
+    private bool loadingCatalogo = false;
+    private bool loadingCrearEmpleado = false;
+    private bool loadingDownloadCatalog = false;
+    private bool loadingDownloadEmployeeFormat = false;
+    private bool loadingUploadFile = false;
+    private bool Actualizar_automaticamente = false;
+
+    private List<File> files = new();
+    private List<UploadResult> uploadResults = new();
+    private int maxAllowFiles = 3;
 
     List<Zona> Zonas = new();
     Zona Zona = new();
+    List<Departamento> Departamentos = new();
+    List<Area> Areas = new();
+    List<Puesto> Puestos = new();
+    List<Estacion> Estaciones = new();
+    List<Tienda> Tiendas = new();
+    List<Empresa> Empresas = new();
 
     Dictionary<string, string> Query = new();
 
+    List<string> Sexo = new() { "F", "M" };
+    List<string> Division = new() { "ESTACIONES", "TIENDAS" };
+
+    PersonaEmpleadoDTO Persona { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
-        await Obtener_Zonas();
+        await Obtener_Zonas(string.Empty);
+        await Obtener_Areas(string.Empty);
+        await Obtener_Departamentos(string.Empty);
+        await Obtener_Estaciones(string.Empty);
+        await Obtener_Puestos(string.Empty);
+        await Obtener_Empresas(string.Empty);
     }
 
     public async Task ActualizarEP()
@@ -181,11 +498,16 @@
         }
     }
 
-    private async Task Obtener_Zonas()
+    private async Task Obtener_Zonas(string value)
     {
         try
         {
-            var httpResponse = await repositorio.Get<List<Zona>>("api/zona/zonas");
+            Dictionary<string, string> query = new();
+            query["Zona1"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Zona>>($"api/catalogo/zonas?{url}");
             if (httpResponse.Error)
             {
                 await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
@@ -214,7 +536,7 @@
             }
             else
             {
-                await Obtener_Zonas();
+                await Obtener_Zonas(string.Empty);
                 loadingZonas = false;
                 await mostrarMensajes.MostrarMensajeExitoso("zonas actualizadas");
             }
@@ -223,5 +545,354 @@
         {
             await mostrarMensajes.MostrarMensajeError(e.Message);
         }
+    }
+
+    private async Task Crear_Persona()
+    {
+        try
+        {
+            loadingCrearEmpleado = true;
+            var httpResponse = await repositorio.Post<PersonaEmpleadoDTO>("api/empleado", Persona);
+            if (httpResponse.Error)
+            {
+                loadingCrearEmpleado = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                loadingCrearEmpleado = false;
+                await mostrarMensajes.MostrarMensajeExitoso("Empleado creado");
+                Persona = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingCrearEmpleado = false;
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Departamentos(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Departamento1"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Departamento>>($"api/catalogo/departamentos?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Departamentos = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Areas(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Area1"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Area>>($"api/catalogo/areas?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Areas = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Puestos(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Puesto1"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Puesto>>($"api/catalogo/puestos?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Puestos = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Estaciones(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Estacion>>($"api/catalogo/estaciones?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Estaciones = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Tiendas(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Tienda>>($"api/catalogo/tiendas?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Tiendas = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Empresas(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Razonsocial"] = value;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var httpResponse = await repositorio.Get<List<Empresa>>($"api/catalogo/empresas?{url}");
+            if (httpResponse.Error)
+            {
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                Empresas = httpResponse.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task ActualizarCatalogo()
+    {
+        loadingCatalogo = true;
+        var httpResponse = await repositorio.Get<bool>("api/ObtenerDatosApi/ActualizarCatalogo");
+        if (httpResponse.Error)
+        {
+            loadingCatalogo = false;
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Catalogo Actualizado");
+            loadingCatalogo = false;
+        }
+    }
+
+    private void Generar_Usuario()
+    {
+        if (!string.IsNullOrEmpty(Persona.NoEmpleado) || !string.IsNullOrWhiteSpace(Persona.NoEmpleado))
+        {
+            var inizona = "NA";
+            if (Persona.Id_Zona != null)
+            {
+                if (Zonas.Any(x => x.ZonaId == Persona.Id_Zona))
+                {
+                    var zona = Zonas.First(x => x.ZonaId == Persona.Id_Zona);
+                    if (zona is not null)
+                    {
+
+                        if (!string.IsNullOrEmpty(zona.Zona1))
+                            inizona = zona.Zona1.ToUpper().Substring(0, 2);
+                    }
+                }
+            }
+
+            Persona.Nombre_Usuario = Persona.NoEmpleado.Trim() + inizona;
+            Persona.Password_Usuario = $"S1msa*{Persona.NoEmpleado}";
+        }
+
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        long maxFileSie = 1024 * 15 * 1024;
+        var upload = false;
+
+        files = new();
+
+        using var content = new MultipartFormDataContent();
+        foreach (var file in e.GetMultipleFiles(maxAllowFiles))
+        {
+            // if (uploadResults.SingleOrDefault(f => f.FileName == file.Name) is null)
+            // {
+            try
+            {
+                files.Add(new() { Name = file.Name });
+
+                var fileContent = new StreamContent(file.OpenReadStream(maxFileSie));
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: fileContent, name: "\"files\"", fileName: file.Name);
+                upload = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogInformation("{FileName} not uploaded (Err: 6) {Message}", file.Name, ex.Message);
+                uploadResults.Add(new()
+                    {
+                        FileName = file.Name,
+                        ErrorCode = 6,
+                        Upload = false
+                    });
+            }
+            // }
+        }
+
+        if (upload)
+        {
+            loadingUploadFile = true;
+            var response = await http.PostAsync("api/empleado/file", content);
+
+            var newUploadResults = await response.Content.ReadFromJsonAsync<IList<UploadResult>>();
+            // uploadResults = uploadResults.Concat(newUploadResults).ToList();
+            uploadResults = newUploadResults.ToList();
+            loadingUploadFile = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private static bool FileUpload(IList<UploadResult> uploadResults, string filename, ILogger<DatosApiABasedeDatos> logger, out UploadResult result)
+    {
+        result = uploadResults.SingleOrDefault(f => f.FileName == filename);
+        if (result is null)
+        {
+            logger.LogInformation("{FileName} not uploaded (Err: 5)", filename);
+            result = new();
+            result.ErrorCode = 5;
+        }
+
+        return result.Upload;
+    }
+
+    private class File
+    {
+        public string Name { get; set; }
+    }
+
+    private async Task Descargar_Catalogo()
+    {
+        try
+        {
+            loadingDownloadCatalog = true;
+            var httpResponse = await repositorio.Get<byte[]>($"api/catalogo/excel");
+            if (httpResponse.Error)
+            {
+                loadingDownloadCatalog = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                loadingDownloadCatalog = false;
+                await js.GuardarComo($"Catalogo_Oneplace_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", httpResponse.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingDownloadCatalog = false;
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Descargar_Formato()
+    {
+        try
+        {
+
+            loadingDownloadEmployeeFormat = true;
+            var httpResponse = await repositorio.Get<byte[]>($"api/empleado/excel/formato");
+            if (httpResponse.Error)
+            {
+                loadingDownloadEmployeeFormat = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                loadingDownloadEmployeeFormat = false;
+                await js.GuardarComo("Formato_Registro_Empleados.xlsx", httpResponse.Response);
+            }
+
+        }
+        catch (Exception e)
+        {
+            loadingDownloadEmployeeFormat = false;
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private void Elimiar_Archivo(string FileName)
+    {
+        if (uploadResults.SingleOrDefault(x => x.FileName == FileName) is not null)
+        {
+            var uploadfile = uploadResults.SingleOrDefault(x => x.FileName == FileName);
+            uploadResults.Remove(uploadfile);
+        }
+
+        if (files.SingleOrDefault(x => x.Name == FileName) is not null)
+        {
+            var file = files.SingleOrDefault(x => x.Name == FileName);
+            files.Remove(file);
+        }
+        StateHasChanged();
     }
 }

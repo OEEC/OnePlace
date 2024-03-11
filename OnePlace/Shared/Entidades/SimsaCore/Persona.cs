@@ -123,5 +123,6 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public string Correo { get; set; }
         [JsonProperty("telefono")]
         public string Telefono { get; set; }
+        [NotMapped] public Empleado Empleado { get; set; }
     }
 }

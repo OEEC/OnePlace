@@ -370,5 +370,78 @@ namespace OnePlace.Server.Controllers
             await context.SaveChangesAsync(user.Id);
             return Ok();
         }
+
+        [HttpGet("ActualizarCatalogo")]
+        public async Task<ActionResult> Actualizar_Catalogo()
+        {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            var areas = await simsacoreService.GetAllAreas();
+            var departamento = await simsacoreService.GetAllDepartamentos();
+            var empresas = await simsacoreService.GetAllRazonesSociales();
+            var puestos = await simsacoreService.GetAllPuestos();
+            var zonas = await simsacoreService.GetAllZonas();
+
+            List<Area> listado_areas = new();
+            List<Departamento> listado_departamentos = new();
+            List<Empresa> listado_empresa = new();
+            List<Zona> listado_zonas = new();
+            List<Puesto> listado_puestos = new();
+
+            foreach (var zona in zonas.Zonas)
+            {
+                zona.Zona1 = zona.Nombre_Zona;
+                zona.ZonaId = zona.Id_Zona;
+
+                if (!context.Zonas.Any(x => x.ZonaId == zona.ZonaId))
+                    listado_zonas.Add(zona);
+                else
+                    context.Update(zona);
+            }
+
+            foreach (var empresa in empresas.ListadeRazonesSociales)
+                if (!context.Empresas.Any(x => x.Idempresa == empresa.Idempresa))
+                    context.Add(empresa);
+                else
+                    context.Update(empresa);
+
+            foreach (var dep in departamento.ListadeDepartamentos)
+            {
+                dep.Departamento1 = dep.Nombre_Departamento;
+                if (!context.Departamentos.Any(x => x.Iddepartamento == dep.Iddepartamento))
+                    listado_departamentos.Add(dep);
+                else
+                    context.Update(dep);
+            }
+
+            foreach (var area in areas.ListadeAreas)
+            {
+                area.Area1 = area.Nombre_Area;
+                if (!context.Areas.Any(x => x.Idarea == area.Idarea))
+                    listado_areas.Add(area);
+                else
+                    context.Update(area);
+            }
+
+            await context.SaveChangesAsync(user.Id);
+
+            context.Empresas.AddRange(listado_empresa);
+            await context.SaveChangesAsync(user.Id);
+
+            context.Departamentos.AddRange(listado_departamentos);
+            await context.SaveChangesAsync(user.Id);
+
+            context.Areas.AddRange(listado_areas);
+            await context.SaveChangesAsync(user.Id);
+
+            context.Puestos.AddRange(listado_puestos);
+            await context.SaveChangesAsync(user.Id);
+
+            context.Zonas.AddRange(listado_zonas);
+            await context.SaveChangesAsync(user.Id);
+
+            return Ok(true);
+        }
+
     }
 }
