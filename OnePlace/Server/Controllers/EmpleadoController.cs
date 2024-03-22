@@ -16,6 +16,7 @@ using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -426,6 +427,144 @@ namespace OnePlace.Server.Controllers
             }
             return uploadResults;
         }
+
+        [HttpPost("file/baja")]
+        public async Task<ActionResult<IList<UploadResult>>> Subir_Excel_Empleados_Baja([FromForm] IEnumerable<IFormFile> files)
+        {
+            var maxAllowedFiles = 3;
+            long maxFileSize = 1024 * 15 * 1024;
+            var filesProcessed = 0;
+            List<UploadResult> uploadResults = new();
+            bool hasErrors = false;
+            string Errors = string.Empty;
+
+            foreach (var file in files)
+            {
+                List<Empleado> Empleados = new();
+
+                var uploadResult = new UploadResult();
+
+                var unthrustedFileName = file.FileName;
+                uploadResult.FileName = unthrustedFileName;
+                var thrustFileName = WebUtility.HtmlEncode(unthrustedFileName);
+
+                if (filesProcessed < maxAllowedFiles)
+                {
+                    if (file.Length == 0)
+                    {
+                        logger.LogInformation("{FileName} lontitud 0 (Err: 1)",
+                        thrustFileName);
+                        uploadResult.ErrorCode = 1;
+                        uploadResult.ErrorMessage = $"{thrustFileName} vacio (Err:1)";
+                    }
+                    else if (file.Length > maxFileSize)
+                    {
+                        logger.LogInformation("{FileName} of {Length} bytes is " +
+                        "larger than the limit of {Limit} bytes (Err: 2)",
+                        thrustFileName, file.Length, maxFileSize);
+                        uploadResult.ErrorCode = 2;
+                        uploadResult.ErrorMessage = $"{thrustFileName} de {file.Length / 1000000} Mb es mayor a la capacidad permitida ({Math.Round((double)(maxFileSize / 1000000))}) Mb (Err:2)";
+                    }
+                    else
+                    {
+                        using var stream = new MemoryStream();
+                        await file.CopyToAsync(stream);
+
+                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                        ExcelPackage package = new();
+
+                        package.Load(stream);
+                        if (package.Workbook.Worksheets.Count > 0)
+                        {
+                            using (ExcelWorksheet ws = package.Workbook.Worksheets.First())
+                            {
+                                hasErrors = false;
+                                for (int r = 2; r < (ws.Dimension.End.Row + 1); r++)
+                                {
+                                    Persona persona = new();
+                                    Empleado empleado = new();
+
+                                    var row = ws.Cells[r, 1, r, ws.Dimension.End.Column].ToList();
+
+                                    if (row.Count > 0)
+                                    {
+                                        if (ws.Cells[r, 1] != null)
+                                        {
+                                            if (context.Empleados.Any(x => x.Noemp.Equals(ws.Cells[r, 1].Value.ToString()) && x.Idestatus.Equals("1")))
+                                            {
+                                                empleado = context.Empleados.First(x => x.Noemp.Equals(ws.Cells[r, 1].Value.ToString()));
+
+                                                empleado.Fchbaja = DateTime.Now;
+                                                empleado.Idestatus = "2";
+
+                                                context.Update(empleado);
+                                                await context.SaveChangesAsync();
+
+                                                if (context.Users.Any(x => x.Idempleado == empleado.Idempleado && x.Activo))
+                                                {
+                                                    var user = context.Users.FirstOrDefault(x => x.Idempleado == empleado.Idempleado);
+                                                    user.Activo = false;
+                                                    context.Update(user);
+                                                    await context.SaveChangesAsync();
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+
+                            if (!hasErrors)
+                                uploadResult.Upload = true;
+                        }
+                    }
+
+                    filesProcessed++;
+                }
+                else
+                {
+                    logger.LogInformation("limite de archivos excedido. archivos {archivos}. limite de archivos {limite} (Err: 3)", file.Length, maxAllowedFiles);
+                    uploadResult.ErrorCode = 2;
+                    uploadResult.ErrorMessage = $"{thrustFileName} limite de archivos excedido. archivos {files.Count()}. limite de archivos {maxAllowedFiles} (Err: 3)";
+                }
+                uploadResults.Add(uploadResult);
+            }
+            return uploadResults;
+        }
+
+        [HttpDelete("baja/{noemp}")]
+        public async Task<ActionResult<EmpleadoPersonaDTO>> Dar_Baja_Empleado(string noemp)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(noemp) || string.IsNullOrWhiteSpace(noemp))
+                    return NotFound();
+
+                var empleado = context.Empleados.FirstOrDefault(x => x.Noemp.Equals(noemp));
+
+                empleado.Fchbaja = DateTime.Now;
+                empleado.Idestatus = "2";
+
+                context.Update(empleado);
+                await context.SaveChangesAsync();
+
+                if (context.Users.Any(x => x.Idempleado == empleado.Idempleado && x.Activo))
+                {
+                    var user = context.Users.FirstOrDefault(x => x.Idempleado == empleado.Idempleado);
+                    user.Activo = false;
+                    context.Update(user);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         private bool Validar_Contraseña(string password, out string Error)
         {
             Error = string.Empty;
@@ -566,6 +705,33 @@ namespace OnePlace.Server.Controllers
             var ws_empleados = excel.Workbook.Worksheets.Add("Empleados");
 
             ws_empleados.Cells["A1"].LoadFromCollection(new List<PersonaEmpleadoDTO>(), x => { x.PrintHeaders = true; x.TableStyle = TableStyles.Medium2; });
+
+            ws_empleados.Cells["D2"].Style.Numberformat.Format = "@";
+
+            ws_empleados.Cells["S2"].Formula = "SI(ISTEXT(M2),SI(ISTEXT(D2),CONCATENATE(D2,MID(MAYUSC(M2),1,2)),\"\"),\"\")";
+            ws_empleados.Cells["T2"].Formula = "CONCATENATE(\"S1msa*\",D2)";
+
+            ws_empleados.Cells[1, 1, ws_empleados.Dimension.End.Row, ws_empleados.Dimension.End.Column].AutoFitColumns();
+            return Ok(excel.GetAsByteArray());
+        }
+
+        [HttpGet("excel/formato/baja")]
+        public ActionResult Obtener_Formato_Baja()
+        {
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            var excel = new ExcelPackage();
+
+            var ws_empleados = excel.Workbook.Worksheets.Add("Empleados");
+
+            List<ExpandoObject> Nos_Empleado = new();
+            dynamic empleado = new ExpandoObject();
+            empleado.NoEmplado = string.Empty;
+            
+            Nos_Empleado.Add(empleado);
+
+            ws_empleados.Cells["A1"].LoadFromCollection(Nos_Empleado, x => { x.PrintHeaders = true; x.TableStyle = TableStyles.Medium2; });
+
+            ws_empleados.Cells["A2"].Style.Numberformat.Format = "@";
 
             ws_empleados.Cells[1, 1, ws_empleados.Dimension.End.Row, ws_empleados.Dimension.End.Column].AutoFitColumns();
             return Ok(excel.GetAsByteArray());

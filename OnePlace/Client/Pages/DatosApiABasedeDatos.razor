@@ -36,7 +36,7 @@
         </div>
         <div class="col-12">
 
-            <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnInputFileChange" multiple />
+            <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnInputFileChange" multiple accept=".xlsx, .csv" />
             @if (loadingUploadFile)
             {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -254,7 +254,74 @@
         </div>
     </div>
 </div>
+<div class="card">
+    <div class="card-header">
+        Dar de baja empleado
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <div class="col-12 row my-2">
+                <div class="col-4">
+                    <button class="btn btn-sm btn-warning col-12" @onclick="Descargar_Formato_Baja">
+                        Descargar formato de baja de empleados
+                        @if (LoadingDownloadBajaExcel)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
 
+                        }
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 my-2">
+                <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnInputFileChangeBaja" multiple accept=".xlsx, .csv" />
+                @if (LoadingSubidaBajaExcel)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                }
+                @if (files_baja.Count > 0)
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <ul>
+                                @foreach (var item in files_baja)
+                                {
+                                    <li>
+                                        Archivo: @item.Name
+                                        <br>
+                                        @if (FileUploadBaja(uploadResults_baja, item.Name, Logger, out var result))
+                                        {
+                                            <span>Arichivo subido</span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                @result.ErrorMessage
+                                            </span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-12 row">
+                <div class="col-4">
+                    <input type="text" @bind="@No_empleado" placeholder="Numero de empleado" />
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-sm btn-warning" @onclick="Dar_Baja_Empleado">
+                        Dar de baja
+                        @if (LoadingBajaEmpleado)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="col-12 my-1">
     <div class="col-3">
         <button class="btn btn-warning btn-sm" @onclick="@(()=>Actualizar_automaticamente = !Actualizar_automaticamente)">Actualizar datos automaticamente</button>
@@ -385,9 +452,16 @@
     private bool loadingDownloadEmployeeFormat = false;
     private bool loadingUploadFile = false;
     private bool Actualizar_automaticamente = false;
+    private bool LoadingBajaEmpleado = false;
+    private bool LoadingDownloadBajaExcel = false;
+    private bool LoadingSubidaBajaExcel = false;
 
     private List<File> files = new();
     private List<UploadResult> uploadResults = new();
+
+    private List<File> files_baja = new();
+    private List<UploadResult> uploadResults_baja = new();
+
     private int maxAllowFiles = 3;
 
     List<Zona> Zonas = new();
@@ -405,6 +479,8 @@
     List<string> Division = new() { "ESTACIONES", "TIENDAS" };
 
     PersonaEmpleadoDTO Persona { get; set; } = new();
+
+    private string No_empleado { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -825,6 +901,19 @@
         return result.Upload;
     }
 
+    private static bool FileUploadBaja(IList<UploadResult> uploadResults, string filename, ILogger<DatosApiABasedeDatos> logger, out UploadResult result)
+    {
+        result = uploadResults.SingleOrDefault(f => f.FileName == filename);
+        if (result is null)
+        {
+            logger.LogInformation("{FileName} not uploaded (Err: 5)", filename);
+            result = new();
+            result.ErrorCode = 5;
+        }
+
+        return result.Upload;
+    }
+
     private class File
     {
         public string Name { get; set; }
@@ -894,5 +983,104 @@
             files.Remove(file);
         }
         StateHasChanged();
+    }
+
+    private async Task OnInputFileChangeBaja(InputFileChangeEventArgs e)
+    {
+        long maxFileSie = 1024 * 15 * 1024;
+        var upload = false;
+
+        files_baja = new();
+
+        using var content = new MultipartFormDataContent();
+        foreach (var file in e.GetMultipleFiles(maxAllowFiles))
+        {
+            // if (uploadResults.SingleOrDefault(f => f.FileName == file.Name) is null)
+            // {
+            try
+            {
+                files_baja.Add(new() { Name = file.Name });
+
+                var fileContent = new StreamContent(file.OpenReadStream(maxFileSie));
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: fileContent, name: "\"files\"", fileName: file.Name);
+                upload = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogInformation("{FileName} not uploaded (Err: 6) {Message}", file.Name, ex.Message);
+                uploadResults_baja.Add(new()
+                    {
+                        FileName = file.Name,
+                        ErrorCode = 6,
+                        Upload = false
+                    });
+            }
+            // }
+        }
+
+        if (upload)
+        {
+            LoadingSubidaBajaExcel = true;
+            var response = await http.PostAsync("api/empleado/file/baja", content);
+
+            var newUploadResults = await response.Content.ReadFromJsonAsync<IList<UploadResult>>();
+            // uploadResults = uploadResults.Concat(newUploadResults).ToList();
+            uploadResults_baja = newUploadResults.ToList();
+            LoadingSubidaBajaExcel = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task Descargar_Formato_Baja()
+    {
+        try
+        {
+            LoadingDownloadBajaExcel = true;
+            var httpResponse = await repositorio.Get<byte[]>($"api/empleado/excel/formato/baja");
+            if (httpResponse.Error)
+            {
+                LoadingDownloadBajaExcel = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                LoadingDownloadBajaExcel = false;
+                await js.GuardarComo("Formato_Baja_Empleados.xlsx", httpResponse.Response);
+            }
+
+        }
+        catch (Exception e)
+        {
+            LoadingDownloadBajaExcel = false;
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Dar_Baja_Empleado()
+    {
+        try
+        {
+            LoadingBajaEmpleado = true;
+            var httpResponse = await repositorio.Delete($"api/empleado/baja/{No_empleado}");
+            if (httpResponse.Error)
+            {
+                LoadingBajaEmpleado = false;
+                await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+            }
+            else
+            {
+                LoadingBajaEmpleado = false;
+                await mostrarMensajes.MostrarMensajeExitoso("Empleado dado de baja");
+            }
+
+        }
+        catch (Exception e)
+        {
+            LoadingBajaEmpleado = false;
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
     }
 }
