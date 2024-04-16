@@ -172,54 +172,54 @@ namespace OnePlace.Server.Controllers
 
                                     if (row.Count > 0)
                                     {
-                                        if (ws.Cells[r, 5].Value is not null)
-                                        {
-                                            if (!context.Personas.Any(x => x.Rfc == ws.Cells[r, 5].Value.ToString()))
-                                            {
-                                                //uploadResult.ErrorMessage = $"{thrustFileName} el RFC ingresado ya existe. RFC: {row[4].Value} Fila: {r} (Err: 10)";
-                                                //hasErrors = true;
-                                                persona.Rfc = ws.Cells[r, 5].Value.ToString();
-                                            }
-                                            else
-                                                existe = true;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} el RFC no puede estar vacio. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
-                                        if (ws.Cells[r, 6].Value is not null)
-                                        {
-                                            if (!context.Personas.Any(x => x.Curp == ws.Cells[r, 6].Value.ToString()))
-                                            {
-                                                //uploadResult.ErrorMessage = $"{thrustFileName} la CURP ingresada ya existe. CURP: {row[5].Value} Fila: {r} (Err: 10)";
-                                                //hasErrors = true;
-                                                persona.Curp = ws.Cells[r, 6].Value.ToString();
-                                            }
-                                            else
-                                                existe = true;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} la CURP no puede estar vacio. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
-                                        if (ws.Cells[r, 7].Value is not null)
-                                        {
-                                            if (!context.Personas.Any(x => x.Nss == ws.Cells[r, 7].Value.ToString()))
-                                            {
-                                                //uploadResult.ErrorMessage = $"{thrustFileName} el NSS ingresado ya existe. NSS: {row[6].Value} Fila: {r} (Err: 10)";
-                                                //hasErrors = true;
-                                                persona.Nss = ws.Cells[r, 7].Value.ToString();
-                                            }
-                                            else
-                                                existe = true;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} el NSS no puede estar vacio. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
+                                        //if (ws.Cells[r, 5].Value is not null)
+                                        //{
+                                        //    if (!context.Personas.Any(x => x.Rfc == ws.Cells[r, 5].Value.ToString()))
+                                        //    {
+                                        //        //uploadResult.ErrorMessage = $"{thrustFileName} el RFC ingresado ya existe. RFC: {row[4].Value} Fila: {r} (Err: 10)";
+                                        //        //hasErrors = true;
+                                        //        persona.Rfc = ws.Cells[r, 5].Value.ToString();
+                                        //    }
+                                        //    else
+                                        //        existe = true;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} el RFC no puede estar vacio. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
+                                        //if (ws.Cells[r, 6].Value is not null)
+                                        //{
+                                        //    if (!context.Personas.Any(x => x.Curp == ws.Cells[r, 6].Value.ToString()))
+                                        //    {
+                                        //        //uploadResult.ErrorMessage = $"{thrustFileName} la CURP ingresada ya existe. CURP: {row[5].Value} Fila: {r} (Err: 10)";
+                                        //        //hasErrors = true;
+                                        //        persona.Curp = ws.Cells[r, 6].Value.ToString();
+                                        //    }
+                                        //    else
+                                        //        existe = true;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} la CURP no puede estar vacio. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
+                                        //if (ws.Cells[r, 7].Value is not null)
+                                        //{
+                                        //    if (!context.Personas.Any(x => x.Nss == ws.Cells[r, 7].Value.ToString()))
+                                        //    {
+                                        //        //uploadResult.ErrorMessage = $"{thrustFileName} el NSS ingresado ya existe. NSS: {row[6].Value} Fila: {r} (Err: 10)";
+                                        //        //hasErrors = true;
+                                        //        persona.Nss = ws.Cells[r, 7].Value.ToString();
+                                        //    }
+                                        //    else
+                                        //        existe = true;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} el NSS no puede estar vacio. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
 
                                         if (ws.Cells[r, 1].Value is not null && ws.Cells[r, 2].Value is not null && ws.Cells[r, 3].Value is not null)
                                         {
@@ -271,21 +271,21 @@ namespace OnePlace.Server.Controllers
                                             hasErrors = true; uploadResult.HasError = true; break;
                                         }
 
-                                        if (ws.Cells[r, 14].Value is not null)
-                                        {
-                                            if (!context.Empresas.Any(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1))
-                                            {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} la empresa ingresada no existe. Empresa: {ws.Cells[r, 14].Value} Fila: {r} (Err: 12)";
-                                                hasErrors = true; uploadResult.HasError = true; break;
-                                            }
-                                            else
-                                                empleado.Idpagadora = context.Empresas.First(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1).Idempresa;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} la empresa no puede estar vacia. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
+                                        //if (ws.Cells[r, 14].Value is not null)
+                                        //{
+                                        //    if (!context.Empresas.Any(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1))
+                                        //    {
+                                        //        uploadResult.ErrorMessage = $"{thrustFileName} la empresa ingresada no existe. Empresa: {ws.Cells[r, 14].Value} Fila: {r} (Err: 12)";
+                                        //        hasErrors = true; uploadResult.HasError = true; break;
+                                        //    }
+                                        //    else
+                                        //        empleado.Idpagadora = context.Empresas.First(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1).Idempresa;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} la empresa no puede estar vacia. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
 
                                         if (ws.Cells[r, 15].Value is not null)
                                         {
@@ -303,37 +303,37 @@ namespace OnePlace.Server.Controllers
                                             hasErrors = true; uploadResult.HasError = true; break;
                                         }
 
-                                        if (ws.Cells[r, 16].Value is not null)
-                                        {
-                                            if (!context.Departamentos.Any(x => x.Departamento1 == ws.Cells[r, 16].Value.ToString() && x.Idestatus == 1))
-                                            {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} el departamento ingresado no existe. Departamento: {ws.Cells[r, 16].Value} Fila: {r} (Err: 12)";
-                                                hasErrors = true; uploadResult.HasError = true; break;
-                                            }
-                                            else
-                                                empleado.Iddepartamento = context.Departamentos.First(x => x.Departamento1 == ws.Cells[r, 16].Value.ToString() && x.Idestatus == 1).Iddepartamento;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} el departamento no puede estar vacio. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
+                                        //if (ws.Cells[r, 16].Value is not null)
+                                        //{
+                                        //    if (!context.Departamentos.Any(x => x.Departamento1 == ws.Cells[r, 16].Value.ToString() && x.Idestatus == 1))
+                                        //    {
+                                        //        uploadResult.ErrorMessage = $"{thrustFileName} el departamento ingresado no existe. Departamento: {ws.Cells[r, 16].Value} Fila: {r} (Err: 12)";
+                                        //        hasErrors = true; uploadResult.HasError = true; break;
+                                        //    }
+                                        //    else
+                                        //        empleado.Iddepartamento = context.Departamentos.First(x => x.Departamento1 == ws.Cells[r, 16].Value.ToString() && x.Idestatus == 1).Iddepartamento;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} el departamento no puede estar vacio. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
 
-                                        if (ws.Cells[r, 17].Value is not null)
-                                        {
-                                            if (!context.Areas.Any(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1))
-                                            {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} el area ingresada no existe. Area: {ws.Cells[r, 17].Value} Fila: {r} (Err: 12)";
-                                                hasErrors = true; uploadResult.HasError = true; break;
-                                            }
-                                            else
-                                                empleado.Idarea = context.Areas.First(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1).Idarea;
-                                        }
-                                        else
-                                        {
-                                            uploadResult.ErrorMessage = $"{thrustFileName} el area no puede estar vacia. Fila: {r} (Err: 11)";
-                                            hasErrors = true; uploadResult.HasError = true; break;
-                                        }
+                                        //if (ws.Cells[r, 17].Value is not null)
+                                        //{
+                                        //    if (!context.Areas.Any(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1))
+                                        //    {
+                                        //        uploadResult.ErrorMessage = $"{thrustFileName} el area ingresada no existe. Area: {ws.Cells[r, 17].Value} Fila: {r} (Err: 12)";
+                                        //        hasErrors = true; uploadResult.HasError = true; break;
+                                        //    }
+                                        //    else
+                                        //        empleado.Idarea = context.Areas.First(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1).Idarea;
+                                        //}
+                                        //else
+                                        //{
+                                        //    uploadResult.ErrorMessage = $"{thrustFileName} el area no puede estar vacia. Fila: {r} (Err: 11)";
+                                        //    hasErrors = true; uploadResult.HasError = true; break;
+                                        //}
 
                                         if (ws.Cells[r, 18].Value is not null)
                                         {
