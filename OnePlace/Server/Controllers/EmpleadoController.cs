@@ -245,9 +245,9 @@ namespace OnePlace.Server.Controllers
                                             hasErrors = true; uploadResult.HasError = true; break;
                                         }
 
-                                        if (ws.Cells[r, 12].Value is not null)
+                                        if (ws.Cells[r, 5].Value is not null)
                                         {
-                                            empleado.Division = ws.Cells[r, 12].Value.ToString();
+                                            empleado.Division = ws.Cells[r, 5].Value.ToString();
                                         }
                                         else
                                         {
@@ -255,11 +255,11 @@ namespace OnePlace.Server.Controllers
                                             hasErrors = true; uploadResult.HasError = true; break;
                                         }
 
-                                        if (ws.Cells[r, 13].Value is not null)
+                                        if (ws.Cells[r, 6].Value is not null)
                                         {
-                                            if (!context.Zonas.Any(x => x.Zona1 == ws.Cells[r, 13].Value.ToString() && x.Idestatus == 1))
+                                            if (!context.Zonas.Any(x => x.Zona1 == ws.Cells[r, 6].Value.ToString() && x.Idestatus == 1))
                                             {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} la zona ingresada no existe. Zona: {ws.Cells[r, 13].Value} Fila: {r} (Err: 12)";
+                                                uploadResult.ErrorMessage = $"{thrustFileName} la zona ingresada no existe. Zona: {ws.Cells[r, 6].Value} Fila: {r} (Err: 12)";
                                                 hasErrors = true; uploadResult.HasError = true; break;
                                             }
                                             else
@@ -287,15 +287,15 @@ namespace OnePlace.Server.Controllers
                                         //    hasErrors = true; uploadResult.HasError = true; break;
                                         //}
 
-                                        if (ws.Cells[r, 15].Value is not null)
+                                        if (ws.Cells[r, 7].Value is not null)
                                         {
-                                            if (!context.Estaciones.Any(x => x.Nombre == ws.Cells[r, 15].Value.ToString() && x.Estatus == 1))
+                                            if (!context.Estaciones.Any(x => x.Nombre == ws.Cells[r, 7].Value.ToString() && x.Estatus == 1))
                                             {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} la estacion ingresada no existe. Estacion: {ws.Cells[r, 15].Value} Fila: {r} (Err: 12)";
+                                                uploadResult.ErrorMessage = $"{thrustFileName} la estacion ingresada no existe. Estacion: {ws.Cells[r, 7].Value} Fila: {r} (Err: 12)";
                                                 hasErrors = true; uploadResult.HasError = true; break;
                                             }
                                             else
-                                                empleado.Idestacion = context.Estaciones.First(x => x.Nombre == ws.Cells[r, 15].Value.ToString() && x.Estatus == 1).Idestacion;
+                                                empleado.Idestacion = context.Estaciones.First(x => x.Nombre == ws.Cells[r, 7].Value.ToString() && x.Estatus == 1).Idestacion;
                                         }
                                         else
                                         {
@@ -335,15 +335,15 @@ namespace OnePlace.Server.Controllers
                                         //    hasErrors = true; uploadResult.HasError = true; break;
                                         //}
 
-                                        if (ws.Cells[r, 18].Value is not null)
+                                        if (ws.Cells[r, 8].Value is not null)
                                         {
-                                            if (!context.Puestos.Any(x => x.Puesto1 == ws.Cells[r, 18].Value.ToString()))
+                                            if (!context.Puestos.Any(x => x.Puesto1 == ws.Cells[r, 8].Value.ToString()))
                                             {
-                                                uploadResult.ErrorMessage = $"{thrustFileName} el puesto ingresado no existe. Puesto: {ws.Cells[r, 18].Value} Fila: {r} (Err: 12)";
+                                                uploadResult.ErrorMessage = $"{thrustFileName} el puesto ingresado no existe. Puesto: {ws.Cells[r, 8].Value} Fila: {r} (Err: 12)";
                                                 hasErrors = true; uploadResult.HasError = true; break;
                                             }
                                             else
-                                                empleado.Idpuesto = context.Puestos.First(x => x.Puesto1 == ws.Cells[r, 18].Value.ToString()).Idpuesto;
+                                                empleado.Idpuesto = context.Puestos.First(x => x.Puesto1 == ws.Cells[r, 8].Value.ToString()).Idpuesto;
                                         }
                                         else
                                         {
@@ -351,11 +351,11 @@ namespace OnePlace.Server.Controllers
                                             hasErrors = true; uploadResult.HasError = true; break;
                                         }
 
-                                        if (ws.Cells[r, 19].Value is not null && ws.Cells[r, 20].Value is not null)
+                                        if (ws.Cells[r, 9].Value is not null && ws.Cells[r, 10].Value is not null)
                                         {
-                                            if (!context.Users.Any(x => x.UserName == ws.Cells[r, 19].Value.ToString()))
+                                            if (!context.Users.Any(x => x.UserName == ws.Cells[r, 9].Value.ToString()))
                                             {
-                                                if (!Validar_Contraseña(ws.Cells[r, 20].Value.ToString(), out Errors))
+                                                if (!Validar_Contraseña(ws.Cells[r, 10].Value.ToString(), out Errors))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} contraseña no valida. Error: {Errors} Fila: {r} (Err: 13)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
@@ -368,11 +368,11 @@ namespace OnePlace.Server.Controllers
 
                                         if (!hasErrors && !existe)
                                         {
-                                            persona.Correo = ws.Cells[r, 8].Value is not null ? ws.Cells[r, 8].Value.ToString() : string.Empty;
-                                            persona.Telefono = ws.Cells[r, 9].Value is not null ? ws.Cells[r, 9].Value.ToString() : string.Empty;
+                                            //persona.Correo = ws.Cells[r, 8].Value is not null ? ws.Cells[r, 8].Value.ToString() : string.Empty;
+                                            //persona.Telefono = ws.Cells[r, 9].Value is not null ? ws.Cells[r, 9].Value.ToString() : string.Empty;
 
-                                            empleado.Correo = ws.Cells[r, 10].Value is not null ? ws.Cells[r, 10].Value.ToString() : string.Empty;
-                                            empleado.Telefono = ws.Cells[r, 11].Value is not null ? ws.Cells[r, 11].Value.ToString() : string.Empty;
+                                            //empleado.Correo = ws.Cells[r, 10].Value is not null ? ws.Cells[r, 10].Value.ToString() : string.Empty;
+                                            //empleado.Telefono = ws.Cells[r, 11].Value is not null ? ws.Cells[r, 11].Value.ToString() : string.Empty;
 
                                             empleado.Fchalta = DateTime.Now;
 
@@ -384,19 +384,19 @@ namespace OnePlace.Server.Controllers
                                             context.Add(empleado);
                                             await context.SaveChangesAsync();
 
-                                            if (ws.Cells[r, 19].Value is not null && ws.Cells[r, 20].Value is not null)
+                                            if (ws.Cells[r, 9].Value is not null && ws.Cells[r, 10].Value is not null)
                                             {
                                                 var user = new ApplicationUser
                                                 {
                                                     //UserName = item.Noemp.Trim() + inicialesZona,
-                                                    UserName = ws.Cells[r, 19].Value.ToString(),
+                                                    UserName = ws.Cells[r, 9].Value.ToString(),
                                                     noemp = empleado.Noemp,
                                                     Idempleado = empleado.Idempleado,
                                                     Nombre = persona.Nombre,
                                                     ApellidoMaterno = persona.ApeMat,
                                                     ApellidoPaterno = persona.ApePat,
                                                     //Empleado = null,
-                                                    ContraseñaTextoPlano = ws.Cells[r, 20].Value.ToString(),
+                                                    ContraseñaTextoPlano = ws.Cells[r, 10].Value.ToString(),
                                                     Activo = true
                                                 };
 
