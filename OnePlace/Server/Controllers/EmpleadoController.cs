@@ -52,14 +52,14 @@ namespace OnePlace.Server.Controllers
                 Empleado empleado = per.Obtener_Empleado();
                 Persona persona = per.Obtener_Persona();
 
-                if (context.Personas.Any(x => x.Rfc.ToLower().Equals(persona.Rfc.ToLower())))
-                    return BadRequest("Ya existe una persona con el mismo RFC");
+                //if (context.Personas.Any(x => x.Rfc.ToLower().Equals(persona.Rfc.ToLower())))
+                //    return BadRequest("Ya existe una persona con el mismo RFC");
 
-                if (context.Personas.Any(x => x.Curp.ToLower().Equals(persona.Curp.ToLower())))
-                    return BadRequest("Ya existe una persona con el mismo CURP");
+                //if (context.Personas.Any(x => x.Curp.ToLower().Equals(persona.Curp.ToLower())))
+                //    return BadRequest("Ya existe una persona con el mismo CURP");
 
-                if (context.Personas.Any(x => x.Nss.ToLower().Equals(persona.Nss.ToLower())))
-                    return BadRequest("Ya existe una persona con el mismo NSS");
+                //if (context.Personas.Any(x => x.Nss.ToLower().Equals(persona.Nss.ToLower())))
+                //    return BadRequest("Ya existe una persona con el mismo NSS");
 
                 if (context.Empleados.Any(x => x.Noemp.ToLower().Equals(empleado.Noemp.ToLower()) && x.ZonaId == empleado.ZonaId))
                     return BadRequest("Ya existe un emplado con el mismo No de empleado");
