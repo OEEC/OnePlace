@@ -222,22 +222,22 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             //buscamos un empleado por el usuario logueado
-            var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
+            var empleado = await context.Empleados.IgnoreAutoIncludes().Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
 
             List<Promocion> listadepromocionescarrusel = new List<Promocion>();
 
             if (empleado != null)
             {
                 //buscamos las zonas relacionadas al empleado
-                var listapromocionzona = await context.PromocionZonas.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
+                var listapromocionzona = await context.PromocionZonas.IgnoreAutoIncludes().Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
 
                 var FechadeHoy = DateTime.Today;
 
                 //recorremos las zonas ligadas a una promocion, para obtener las promociones por zona
                 foreach (var item in listapromocionzona)
                 {
-                    var promocion = await context.Promociones.Where(x => x.PromocionId == item.PromocionId && x.Activo == true)
-                        .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
+                    var promocion = await context.Promociones.IgnoreAutoIncludes().Where(x => x.PromocionId == item.PromocionId && x.Activo == true)
+                        //.Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
                         .Include(x => x.Imagenes)
                         .FirstOrDefaultAsync();
 
