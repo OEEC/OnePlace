@@ -111,39 +111,46 @@ namespace OnePlace.Server.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrador")]
         public async Task<ActionResult<int>> PostVideo(ArchivoAdjunto uploadedFile)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            uploadedFile.FechaDeSubida = DateTime.Now;
-
-            //Obtener la extension del archivo - tipo de documento
-            string extencion = uploadedFile.NombreArchivo.ToString().Split('.').Last();
-            uploadedFile.ExtensionArchivo = extencion;
-
-            if (extencion == "mp4")
+            try
             {
-                string nombreContenedor = "VideoServer";
-                var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{uploadedFile.NombreArchivo}";
+                var user = await _userManager.GetUserAsync(HttpContext.User);
+                uploadedFile.FechaDeSubida = DateTime.Now;
 
-                var fs = System.IO.File.Create(path);
-                fs.Write(uploadedFile.ArchivoEnBytes, 0, uploadedFile.ArchivoEnBytes.Length);
-                fs.Close();
+                //Obtener la extension del archivo - tipo de documento
+                string extencion = uploadedFile.NombreArchivo.ToString().Split('.').Last();
+                uploadedFile.ExtensionArchivo = extencion;
 
-                //pathbase es para obtener la url base en este caso capacitate solo cuando esta en IIS en local biene vacio no afecta
-                var urlActual = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
-                var rutaParaBD = Path.Combine(urlActual, nombreContenedor, uploadedFile.NombreArchivo);
+                if (extencion == "mp4")
+                {
+                    string nombreContenedor = "VideoServer";
+                    var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{uploadedFile.NombreArchivo}";
 
-                uploadedFile.UrlLocal = rutaParaBD;
-                uploadedFile.ArchivoEnBytes = null;//vienen bytes pero se hacen null ya que causa error si se almacenan 
+                    var fs = System.IO.File.Create(path);
+                    fs.Write(uploadedFile.ArchivoEnBytes, 0, uploadedFile.ArchivoEnBytes.Length);
+                    fs.Close();
 
-                context.Add(uploadedFile);
-                await context.SaveChangesAsync(user.Id);
+                    //pathbase es para obtener la url base en este caso capacitate solo cuando esta en IIS en local biene vacio no afecta
+                    var urlActual = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
+                    var rutaParaBD = Path.Combine(urlActual, nombreContenedor, uploadedFile.NombreArchivo);
+
+                    uploadedFile.UrlLocal = rutaParaBD;
+                    uploadedFile.ArchivoEnBytes = null;//vienen bytes pero se hacen null ya que causa error si se almacenan 
+
+                    context.Add(uploadedFile);
+                    await context.SaveChangesAsync(user.Id);
+                }
+                else
+                {
+                    string mensajeError = "Archivo no válido!";
+                    return BadRequest(mensajeError);
+                }
+
+                return uploadedFile.ArchivoAdjuntoId;
             }
-            else
+            catch (Exception e)
             {
-                string mensajeError = "Archivo no válido!";
-                return BadRequest(mensajeError);
+                return BadRequest(e.Message);
             }
-
-            return uploadedFile.ArchivoAdjuntoId;
         }
 
         #region VERELVIDEOPOMEDIODEBYTES
