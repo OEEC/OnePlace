@@ -1,0 +1,113 @@
+﻿@inject IRepositorio http
+@inject HttpClient client
+@inject IMostrarMensaje mostrarMensajes
+
+<div>
+    <label>@Label</label>
+    <div>
+        <Microsoft.AspNetCore.Components.Forms.InputFile OnChange="OnInputFileChange" multiple accept=".mp4" />
+    </div>
+</div>
+@if (loading_upload)
+{
+    <p>
+        <SpinnerLoading /> Subiendo archivo...
+    </p>
+}
+@* @if (file_saving)
+{
+    <p>
+        <LoadingSpinner /> Guardando archivo...
+    </p>
+} *@
+
+@if (archivoAdjunto.ArchivoAdjuntoId != 0 && file_uploaded)
+{
+    <div class="card">
+        <div class="card-body" style="font-size:.85rem;">
+            <p>Archivo guardado:</p>
+            <p>@archivoAdjunto.NombreArchivo</p>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter] public string Label { get; set; } = "Video";
+    [Parameter] public EventCallback<int> SubidaExitosa { get; set; }
+
+    private ArchivoAdjunto archivoAdjunto = new();
+
+    private int MaxAllowedFiles = 1;
+
+    bool loading_upload = false;
+    bool file_uploaded = false;
+    bool file_saving = false;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        loading_upload = true;
+        file_uploaded = false;
+
+        long maxFileSize = 524288000;
+        var upload = false;
+
+        using var content = new MultipartFormDataContent();
+
+        foreach (var file in e.GetMultipleFiles(MaxAllowedFiles))
+        {
+            try
+            {
+                var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: fileContent, name: "\"files\"", fileName: file.Name);
+
+                upload = true;
+                file_uploaded = true;
+            }
+            catch (Exception ex)
+            {
+                loading_upload = false;
+                await mostrarMensajes.MostrarMensajeError(ex.Message);
+            }
+        }
+
+        if (upload)
+        {
+            file_saving = true;
+            var response = await http.PostFile<ArchivoAdjunto>("api/Upload/video/tema", content);
+            if (response.Error)
+            {
+                var message = await response.GetBody();
+                await mostrarMensajes.MostrarMensajeError(message);
+                loading_upload = false;
+                file_saving = false;
+            }
+            else
+            {
+                loading_upload = false;
+                archivoAdjunto = response.Response;
+                file_saving = false;
+
+                await SubidaExitosa.InvokeAsync(archivoAdjunto.ArchivoAdjuntoId);//cuando se invoque el metodo devolvera el int ya cargado con la respuesta de la api
+            }
+
+            // var response = await client.PostAsync("api/Upload/video/tema", content);
+
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            //     using var responseStream = await response.Content.ReadAsStreamAsync();
+
+            //     var newUploadResults = await System.Text.Json.JsonSerializer.DeserializeAsync<ArchivoAdjunto>(responseStream, options);
+
+            //     if(newUploadResults is not null)
+            //     {
+
+            //     }
+            // }
+        }
+    }
+}

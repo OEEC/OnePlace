@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace OnePlace.Server.Controllers
@@ -305,15 +307,16 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<List<ArchivoAdjunto>>> PostVideos(List<VideosCapacitacion> listadevideos)
         {
             List<ArchivoAdjunto> listadearchivos = new List<ArchivoAdjunto>();
-            foreach(var item in listadevideos)
+            foreach (var item in listadevideos)
             {
                 var archivo = context.ArchivoAdjuntos.Where(x => x.ArchivoAdjuntoId == item.ArchivoId).FirstOrDefault();
-                if (archivo != null){
+                if (archivo != null)
+                {
 
                     listadearchivos.Add(archivo);
                 }
             }
-           
+
             return listadearchivos;
         }
 
@@ -392,5 +395,78 @@ namespace OnePlace.Server.Controllers
         //}
 
         #endregion
+
+        [HttpPost("video/tema")]
+        public async Task<ActionResult<ArchivoAdjunto>> Subir_Video_Tema([FromForm] IEnumerable<IFormFile> files)
+        {
+            try
+            {
+                long maxFileSize = 524288000;
+                int MaxAllowedFile = 1;
+                var fileProcessed = 0;
+                ArchivoAdjunto archivoAdjunto = new();
+
+                foreach (var file in files)
+                {
+                    string trustedFileNameForFileStorage;
+                    var untrustedFileName = file.FileName;
+                    var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
+
+                    if (fileProcessed < MaxAllowedFile)
+                    {
+                        if (Path.GetExtension(trustedFileNameForDisplay) == ".mp4")
+                        {
+                            if (file.Length == 0)
+                            {
+                                return BadRequest("El archivo esta vacio.");
+                            }
+                            else if (file.Length > maxFileSize)
+                            {
+                                return BadRequest("El archivo excede el peso maximo permitido. 524MB max.");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    trustedFileNameForFileStorage = Path.GetRandomFileName();
+                                    string nombreContenedor = "VideoServer";
+
+                                    string randomNameWithExtension = Path.ChangeExtension(trustedFileNameForFileStorage, ".mp4");
+                                    var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{randomNameWithExtension}";
+                                    
+                                    //var path = Path.Combine(environment.WebRootPath, "VideoServer", trustedFileNameForDisplay);
+
+                                    await using FileStream fs = new(path, FileMode.Create);
+                                    await file.CopyToAsync(fs);
+
+                                    //pathbase es para obtener la url base en este caso capacitate solo cuando esta en IIS en local biene vacio no afecta
+                                    var urlActual = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
+                                    var rutaParaBD = Path.Combine(urlActual, nombreContenedor, randomNameWithExtension);
+
+                                    archivoAdjunto.NombreArchivo = trustedFileNameForDisplay;
+                                    archivoAdjunto.UrlLocal = rutaParaBD;
+                                    archivoAdjunto.ExtensionArchivo = "mp4";
+
+                                    context.Add(archivoAdjunto);
+                                    await context.SaveChangesAsync();
+                                }
+                                catch (IOException ex)
+                                {
+                                    return BadRequest(ex.Message);
+                                }
+                            }
+                        }
+
+                        fileProcessed++;
+                    }
+                }
+
+                return Ok(archivoAdjunto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

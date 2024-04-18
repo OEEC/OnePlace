@@ -50,7 +50,8 @@
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <SubirVideo SubidaExitosa="SeSubioelVideo"></SubirVideo>
+                            @* <SubirVideo SubidaExitosa="SeSubioelVideo"></SubirVideo> *@
+                            <Subir_Video_Componente_Alterno SubidaExitosa="SeSubioelVideo" />
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -385,7 +386,8 @@ else
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <SubirVideo SubidaExitosa="SeSubioelVideo"></SubirVideo>
+                        @* <SubirVideo SubidaExitosa="SeSubioelVideo"></SubirVideo> *@
+                        <Subir_Video_Componente_Alterno SubidaExitosa="SeSubioelVideo" />
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -514,7 +516,7 @@ else
     }
 }
 
-@code{
+@code {
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -573,7 +575,7 @@ else
             }
 
             //este if se pone ya que hay veces que el quiz no trae nada de informacion y la app pide que se evalue si es null
-            if(EditartemaquizDTO.Quiz != null)
+            if (EditartemaquizDTO.Quiz != null)
             {
                 if (!string.IsNullOrWhiteSpace(EditartemaquizDTO.Quiz.Imagen))
                 {
@@ -626,7 +628,7 @@ else
         {
             Quiz.Imagen = imagenBase64;
             imagenquizURL = null;
-        }          
+        }
     }
 
     #endregion
@@ -676,10 +678,10 @@ else
         //para crear un tema con un quiz tuvimos que juntar ambos objetos en un dto para poder enviarlos al mismo tiempo por url
         Tema.CursoId = CursoId;
         var temaquiz = new TemaQuizDTO
-        {
-            Tema = Tema,
-            Quiz = Quiz
-        };
+            {
+                Tema = Tema,
+                Quiz = Quiz
+            };
 
         var httpResponse = await repositorio.Post("api/Tema", temaquiz);
         @if (httpResponse.Error)
@@ -732,10 +734,10 @@ else
         /*como debemos enviar un dto por url para que tenga ambos objetos,
         y a la hora de llenar el formulario el que se llenara es un formulario con el objeto original quiz
         el dto quiz no tendra informacion por eso aqui llenamos el dto quiz con la data del objeto original*/
-        @if(EditartemaquizDTO.Quiz == null)
-        {            
+        @if (EditartemaquizDTO.Quiz == null)
+        {
             EditartemaquizDTO.Quiz = Quiz;
-        }      
+        }
 
         var httpResponse = await repositorio.Put("api/Tema", EditartemaquizDTO);
         if (httpResponse.Error)
