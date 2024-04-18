@@ -628,7 +628,7 @@ else
         {
             Quiz.Imagen = imagenBase64;
             imagenquizURL = null;
-        }
+        }          
     }
 
     #endregion
@@ -678,10 +678,10 @@ else
         //para crear un tema con un quiz tuvimos que juntar ambos objetos en un dto para poder enviarlos al mismo tiempo por url
         Tema.CursoId = CursoId;
         var temaquiz = new TemaQuizDTO
-            {
-                Tema = Tema,
-                Quiz = Quiz
-            };
+        {
+            Tema = Tema,
+            Quiz = Quiz
+        };
 
         var httpResponse = await repositorio.Post("api/Tema", temaquiz);
         @if (httpResponse.Error)
@@ -735,9 +735,9 @@ else
         y a la hora de llenar el formulario el que se llenara es un formulario con el objeto original quiz
         el dto quiz no tendra informacion por eso aqui llenamos el dto quiz con la data del objeto original*/
         @if (EditartemaquizDTO.Quiz == null)
-        {
+        {            
             EditartemaquizDTO.Quiz = Quiz;
-        }
+        }      
 
         var httpResponse = await repositorio.Put("api/Tema", EditartemaquizDTO);
         if (httpResponse.Error)
