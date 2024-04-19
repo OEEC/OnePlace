@@ -13,97 +13,50 @@
     <div class="container-landingpage bg-white p-0 text-heebo">
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="inicio" class="navbar-brand p-0">
-                    <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
-                    <img src="img/oneplace.png" alt="Logo">
-                </a>
-                <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
-                    <div class="navbar-nav ml-auto py-0">
-                        @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
-                        <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
-                        @* <a onclick="document.getElementById('eventos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Eventos</a> *@
-                        <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Promociones</a>
-                        <a onclick="document.getElementById('cursos').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cursos</a>
-                        @*<a onclick="document.getElementById('cumple').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Cumpleaños</a>*@
-                        <a href="capacitacioninfoextra" class="nav-item nav-link">Capacitación</a>
-                        <!-- <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Otros</a>
-                            <div class="dropdown-menu m-0">
-                                <a href="team.html" class="dropdown-item">Efemerides</a>
-                                <a href="testimonial.html" class="dropdown-item">Historia</a>
-                            </div>
-                        </div> -->
-                        <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
-                    </div>
-                </div>
-                @*se saco del div namenu para poder dar clic al boton de deslogueo sin que se esconda el navmenu*@
-                <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
-            </nav>
-
-            <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
-                <div class="container my-5 py-5 px-lg-5">
-                    <div class="row g-5 py-5">
-                        <div class="col-lg-6 text-center text-lg-start">
-                            <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
-                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
-                            <a onclick="document.getElementById('promociones').scrollIntoView({ behavior: 'smooth' })" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Ver Más</a>
-                            <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
-                        </div>
-                        <div class="col-lg-6 text-center text-lg-start">
-                            <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Background_Custom />
         <!-- Navbar & Hero End -->
         <!--Eventos-->
         @* <div class="container-xxl py-5" id="eventos">
-            <div class="container px-lg-5">
-                <div class="row g-5">
-                    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
-                        <div class="section-title position-relative mb-4 pb-2">
-                            <h6 class="position-relative text-primarysimsa pl-4">Información</h6>
-                            <h2 class="mt-2">Lo más relevante</h2>
-                        </div>
-                        <p class="mb-4 colorgris">
-                            Mes con mes, encontrarás las fechas y acontecimientos de grupo simsa a través de imágenes y una breve descripción del hecho.
-                        </p>
-                        <div class="row g-3">
-                            <div class="col-sm-6">
-                                @foreach (var item in listadeeventos.Take(6))
-                                {
-                                    <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEvento(item.EventoId))">
-                                        <i class="fas fa-calendar text-primarysimsa mr-2"></i>
-                                        @item.NombreEvento
-                                    </h6>
-                                }
-                            </div>
-                            @if (listadeeventos.Count > 6)
-                            {
-                                <div class="col-sm-6">
-                                    @foreach (var item in listadeeventos.Skip(6))
-                                    {
-                                        <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEvento(item.EventoId))">
-                                            <i class="fas fa-calendar text-primarysimsa mr-2"></i>
-                                            @item.NombreEvento
-                                        </h6>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="img/about.jpg" style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;">
-                    </div>
-                </div>
-            </div>
-        </div> *@
+    <div class="container px-lg-5">
+    <div class="row g-5">
+    <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+    <div class="section-title position-relative mb-4 pb-2">
+    <h6 class="position-relative text-primarysimsa pl-4">Información</h6>
+    <h2 class="mt-2">Lo más relevante</h2>
+    </div>
+    <p class="mb-4 colorgris">
+    Mes con mes, encontrarás las fechas y acontecimientos de grupo simsa a través de imágenes y una breve descripción del hecho.
+    </p>
+    <div class="row g-3">
+    <div class="col-sm-6">
+    @foreach (var item in listadeeventos.Take(6))
+    {
+    <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEvento(item.EventoId))">
+    <i class="fas fa-calendar text-primarysimsa mr-2"></i>
+    @item.NombreEvento
+    </h6>
+    }
+    </div>
+    @if (listadeeventos.Count > 6)
+    {
+    <div class="col-sm-6">
+    @foreach (var item in listadeeventos.Skip(6))
+    {
+    <h6 class="mb-3 eventos" @onclick="@(() => OpenModalEvento(item.EventoId))">
+    <i class="fas fa-calendar text-primarysimsa mr-2"></i>
+    @item.NombreEvento
+    </h6>
+    }
+    </div>
+    }
+    </div>
+    </div>
+    <div class="col-lg-6">
+    <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="img/about.jpg" style="visibility: visible; animation-delay: 0.5s; animation-name: zoomIn;">
+    </div>
+    </div>
+    </div>
+    </div> *@
         <!--Eventos End-->
         <!-- Ofertas Start -->
         @* @if (ListadePromociones != null && ListadePromociones.Count > 0)
@@ -251,7 +204,7 @@
         </div>
         <!-- Cursos End -->
         <!--Logos Start -->
-        <div class="container-xxl bg-simsa testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="container-xxl bg-simsa testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s" style="@(!string.IsNullOrEmpty(Color_Hex) ? $"background-color:{Color_Hex};" : null)">
             <div class="container py-5 px-lg-5">
                 <div class="owl-carousel testimonial-carousel">
                     <div class="testimonial-item bg-transparent rounded text-white p-4">
@@ -355,74 +308,9 @@
     </div>*@
         <!-- Cumple End -->
         <!-- Footer Start -->
-        <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
-            <div class="container py-5 px-lg-5">
-                <div class="row g-5">
-                    <div class="col-md-6 col-lg-6">
-                        <h5 class="text-white mb-4">Buzón</h5>
-                        <div class="position-relative w-100 mt-3">
-                            <form>
-                                <div class="form-group">
-                                    <label for="exampleInputEmail1">Mensaje:</label>
-                                    <textarea type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"></textarea>
-                                </div><br>
-                                <div class="form-group">
-                                    <div class="file-select" id="src-file1">
-                                        <input type="file" name="src-file1" aria-label="Archivo">
-                                    </div>
-                                </div>
-                                <br>
-                                <button type="submit" class="btn btn-light font-weight-bold">
-                                    <i class="fa fa-paper-plane text-primarysimsa"></i>
-                                    Enviar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6">
-                        <h5 class="text-white mb-4">Historia</h5>
-                        <p style="text-align:justify">
-                            Grupo SIMSA fué fundada en 1967 formada por un grupo de empresas Laguneras orientadas a la producción y distribución de bienes y servicios en diferentes divisiones tales como Transporte, Energéticos, Construcción, Entre otros.
-                            Grupo SIMSA es un enlace de empresas triunfadoras, que basado en su capital humano y la excelencia en el servicio, enfrenta el reto de la intensa competitividad con el nuevo milenio.
-                        </p>
-                        <div class="row g-2">
-                            <div class="col-4"></div>
-                            @*<div class="col-4"></div>*@
-                            <div class="col-8">
-                                <img class="img-fluid" src="img/gruposimsa.png" alt="Image" style="border-radius: 15px;
-                                box-shadow: 0 0 10px rgb(0 0 0 / 70%);">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container px-lg-5">
-                <div class="copyright">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-5">
-                            <p>
-                                <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
-                            </p>
-                            <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
-                            <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
-                        </div>
-                        <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <span class="border-bottom">One Place</span> @DateTime.Today.Year, All Right Reserved.<br />
-                            Designed By <span class="border-bottom">Innovación</span>
-                            <br>Distributed By: <span class="border-bottom">Simsa</span>
-                        </div>
-                        <div class="col-md-3 text-center text-md-end">
-                            <div class="d-flex pt-2">
-                                <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
+        <Footer_Custom />
+
         <!-- Footer End -->
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-lg-square btn-dark back-to-top pt-2"><i class="fas fa-long-arrow-alt-up"></i></a>
@@ -695,6 +583,7 @@ else
 }
 
 @code {
+    private string Color_Hex = string.Empty;
 
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -719,6 +608,8 @@ else
         user = authState.User;
 
         FechadeHoy = DateTime.Today;
+
+        await Obtener_Color();
 
         @if (user.IsInRole("Usuario"))
         {
@@ -812,6 +703,27 @@ else
     }
 
     #endregion
+
+    private async Task Obtener_Color()
+    {
+        try
+        {
+            var response = await repositorio.Get<Configuracion>("api/configuracion/fondo/color/carousel");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await mostrarMensajes.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Color_Hex = response.Response.Valor;
+            }
+        }
+        catch (Exception e)
+        {
+            await mostrarMensajes.MostrarMensajeError(e.Message);
+        }
+    }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {

@@ -13,42 +13,7 @@
     <div class="container-landingpage bg-white p-0 text-heebo">
 
         <!-- Navbar & Hero Start -->
-        <div class="container-xxl position-relative p-0">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="inicio" class="navbar-brand p-0">
-                    <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
-                    <img src="img/oneplace.png" alt="Logo">
-                </a>
-                <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="@NavMenuCssClass navbar-collapse" id="navbarCollapse" @onclick="CollapseNavMenu">
-                    <div class="navbar-nav ml-auto py-0">
-                        @*cambio ocurrido plantilla en boostrap 5 ms-auto blazor boostrap 4 ml-auto*@
-                        <a onclick="document.getElementById('inicio').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Inicio</a>
-                        <a onclick="document.getElementById('capacitacion').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Capacitación</a>
-                        <a onclick="document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' })" class="nav-item nav-link">Contacto</a>
-                    </div>
-                </div>
-                <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
-            </nav>
-
-            <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio">
-                <div class="container my-5 py-5 px-lg-5">
-                    <div class="row g-5 py-5">
-                        <div class="col-lg-6 text-center text-lg-start">
-                            <h1 class="text-white mb-4 animated zoomIn">Gracias por ser parte de la familia Simsa</h1>
-                            <p class="text-white pb-3 animated zoomIn">Bienvenido a tu Portal Web</p>
-                            <a href="inicio" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft font-weight-bold">Página Principal</a>
-                            <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
-                        </div>
-                        <div class="col-lg-6 text-center text-lg-start">
-                            <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Background_Custom/>
         <!-- Navbar & Hero End -->
 
 
@@ -124,34 +89,7 @@
         <!--Capacitacion End-->
 
         <!-- Footer Start -->
-        <div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto">
-            <div class="container px-lg-5">
-                <div class="copyright">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-5">
-                            <p>
-                                <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
-                            </p>
-                            <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
-                            <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
-                        </div>
-                        <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <span class="border-bottom">One Place</span> @DateTime.Today.Year, All Right Reserved.<br />
-                            Designed By <span class="border-bottom">Innovación</span>
-                            <br>Distributed By: <span class="border-bottom">Simsa</span>
-                        </div>
-                        <div class="col-md-3 text-center text-md-end">
-                            <div class="d-flex pt-2">
-                                <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
-                                <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Footer_Custom />
         <!-- Footer End -->
 
         <!-- Back to Top -->

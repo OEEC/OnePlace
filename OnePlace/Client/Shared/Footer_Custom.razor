@@ -1,0 +1,102 @@
+﻿@inject IRepositorio http
+@inject IMostrarMensaje message
+
+<div class="container-fluid bg-simsa text-dark footer mt-5 pt-5  colornegro wow fadeIn" data-wow-delay="0.1s" id="contacto" style="@(!string.IsNullOrEmpty(Color_Hex) ? $"background-color:{Color_Hex};" : null)">
+    <div class="container py-5 px-lg-5">
+        <div class="row g-5">
+            <div class="col-md-6 col-lg-6">
+                <h5 class="text-white mb-4">Buzón</h5>
+                <div class="position-relative w-100 mt-3">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Mensaje:</label>
+                            <textarea type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"></textarea>
+                        </div><br>
+                        <div class="form-group">
+                            <div class="file-select" id="src-file1">
+                                <input type="file" name="src-file1" aria-label="Archivo">
+                            </div>
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-light font-weight-bold">
+                            <i class="fa fa-paper-plane text-primarysimsa"></i>
+                            Enviar
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <h5 class="text-white mb-4">Historia</h5>
+                <p style="text-align:justify">
+                    Grupo SIMSA fué fundada en 1967 formada por un grupo de empresas Laguneras orientadas a la producción y distribución de bienes y servicios en diferentes divisiones tales como Transporte, Energéticos, Construcción, Entre otros.
+                    Grupo SIMSA es un enlace de empresas triunfadoras, que basado en su capital humano y la excelencia en el servicio, enfrenta el reto de la intensa competitividad con el nuevo milenio.
+                </p>
+                <div class="row g-2">
+                    <div class="col-4"></div>
+                    @*<div class="col-4"></div>*@
+                    <div class="col-8">
+                        <img class="img-fluid" src="img/gruposimsa.png" alt="Image" style="border-radius: 15px;
+                                box-shadow: 0 0 10px rgb(0 0 0 / 70%);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container px-lg-5">
+        <div class="copyright">
+            <div class="row">
+                <div class="col-md-6 col-lg-5">
+                    <p>
+                        <i class="fa fa-map-marker-alt mr-3 text-white"></i>C. Juan F. Brittingham, Cd Industrial, Torreón, Coah.
+                    </p>
+                    <p><i class="fa fa-phone-alt mr-3 text-white"></i>871 750 7171</p>
+                    <p><i class="fa fa-envelope mr-3 text-white"></i>contacto@simsa.com</p>
+                </div>
+                <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
+                    &copy; <span class="border-bottom">One Place</span> @DateTime.Today.Year, All Right Reserved.<br />
+                    Designed By <span class="border-bottom">Innovación</span>
+                    <br>Distributed By: <span class="border-bottom">Simsa</span>
+                </div>
+                <div class="col-md-3 text-center text-md-end">
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-outline-light btn-social" href="https://twitter.com/grupo_simsa" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="https://es-la.facebook.com/GrupoSimsaMexico/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="https://www.instagram.com/migasolina/?hl=es" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a class="btn btn-outline-light btn-social" href="https://www.linkedin.com/company/grupo-simsa-s-a-de-c-v-/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string Color_Hex = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Color();
+    }
+
+    private async Task Obtener_Color()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/fondo/color/footer");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Color_Hex = response.Response.Valor;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+}
