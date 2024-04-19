@@ -433,7 +433,7 @@ namespace OnePlace.Server.Controllers
 
                                     string randomNameWithExtension = Path.ChangeExtension(trustedFileNameForFileStorage, ".mp4");
                                     var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{randomNameWithExtension}";
-                                    
+
                                     //var path = Path.Combine(environment.WebRootPath, "VideoServer", trustedFileNameForDisplay);
 
                                     await using FileStream fs = new(path, FileMode.Create);
@@ -446,6 +446,80 @@ namespace OnePlace.Server.Controllers
                                     archivoAdjunto.NombreArchivo = trustedFileNameForDisplay;
                                     archivoAdjunto.UrlLocal = rutaParaBD;
                                     archivoAdjunto.ExtensionArchivo = "mp4";
+                                    archivoAdjunto.FechaDeSubida = DateTime.Now;
+
+                                    context.Add(archivoAdjunto);
+                                    await context.SaveChangesAsync();
+                                }
+                                catch (IOException ex)
+                                {
+                                    return BadRequest(ex.Message);
+                                }
+                            }
+                        }
+
+                        fileProcessed++;
+                    }
+                }
+
+                return Ok(archivoAdjunto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("imagen")]
+        public async Task<ActionResult<ArchivoAdjunto>> Subir_Imagen([FromForm] IEnumerable<IFormFile> files)
+        {
+            try
+            {
+                long maxFileSize = 52428800;//52MB
+                int MaxAllowedFile = 1;
+                var fileProcessed = 0;
+                ArchivoAdjunto archivoAdjunto = new();
+
+                foreach (var file in files)
+                {
+                    string trustedFileNameForFileStorage;
+                    var untrustedFileName = file.FileName;
+                    var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
+
+                    if (fileProcessed < MaxAllowedFile)
+                    {
+                        if (Path.GetExtension(trustedFileNameForDisplay) == ".png" || Path.GetExtension(trustedFileNameForDisplay) == ".jpeg" || Path.GetExtension(trustedFileNameForDisplay) == ".jpg")
+                        {
+                            if (file.Length == 0)
+                            {
+                                return BadRequest("El archivo esta vacio.");
+                            }
+                            else if (file.Length > maxFileSize)
+                            {
+                                return BadRequest("El archivo excede el peso maximo permitido. 52MB max.");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    trustedFileNameForFileStorage = Path.GetRandomFileName();
+                                    string nombreContenedor = "ImgServer";
+
+                                    string randomNameWithExtension = Path.ChangeExtension(trustedFileNameForFileStorage, Path.GetExtension(trustedFileNameForDisplay));
+                                    var path = $"{environment.WebRootPath}\\{nombreContenedor}\\{randomNameWithExtension}";
+
+                                    //var path = Path.Combine(environment.WebRootPath, "VideoServer", trustedFileNameForDisplay);
+
+                                    await using FileStream fs = new(path, FileMode.Create);
+                                    await file.CopyToAsync(fs);
+
+                                    //pathbase es para obtener la url base en este caso capacitate solo cuando esta en IIS en local biene vacio no afecta
+                                    var urlActual = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}";
+                                    var rutaParaBD = Path.Combine(urlActual, nombreContenedor, randomNameWithExtension);
+
+                                    archivoAdjunto.NombreArchivo = trustedFileNameForDisplay;
+                                    archivoAdjunto.UrlLocal = rutaParaBD;
+                                    archivoAdjunto.ExtensionArchivo = Path.GetExtension(trustedFileNameForDisplay);
 
                                     context.Add(archivoAdjunto);
                                     await context.SaveChangesAsync();

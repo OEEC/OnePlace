@@ -2,7 +2,7 @@
 @inject IMostrarMensaje message
 
 <div class="container-xxl position-relative p-0">
-    <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+    <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-5 py-lg-0">
         <a href="inicio" class="navbar-brand p-0">
             <!--<h1 class="m-0"><i class="fa fa-search me-2"></i>SEO<span class="fs-5">Master</span></h1> -->
             <img src="img/oneplace.png" alt="Logo">
@@ -48,13 +48,13 @@
     </div>
     </div>
     </div> *@
-    <div class="container-xxl py-2 bg-simsa hero-header mb-5" id="inicio" style="@(!string.IsNullOrEmpty(Color_Hex) ? $"background-color:{Color_Hex};" : null)">
-        <div class="container my-3 py-5 px-lg-5">
+    <div class="container-xxl py-5 bg-simsa hero-header mb-5" id="inicio" style="@(!string.IsNullOrEmpty(Color_Hex) ? $"background-color:{Color_Hex};" : null)">
+        <div class="container my-5 py-5 px-lg-5">
             <div class="row g-5 py-5">
 
                 <div class="col-lg-6 text-center text-lg-start">
                     <div>
-                        <img class="img-fluid animated flipInX" src="img/oneplace2.png" alt="">
+                        <img class="img-fluid animated flipInX" src="@Imagen_Logo" alt="">
 
                     </div>
                     <div>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 text-center text-lg-start">
-
+                    <img class="img-fluid animated flipInX" src="@Imagen_Portada"/>
                     <!--<a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a> -->
                 </div>
             </div>
@@ -73,11 +73,15 @@
 @code {
     private string Color_Hex = string.Empty;
     private string Texto_Portada = string.Empty;
+    private string Imagen_Portada = string.Empty;
+    private string Imagen_Logo = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Color();
         await Obtener_Texto_Portada();
+        await Obtener_Imagen_Logo();
+        await Obtener_Imagen_Portada();
     }
 
     private async Task Obtener_Color()
@@ -114,6 +118,48 @@
             else
             {
                 Texto_Portada = response.Response.Valor;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Imagen_Portada()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/imagen/portada");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Imagen_Portada = response.Response.Valor;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Imagen_Logo()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/imagen/logo");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Imagen_Logo = response.Response.Valor;
             }
         }
         catch (Exception e)

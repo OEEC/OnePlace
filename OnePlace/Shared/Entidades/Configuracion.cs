@@ -14,6 +14,6 @@ namespace OnePlace.Shared.Entidades
         public string Tipo { get; set; } = string.Empty;
         [StringLength(250)]
         public string Valor { get; set; } = string.Empty;
-        public bool Estatus { get; set; } = false;
+        public bool Estatus { get; set; } = true;
     }
 }

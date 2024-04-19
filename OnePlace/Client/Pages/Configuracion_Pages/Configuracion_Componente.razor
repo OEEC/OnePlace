@@ -1,0 +1,351 @@
+﻿@page "/configuracion"
+
+@inject IRepositorio http
+@inject IMostrarMensaje message
+
+<div class="card">
+    <div class="card-header">
+        <b>Configuracion de la pagina de inicio</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-4">
+                <div class="col-12">
+                    <div class="col-12">
+                        <label>Color fondo superior</label>
+                        <input class="col-12 form-control form-control-color my-1" type="color" @bind="Configuracion_Color_Superior.Valor" />
+                        <button class="btn btn-sm btn-primary my-1" @onclick="@Guardar_Configuracion_Color_Header">Guardar</button>
+                    </div>
+
+                    <div class="col-12">
+                        <label>Color fondo central</label>
+                        <input class="col-12 form-control form-control-color my-1" type="color" @bind="Configuracion_Color_Central.Valor" />
+                        <button class="btn btn-sm btn-primary my-1" @onclick="Guardar_Configuracion_Color_Carousel">Guardar</button>
+                    </div>
+
+                    <div class="col-12">
+                        <label>Color fondo inferior</label>
+                        <input class="col-12 form-control form-control-color my-1" type="color" @bind="Configuracion_Color_Inferior.Valor" />
+                        <button class="btn btn-sm btn-primary my-1" @onclick="Guardar_Configuracion_Color_Footer">Guardar</button>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="col-12">
+                        <label>Texto de portada</label>
+                        <textarea class="form-control" @bind="Configuracion_Texto_Portada.Valor" />
+                        <button class="btn btn-sm btn-primary my-1" @onclick="Guardar_Configuracion_Texto_Portada">Guardar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="col-12">
+                    <Subir_Imagen_Alterno Label="Imagen de portada" SubidaExitosa="Subir_Exitosamente_Portada"/>
+                    <img src="@Configuracion_Imagen_Portada.Valor" class="img-fluid" />
+                    <button class="btn btn-sm btn-primary my-1" @onclick="Guardar_Configuracion_Imagen_Portada">Guardar</button>
+
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="col-12">
+                    <Subir_Imagen_Alterno Label="Logo One" SubidaExitosa="Subir_Exitosamente_Logo"/>
+                    <img src="@Configuracion_Imagen_Logo.Valor" class="img-fluid" />
+                    <button class="btn btn-sm btn-primary my-1" @onclick="Guardar_Configuracion_Imagen_Logo">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    Configuracion Configuracion_Color_Superior = new();
+    Configuracion Configuracion_Color_Central = new();
+    Configuracion Configuracion_Color_Inferior = new();
+    Configuracion Configuracion_Imagen_Portada = new();
+    Configuracion Configuracion_Imagen_Logo = new();
+    Configuracion Configuracion_Texto_Portada = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Color_Superior();
+        await Obtener_Color_Footer();
+        await Obtener_Color_Carousel();
+        await Obtener_Texto_Portada();
+        await Obtener_Imagen_Logo();
+        await Obtener_Imagen_Portada();
+    }
+
+    private async Task Obtener_Texto_Portada()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/texto/portada");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Texto_Portada = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Color_Superior()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/fondo/color/header");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Color_Superior = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Color_Carousel()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/fondo/color/carousel");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Color_Central = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Color_Footer()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/fondo/color/footer");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Color_Inferior = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Imagen_Logo()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/imagen/logo");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Imagen_Logo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Obtener_Imagen_Portada()
+    {
+        try
+        {
+            var response = await http.Get<Configuracion>("api/configuracion/imagen/portada");
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                Configuracion_Imagen_Portada = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Color_Header()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/fondo/color/header", Configuracion_Color_Superior);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Color_Superior();
+                await message.MostrarMensajeExitoso("Color superior guardado.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Color_Carousel()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/fondo/color/carousel", Configuracion_Color_Central);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Color_Carousel();
+                await message.MostrarMensajeExitoso("Color central guardado.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Color_Footer()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/fondo/color/footer", Configuracion_Color_Inferior);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Color_Footer();
+                await message.MostrarMensajeExitoso("Color inferior guardado.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Texto_Portada()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/texto/portada", Configuracion_Texto_Portada);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Texto_Portada();
+                await message.MostrarMensajeExitoso("texto de portada guardado.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Imagen_Portada()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/imagen/portada", Configuracion_Imagen_Portada);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Imagen_Portada();
+                await message.MostrarMensajeExitoso("Imagen de portada guardada.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Guardar_Configuracion_Imagen_Logo()
+    {
+        try
+        {
+            var response = await http.Post<Configuracion>("api/configuracion/imagen/logo", Configuracion_Imagen_Logo);
+            if (response.Error)
+            {
+                var er_message = await response.GetBody();
+                await message.MostrarMensajeError(er_message);
+            }
+            else
+            {
+                await Obtener_Imagen_Logo();
+                await message.MostrarMensajeExitoso("Imagen de logo guardada.");
+            }
+        }
+        catch (Exception e)
+        {
+            await message.MostrarMensajeError(e.Message);
+        }
+    }
+
+
+    private void Subir_Exitosamente_Portada(ArchivoAdjunto archivoAdjunto)
+    {
+        if(archivoAdjunto is not null || !string.IsNullOrEmpty(archivoAdjunto.UrlLocal))
+        {
+            Configuracion_Imagen_Portada.Valor = archivoAdjunto.UrlLocal;
+        }
+    }
+
+    private void Subir_Exitosamente_Logo(ArchivoAdjunto archivoAdjunto)
+    {
+        if (archivoAdjunto is not null || !string.IsNullOrEmpty(archivoAdjunto.UrlLocal))
+        {
+            Configuracion_Imagen_Logo.Valor = archivoAdjunto.UrlLocal;
+        }
+    }
+}
