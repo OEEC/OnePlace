@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -31,7 +32,7 @@ namespace OnePlace.Server
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }       
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -78,6 +79,12 @@ namespace OnePlace.Server
                    ClockSkew = System.TimeSpan.Zero
                });
 
+            services.Configure<FormOptions>(x =>
+            {
+                x.ValueLengthLimit = 524288000;
+                x.MultipartBodyLengthLimit = 524288000;
+            });
+
             //uso de hangfire, en este caso no lo pusimos en startup, creamos una extension de la clase
             services.ConfigureHangFire(Configuration);
 
@@ -100,7 +107,7 @@ namespace OnePlace.Server
             });
 
             //agremaos el servicios de addhttpcontextaccesor
-            services.AddHttpContextAccessor();         
+            services.AddHttpContextAccessor();
 
             //si se encuentra con un bucle de referencia al deserealizar debe ignorar esa situacion
             services.AddMvc().AddNewtonsoftJson(options =>
@@ -127,9 +134,9 @@ namespace OnePlace.Server
 
             app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();            
+            app.UseStaticFiles();
 
-            app.UseRouting();           
+            app.UseRouting();
 
             //creamos un middlewaer de autenticacion y autorizacion
             app.UseAuthentication();
@@ -143,11 +150,11 @@ namespace OnePlace.Server
             //var str = string.Format("0 0 * * task", input(n));           
 
             //se ejecutara cada mes , A las 00:00, el d�a 1 del mes
-            RecurringJob.AddOrUpdate<ITerminarCursoFechaServicio>("JobTerminarCursoFecha", servicio => servicio.TerminarCursoporFecha(), "0 0 1 */1 *" );
+            RecurringJob.AddOrUpdate<ITerminarCursoFechaServicio>("JobTerminarCursoFecha", servicio => servicio.TerminarCursoporFecha(), "0 0 1 */1 *");
             RecurringJob.AddOrUpdate<IApiaBdService>("JobApiaBd", servicio => servicio.DatosdeApiABaseDatos(), "0 0 1 */1 *");
             //A las 12:00 p.m, s�lo los domingos
             RecurringJob.AddOrUpdate<IApiEmpleadosService>("JobApiEmpleados", servicio => servicio.DatosdeApiABaseDatosEmpleados(), "0 0 12 * * SUN");
-            
+
             //A las 12:00:00 p. m., todos los domingos, todos los meses
             //0 0 12 ? * SUN *
 
@@ -155,7 +162,7 @@ namespace OnePlace.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");                
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
