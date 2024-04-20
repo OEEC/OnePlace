@@ -201,25 +201,25 @@ namespace OnePlace.Server.Controllers
 
             List<Curso> listadecursos = new List<Curso>();
 
-            if (empleado.Division == TiendaoEstacion.ESTACION.ToString())
+            if (empleado.Division.ToLower() == TiendaoEstacion.ESTACION.ToString().ToLower() || empleado.Division.ToLower() == "estaciones")
             {
                 var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ESTACION && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
                     .IgnoreAutoIncludes().ToList();
                 listadecursos.AddRange(curso);
             }
-            else if (empleado.Division == TiendaoEstacion.TIENDA.ToString())
+            else if (empleado.Division.ToLower() == TiendaoEstacion.TIENDA.ToString().ToLower() || empleado.Division.ToLower() == "tiendas")
             {
                 var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.TIENDA && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
                     .IgnoreAutoIncludes().ToList();
                 listadecursos.AddRange(curso);
             }
-            else if (empleado.Division == TiendaoEstacion.ADMINISTRATIVO.ToString())
+            else if (empleado.Division.ToLower() == TiendaoEstacion.ADMINISTRATIVO.ToString().ToLower() || empleado.Division.ToLower() == "administrativos")
             {
                 var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
                     .IgnoreAutoIncludes().ToList();
                 listadecursos.AddRange(curso);
             }
-            else if (empleado.Division == TiendaoEstacion.GERENTE.ToString())
+            else if (empleado.Division.ToLower() == TiendaoEstacion.GERENTE.ToString().ToLower() || empleado.Division.ToLower() == "gerentes")
             {
                 var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.Activo).ToList();
                 listadecursos.AddRange(curso);
