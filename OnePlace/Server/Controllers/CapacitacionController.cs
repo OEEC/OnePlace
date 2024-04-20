@@ -38,7 +38,7 @@ namespace OnePlace.Server.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
             capacitacion.Activo = true;
             context.Add(capacitacion);
-            await context.SaveChangesAsync(user.Id);          
+            await context.SaveChangesAsync(user.Id);
 
             return capacitacion.CapacitacionContinuaId;
         }
@@ -126,7 +126,7 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult> Put(CapacitacionContinua capacitacion)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-           
+
             //buscamos un tema en la bd por el id del tema
             var CapacitacionDB = await context.CapacitacionContinua.FirstOrDefaultAsync(x => x.CapacitacionContinuaId == capacitacion.CapacitacionContinuaId);
 
@@ -183,16 +183,16 @@ namespace OnePlace.Server.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]       
+        [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
-        {            
+        {
             //obtenemos el archivo con el id enviado por parametro            
-            var archivo = await context.VideosCapacitacion.Where(x => x.ArchivoId == id).FirstOrDefaultAsync();           
-            if(archivo != null)
+            var archivo = await context.VideosCapacitacion.Where(x => x.ArchivoId == id).FirstOrDefaultAsync();
+            if (archivo != null)
             {
                 context.Remove(archivo);//si es diferente de nulo removemos, el registro con ese id
                 await context.SaveChangesAsync();
-            }            
+            }
             return NoContent();
         }
 
@@ -217,33 +217,51 @@ namespace OnePlace.Server.Controllers
             {
                 //buscamos las capacitaciones relacionadas a la zona del empleado
                 var listacapacitacionzona = await context.CapacitacionContinuaZona.Where(x => x.ZonaId == empleado.ZonaId).ToListAsync();
-                              
+
                 //recorremos las zonas ligadas a una capacitacion, para obtener las capacitaciones por zona
                 foreach (var item in listacapacitacionzona)
                 {
-                    CapacitacionContinua capacitacioncontinua = new CapacitacionContinua();
+                    CapacitacionContinua? capacitacioncontinua = new CapacitacionContinua();
 
-                    //si el empleado pertenece a una estacion, obtenemos las capacitaciones por la zona del empleado y por estaciones
-                    if (empleado.Idestacion != null && empleado.Idestacion > 0)
+                    if (empleado.Division == TiendaoEstacion.ESTACION.ToString())
                     {
-                        capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.Estacion)
-                           .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
-                           .FirstOrDefaultAsync();
+                        capacitacioncontinua = context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.ESTACION).FirstOrDefault();
                     }
-
-                    //si el empleado pertenece a una tienda, obtenemos las capacitaciones por la zona del empleado y por tiendas
-                    if (empleado.TiendaId != null && empleado.TiendaId > 0)
+                    else if (empleado.Division == TiendaoEstacion.TIENDA.ToString())
                     {
-                        capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.Tienda)
-                          .Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
-                          .FirstOrDefaultAsync();
-                    }                   
+                        capacitacioncontinua = context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.TIENDA).FirstOrDefault();
+
+                    }
+                    else if (empleado.Division == TiendaoEstacion.ADMINISTRATIVO.ToString())
+                    {
+                        capacitacioncontinua = context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO).FirstOrDefault();
+
+                    }
+                    else if (empleado.Division == TiendaoEstacion.GERENTE.ToString())
+                    {
+                        capacitacioncontinua = context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.GERENTE).FirstOrDefault();
+                    }
+                    ////si el empleado pertenece a una estacion, obtenemos las capacitaciones por la zona del empleado y por estaciones
+                    //if (empleado.Idestacion != null && empleado.Idestacion > 0)
+                    //{
+                    //    capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.ESTACION)
+                    //       //.Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
+                    //       .FirstOrDefaultAsync();
+                    //}
+
+                    ////si el empleado pertenece a una tienda, obtenemos las capacitaciones por la zona del empleado y por tiendas
+                    //if (empleado.TiendaId != null && empleado.TiendaId > 0)
+                    //{
+                    //    capacitacioncontinua = await context.CapacitacionContinua.Where(x => x.CapacitacionContinuaId == item.CapacitacionContinuaId && x.TiendaoEstacion == TiendaoEstacion.TIENDA)
+                    //      //.Include(x => x.CapacitacionContinuaZona).ThenInclude(x => x.Zona)
+                    //      .FirstOrDefaultAsync();
+                    //}                   
 
                     //si la capacitacion no es null la agregamos a la lista
                     if (capacitacioncontinua != null)
                     {
                         listadecapacitaciones.Add(capacitacioncontinua);
-                    }                   
+                    }
                 }
             }
 

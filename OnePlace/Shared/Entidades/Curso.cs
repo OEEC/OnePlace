@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnePlace.Shared.Entidades
 {
@@ -32,7 +29,7 @@ namespace OnePlace.Shared.Entidades
                 {
                     //si en caso que se eligiera el 28 de febrero mas un mes daria 28 de marzo y eso esta mal por que marzo trae 31 dias
                     //con esto se soluciona y ahora suma correctamente un mes sea cual sea el dia en cualquier mes seleccionado
-                    _FechaFinal = FechaInicio.Value.AddDays(1).AddMonths(1).AddDays(-1);                    
+                    _FechaFinal = FechaInicio.Value.AddDays(1).AddMonths(1).AddDays(-1);
                 }
 
                 //se retorna aqui por que dentro del if no reconoce el return
@@ -168,12 +165,14 @@ namespace OnePlace.Shared.Entidades
         [Description("Sin Completar")]
         SinCompletar,
         Terminado,
-              
+
     }
     public enum TiendaoEstacion
     {
-        [Description("Estación")]
-        Estacion,
-        Tienda,
+        [Description("ESTACIÓN")]
+        ESTACION,
+        TIENDA,
+        ADMINISTRATIVO,
+        GERENTE
     }
 }

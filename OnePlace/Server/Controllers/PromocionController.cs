@@ -69,7 +69,7 @@ namespace OnePlace.Server.Controllers
 
             //query para traer las promociones
             var queryable = context.Promociones.Where(x => x.Activo == mostrar)
-                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
+                //.Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
                 .OrderBy(x => x.PromocionId).AsQueryable();
 
             if (parametrosBusqueda.PromocionId != 0)
@@ -109,9 +109,10 @@ namespace OnePlace.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PromocionVisualizarDTO>> Get(int id)
         {
-            var promocion = await context.Promociones.Where(x => x.PromocionId == id)
+            var promocion = await context.Promociones.IgnoreAutoIncludes().Where(x => x.PromocionId == id)
                 .Include(x => x.Imagenes)
-                .Include(x => x.PromocionZona).ThenInclude(x => x.Zona)
+                .Include(x => x.PromocionZona).IgnoreAutoIncludes()
+                //.ThenInclude(x => x.Zona)
                 .FirstOrDefaultAsync();
 
             if (promocion == null) { return NotFound(); }
