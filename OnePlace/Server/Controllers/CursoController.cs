@@ -201,29 +201,34 @@ namespace OnePlace.Server.Controllers
 
             List<Curso> listadecursos = new List<Curso>();
 
-            if (empleado.Division.ToLower() == TiendaoEstacion.ESTACION.ToString().ToLower() || empleado.Division.ToLower() == "estaciones")
+            if (!string.IsNullOrEmpty(empleado.Division) || !string.IsNullOrWhiteSpace(empleado.Division))
             {
-                var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ESTACION && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                    .IgnoreAutoIncludes().ToList();
-                listadecursos.AddRange(curso);
+                if (empleado.Division.ToLower() == TiendaoEstacion.ESTACION.ToString().ToLower() || empleado.Division.ToLower() == "estaciones")
+                {
+                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ESTACION && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
+                        .IgnoreAutoIncludes().ToList();
+                    listadecursos.AddRange(curso);
+                }
+                else if (empleado.Division.ToLower() == TiendaoEstacion.TIENDA.ToString().ToLower() || empleado.Division.ToLower() == "tiendas")
+                {
+                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.TIENDA && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
+                        .IgnoreAutoIncludes().ToList();
+                    listadecursos.AddRange(curso);
+                }
+                else if (empleado.Division.ToLower() == TiendaoEstacion.ADMINISTRATIVO.ToString().ToLower() || empleado.Division.ToLower() == "administrativos")
+                {
+                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
+                        .IgnoreAutoIncludes().ToList();
+                    listadecursos.AddRange(curso);
+                }
+                else if (empleado.Division.ToLower() == TiendaoEstacion.GERENTE.ToString().ToLower() || empleado.Division.ToLower() == "gerentes")
+                {
+                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.Activo).ToList();
+                    listadecursos.AddRange(curso);
+                }
             }
-            else if (empleado.Division.ToLower() == TiendaoEstacion.TIENDA.ToString().ToLower() || empleado.Division.ToLower() == "tiendas")
-            {
-                var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.TIENDA && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                    .IgnoreAutoIncludes().ToList();
-                listadecursos.AddRange(curso);
-            }
-            else if (empleado.Division.ToLower() == TiendaoEstacion.ADMINISTRATIVO.ToString().ToLower() || empleado.Division.ToLower() == "administrativos")
-            {
-                var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                    .IgnoreAutoIncludes().ToList();
-                listadecursos.AddRange(curso);
-            }
-            else if (empleado.Division.ToLower() == TiendaoEstacion.GERENTE.ToString().ToLower() || empleado.Division.ToLower() == "gerentes")
-            {
-                var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.Activo).ToList();
-                listadecursos.AddRange(curso);
-            }
+
+
             ////si el empleado pertenece a una estacion, obtenemos los cursos por estaciones
             //if (empleado.Idestacion != null && empleado.Idestacion > 0)
             //{

@@ -135,10 +135,10 @@
                 </div>
                 </div> *@
                             <div style="min-width:33%;max-width:33%;margin-bottom:.5rem">
-                                
+
                                 <div class="service-item d-flex flex-column justify-content-center text-center rounded" style="display:block;">
                                     <div style="width:100%; max-height:15rem;">
-                                        <img src="@item.Imagen" class="rounded" style="width:100%;height:9rem;"/>
+                                        <img src="@item.Imagen" class="rounded" style="width:100%;height:9rem;" />
                                     </div>
 
                                     <div>
@@ -183,16 +183,28 @@
                     @foreach (var item in ListadeCursosUser)
                     {
                         <div class="item">
-                            <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                @* <div class="service-icon flex-shrink-0">
-                    <i class="fas fa-chalkboard-teacher fa-2x"></i>
-                    </div> *@
-                                <img src="@item.Imagen" class="img-fluid" />
-                                <h5 class="mb-3">@item.Nombre</h5>
-                                <p class="colorgris">
-                                    @item.DescripcionCortada
-                                </p>
-                                <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                            @* <div class="service-item d-flex flex-column justify-content-center text-center rounded">
+                <img src="@item.Imagen" class="img-fluid" />
+                <h5 class="mb-3">@item.Nombre</h5>
+                <p class="colorgris">
+                @item.DescripcionCortada
+                </p>
+                <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                </div> *@
+                            <div class="service-item d-flex flex-column justify-content-center text-center rounded" >
+                                <div style="display:inline-flex;width:100%;">
+                                    <div style="width:50%; max-height:25rem;">
+                                        <img src="@item.Imagen" class="rounded" style="width:100%;height:100%;" />
+                                    </div>
+
+                                    <div class="text-center p-1" style="width:50%;">
+                                        <h5 class="mb-3">@item.Nombre</h5>
+                                        <p class="colorgris">
+                                            @item.DescripcionCortada
+                                        </p>
+                                        <a class="btn px-3 mt-auto mx-auto font-weight-bold" href="cursoinfoextra/@item.CursoId">CapaSimsate!</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         //si la fecha de hoy es mayor a la fecha final , el curso ha vencido no mostrar nada, sino, mostrar el curso
@@ -641,7 +653,7 @@ else
 
             // await CargarEstadoCumple();
             // await CargarCumple();
-            await CargarEventos();
+            // await CargarEventos();
             await CargarCursosUser();
             await CargarCarrusel();
         }

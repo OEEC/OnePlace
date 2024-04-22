@@ -52,12 +52,14 @@
                 <div class="col-sm-6">
                     <div class="form-group">
                         <InputLabel for="zona">Zona</InputLabel>
-                        <SelectorMultiple Seleccionados="Seleccionadas" NoSeleccionados="NoSeleccionadas"/>                                          
+                        <SelectorMultiple Seleccionados="Seleccionadas" NoSeleccionados="NoSeleccionadas" />
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" />
+                        @* <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" /> *@
+                        @* <Subir_Imagen_Alterno CountFiles="10" Listado_Archivos="listadoArchivoAdjunto" Label="Imagenes de promocion" /> *@
+                        <Subir_Multiples_Imagenes Label="Images de promocion" SubidaExitosa="ImagenesSubidas"/>
                     </div>
                 </div>
                 @if (Es_EditarPromocion == true)
@@ -85,7 +87,7 @@
 </EditForm>
 <br />
 
-@code{
+@code {
 
     [Parameter] public Promocion Promocion { get; set; }
     [Parameter] public bool Es_EditarPromocion { get; set; }
@@ -99,6 +101,8 @@
     private List<SelectorMultipleModel> NoSeleccionadas { get; set; } = new List<SelectorMultipleModel>();
 
     public List<ImagenesCarrusel> listadeimagenes = new List<ImagenesCarrusel>();
+
+    private List<ArchivoAdjunto> listadoArchivoAdjunto = new();
 
     //para editar
     private string imagenURL;
@@ -129,6 +133,23 @@
         }
     }
 
+    private void ImagenesSubidas(List<ArchivoAdjunto> archivoAdjunto)
+    {
+        if(archivoAdjunto is not null)
+        {
+            foreach (var imagen in archivoAdjunto)
+            {
+                ImagenesCarrusel imagenesCarrusel = new()
+                    {
+                        Imagen = imagen.UrlLocal
+                    };
+
+                listadeimagenes.Add(imagenesCarrusel);
+            }
+            Promocion.Imagenes = listadeimagenes;
+        }
+    }
+
     //este metodo actualiza las imagenes con las nuevas imagenes seleccionadas
     private void ImagenesSeleccionadas(List<string> imagenesBase64)
     {
@@ -137,9 +158,9 @@
         {
             //por cada iteracion creamos un new imagencarrusel, y le asignamos el string a la propiedad imagen del objecto
             ImagenesCarrusel imagen = new ImagenesCarrusel()
-            {
-                Imagen = item
-            };
+                {
+                    Imagen = item
+                };
 
             //cada nuevo objecto imagencarrusel lo guardamos en una lista
             listadeimagenes.Add(imagen);
@@ -151,7 +172,7 @@
         //hacemos null las propiedades
         imagenURL = null;
         listadeimagenesURL = null;
-    }   
+    }
 
     private async Task OnDataAnnonationsValidated()
     {

@@ -111,8 +111,8 @@ namespace OnePlace.Server.Controllers
         {
             var promocion = await context.Promociones.IgnoreAutoIncludes().Where(x => x.PromocionId == id)
                 .Include(x => x.Imagenes)
-                .Include(x => x.PromocionZona).IgnoreAutoIncludes()
-                //.ThenInclude(x => x.Zona)
+                .Include(x => x.PromocionZona)
+                .ThenInclude(x => x.Zona).IgnoreAutoIncludes()
                 .FirstOrDefaultAsync();
 
             if (promocion == null) { return NotFound(); }
