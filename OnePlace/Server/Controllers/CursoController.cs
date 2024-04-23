@@ -16,6 +16,7 @@ using OnePlace.Server.Helpers;
 using static OnePlace.Server.Data.ApplicationUser;
 using Hangfire;
 using OnePlace.Server.Services;
+using OnePlace.Client.ComponentesGenericos.Paginador;
 
 namespace OnePlace.Server.Controllers
 {
@@ -193,11 +194,13 @@ namespace OnePlace.Server.Controllers
         //endpoints para cursos en la pagina de inicio user
         [Route("listadecursosuser")]
         [HttpGet]
-        public async Task<ActionResult<List<Curso>>> Get()
+        public async Task<ActionResult<List<Curso>>> GetCursos([FromQuery] PaginacionDTO paginacion)
         {
             //buscamos un empleado por el usuario logueado
             var user = await _userManager.GetUserAsync(HttpContext.User);
             var empleado = await context.Empleados.Where(x => x.Idempleado == user.Idempleado).FirstOrDefaultAsync();
+
+            var cursos = context.Cursos.IgnoreAutoIncludes().Where(x => x.Activo && x.CursoZonas.Any(z => z.Id_Zona == empleado.ZonaId)).Include(x => x.CursoZonas).IgnoreAutoIncludes().AsQueryable();
 
             List<Curso> listadecursos = new List<Curso>();
 
@@ -205,47 +208,28 @@ namespace OnePlace.Server.Controllers
             {
                 if (empleado.Division.ToLower() == TiendaoEstacion.ESTACION.ToString().ToLower() || empleado.Division.ToLower() == "estaciones")
                 {
-                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ESTACION && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                        .IgnoreAutoIncludes().ToList();
-                    listadecursos.AddRange(curso);
+                    cursos = cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.ESTACION).Include(x => x.CursoZonas)
+                        .IgnoreAutoIncludes();
                 }
                 else if (empleado.Division.ToLower() == TiendaoEstacion.TIENDA.ToString().ToLower() || empleado.Division.ToLower() == "tiendas")
                 {
-                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.TIENDA && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                        .IgnoreAutoIncludes().ToList();
-                    listadecursos.AddRange(curso);
+                    cursos = cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.TIENDA).Include(x => x.CursoZonas)
+                        .IgnoreAutoIncludes();
                 }
                 else if (empleado.Division.ToLower() == TiendaoEstacion.ADMINISTRATIVO.ToString().ToLower() || empleado.Division.ToLower() == "administrativos")
                 {
-                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO && x.Activo && x.Zonas.Any(z => z.ZonaId == empleado.ZonaId)).Include(x => x.Zonas)
-                        .IgnoreAutoIncludes().ToList();
-                    listadecursos.AddRange(curso);
+                    cursos = cursos.Where(x => x.TiendaoEstacion == TiendaoEstacion.ADMINISTRATIVO).Include(x => x.CursoZonas)
+                        .IgnoreAutoIncludes();
                 }
                 else if (empleado.Division.ToLower() == TiendaoEstacion.GERENTE.ToString().ToLower() || empleado.Division.ToLower() == "gerentes")
                 {
-                    var curso = context.Cursos.IgnoreAutoIncludes().Where(x => x.Activo).ToList();
-                    listadecursos.AddRange(curso);
+
+                }
+                else
+                {
+                    return BadRequest("La division del empleado no esta registrada.");
                 }
             }
-
-
-            ////si el empleado pertenece a una estacion, obtenemos los cursos por estaciones
-            //if (empleado.Idestacion != null && empleado.Idestacion > 0)
-            //{
-            //    var cursos = await context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.Estacion && x.Activo == true && x.CursoZonas.Any(x => x.Id_Zona == empleado.ZonaId))
-            //        .Include(x => x.CursoZonas).IgnoreAutoIncludes().ToListAsync();
-
-            //    listadecursos.AddRange(cursos);
-            //}
-
-            ////si el empleado pertenece a una tienda, obtenemos los cursos por tiendas
-            //if (empleado.TiendaId != null && empleado.TiendaId > 0)
-            //{
-            //    var cursos = await context.Cursos.IgnoreAutoIncludes().Where(x => x.TiendaoEstacion == TiendaoEstacion.Tienda && x.Activo == true && x.CursoZonas.Any(x => x.Id_Zona == empleado.ZonaId))
-            //        .Include(x => x.CursoZonas).IgnoreAutoIncludes().ToListAsync();
-
-            //    listadecursos.AddRange(cursos);
-            //}
 
             foreach (var item in listadecursos)
             {
@@ -257,7 +241,10 @@ namespace OnePlace.Server.Controllers
                 }
             }
 
-            return listadecursos;
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(cursos, paginacion.CantidadRegistros);
+            return await cursos.Paginar(paginacion).ToListAsync();
+
+            //return Ok(cursos);
         }
 
         [Route("DetalleCurso/{id}")]
