@@ -59,7 +59,15 @@
                     <div class="form-group">
                         @* <InputMultiplesImg ImagenesSeleccionadas="ImagenesSeleccionadas" ImagenesURL="@listadeimagenesURL" /> *@
                         @* <Subir_Imagen_Alterno CountFiles="10" Listado_Archivos="listadoArchivoAdjunto" Label="Imagenes de promocion" /> *@
-                        <Subir_Multiples_Imagenes Label="Images de promocion" SubidaExitosa="ImagenesSubidas"/>
+                        <Subir_Multiples_Imagenes Label="Images de promocion" SubidaExitosa="ImagenesSubidas" />
+                    </div>
+                    <div class="col-12">
+                        @foreach (var item in Promocion.Imagenes)
+                        {
+                            <div class="col-2">
+                                <img class="img-fluid" src="@item.Imagen"/>
+                            </div>
+                        }
                     </div>
                 </div>
                 @if (Es_EditarPromocion == true)
@@ -135,7 +143,7 @@
 
     private void ImagenesSubidas(List<ArchivoAdjunto> archivoAdjunto)
     {
-        if(archivoAdjunto is not null)
+        if (archivoAdjunto is not null)
         {
             foreach (var imagen in archivoAdjunto)
             {

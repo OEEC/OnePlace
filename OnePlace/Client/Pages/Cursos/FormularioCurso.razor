@@ -46,7 +46,8 @@
                 </div>
                 <div class="col-sm-3">
                     <div class="form-group">
-                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+                        @* <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" /> *@
+                        <Subir_Imagen_Alterno Label="Imagen de curso" SubidaExitosa="Obtener_Url" />
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -110,6 +111,8 @@
 
     private string imagenURL;
 
+    ArchivoAdjunto archivoAdjunto = new();
+
     protected async override Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
@@ -149,6 +152,14 @@
             .Select(x => new CursoZona { Id_Zona = int.Parse(x.Llave) }).ToList();
 
         await OnValidSubmit.InvokeAsync(null);
+    }
+
+    private void Obtener_Url(ArchivoAdjunto archivoAdjunto)
+    {
+        if(archivoAdjunto is not null)
+        {
+            Curso.Imagen = archivoAdjunto.UrlLocal;
+        }
     }
 }
 

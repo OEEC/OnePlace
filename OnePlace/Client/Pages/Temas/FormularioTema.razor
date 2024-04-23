@@ -45,7 +45,8 @@
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+                            @* <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" /> *@
+                            <Subir_Imagen_Alterno Label="Imagen de tema" SubidaExitosa="Obtener_Url_Tema" />
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -120,7 +121,8 @@
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
-                                    <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                                    @* <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL"/> *@
+                                    <Subir_Imagen_Alterno Label="Imagen de quiz" SubidaExitosa="Obtener_Url_Quiz" />
                                 </div>
                             </div>
                             @if (user.IsInRole("Administrador"))
@@ -267,7 +269,8 @@
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                                @* <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" /> *@
+                                <Subir_Imagen_Alterno Label="Imagen de quiz" SubidaExitosa="Obtener_Url_Quiz" />
                             </div>
                         </div>
                         <div class="col-sm-4">
@@ -381,7 +384,8 @@ else
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+                        @* <InputImg ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" /> *@
+                        <Subir_Imagen_Alterno Label="Imagen de tema" SubidaExitosa="Obtener_Url_Tema" />
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -436,7 +440,8 @@ else
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" />
+                            @* <InputImg ImagenSeleccionada="ImagenSeleccionadaQuiz" ImagenURL="@imagenquizURL" /> *@
+                            <Subir_Imagen_Alterno Label="Imagen de quiz" SubidaExitosa="Obtener_Url_Quiz" />
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -533,6 +538,8 @@ else
     [Parameter] public int TemaId { get; set; }
     [Parameter] public bool Es_EditarTema { get; set; }
 
+    ArchivoAdjunto archivoAdjunto = new();
+
     protected async override Task OnInitializedAsync()
     {
         var authState = await authenticationStateTask;
@@ -590,6 +597,42 @@ else
 
     #region GuardarImagenes2
 
+    private void Obtener_Url_Tema(ArchivoAdjunto archivoAdjunto)
+    {
+        if (archivoAdjunto is not null)
+        {
+            if (!Es_EditarTema)
+            {
+                Tema.Imagen = archivoAdjunto.UrlLocal;
+            }
+            else
+            {
+                if (EditartemaquizDTO is not null)
+                {
+                    EditartemaquizDTO.Tema.Imagen = archivoAdjunto.UrlLocal;
+                }
+            }
+        }
+    }
+
+    private void Obtener_Url_Quiz(ArchivoAdjunto archivoAdjunto)
+    {
+        if (archivoAdjunto is not null)
+        {
+            if (!Es_EditarTema)
+            {
+                Quiz.Imagen = archivoAdjunto.UrlLocal;
+            }
+            else
+            {
+                if (EditartemaquizDTO is not null)
+                {
+                    EditartemaquizDTO.Quiz.Imagen = archivoAdjunto.UrlLocal;
+                }
+            }
+        }
+    }
+
     //este metodo actualiza la imagen con la nueva imagen seleccionada
     private void ImagenSeleccionada(string imagenBase64)
     {
@@ -628,7 +671,7 @@ else
         {
             Quiz.Imagen = imagenBase64;
             imagenquizURL = null;
-        }          
+        }
     }
 
     #endregion
@@ -678,10 +721,10 @@ else
         //para crear un tema con un quiz tuvimos que juntar ambos objetos en un dto para poder enviarlos al mismo tiempo por url
         Tema.CursoId = CursoId;
         var temaquiz = new TemaQuizDTO
-        {
-            Tema = Tema,
-            Quiz = Quiz
-        };
+            {
+                Tema = Tema,
+                Quiz = Quiz
+            };
 
         var httpResponse = await repositorio.Post("api/Tema", temaquiz);
         @if (httpResponse.Error)
@@ -735,9 +778,9 @@ else
         y a la hora de llenar el formulario el que se llenara es un formulario con el objeto original quiz
         el dto quiz no tendra informacion por eso aqui llenamos el dto quiz con la data del objeto original*/
         @if (EditartemaquizDTO.Quiz == null)
-        {            
+        {
             EditartemaquizDTO.Quiz = Quiz;
-        }      
+        }
 
         var httpResponse = await repositorio.Put("api/Tema", EditartemaquizDTO);
         if (httpResponse.Error)
