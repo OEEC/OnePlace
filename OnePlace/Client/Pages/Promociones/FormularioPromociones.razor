@@ -62,12 +62,16 @@
                         <Subir_Multiples_Imagenes Label="Images de promocion" SubidaExitosa="ImagenesSubidas" />
                     </div>
                     <div class="col-12">
-                        @foreach (var item in Promocion.Imagenes)
+                        @if (Promocion.Imagenes is not null)
                         {
-                            <div class="col-2">
-                                <img class="img-fluid" src="@item.Imagen"/>
-                            </div>
+                            @foreach (var item in Promocion.Imagenes)
+                            {
+                                <div class="col-2">
+                                    <img class="img-fluid" src="@item.Imagen" />
+                                </div>
+                            }
                         }
+
                     </div>
                 </div>
                 @if (Es_EditarPromocion == true)
