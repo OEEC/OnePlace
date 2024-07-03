@@ -720,6 +720,21 @@ namespace OnePlace.Server.Data
                 r => r.HasOne(x => x.Curso).WithMany(x => x.CursoZonas).HasForeignKey(x => x.Id_Curso).OnDelete(DeleteBehavior.Restrict)
                 );
 
+            modelBuilder.Entity<Contador>()
+                .HasOne(x => x.Estacion)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Estacion);
+
+            modelBuilder.Entity<Contador>()
+                .HasOne(x => x.Empleado)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Empleado);
+
+            modelBuilder.Entity<Contador>()
+                .HasOne(x => x.Accion)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Accion);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -775,6 +790,8 @@ namespace OnePlace.Server.Data
         public DbSet<ImagenesCumpleEmpleado> ImagenesCumpleEmpleado { get; set; }
         public DbSet<CursoZona> CursoZona { get; set; }
         public DbSet<Configuracion> Configuracion { get; set; }
+        public DbSet<Accion> Acciones { get; set; }
+        public DbSet<Contador> Contador { get; set; }
         #endregion
     }
 }

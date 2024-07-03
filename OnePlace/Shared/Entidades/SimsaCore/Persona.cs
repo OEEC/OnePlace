@@ -5,63 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
-    public partial class Person
-    {
-        [JsonProperty("idpersona")]
-        public int Idpersona { get; set; }
-
-        [JsonProperty("ape_pat")]
-        public string ApePat { get; set; }
-
-        [JsonProperty("ape_mat")]
-        public string ApeMat { get; set; }
-
-        [JsonProperty("nombre")]
-        public string Nombre { get; set; }
-
-        [JsonProperty("sexo")]
-        public string Sexo { get; set; }
-
-        [JsonProperty("fchnac")]
-        public DateTime? Fchnac { get; set; } = DateTime.MinValue;
-
-        [JsonProperty("rfc")]
-        public string Rfc { get; set; }
-
-        [JsonProperty("curp")]
-        public string Curp { get; set; }
-
-        [JsonProperty("nss")]
-        public string Nss { get; set; }
-
-        [JsonProperty("calle")]
-        public string Calle { get; set; }
-
-        [JsonProperty("noext")]
-        public string Noext { get; set; }
-
-        [JsonProperty("noint")]
-        public string Noint { get; set; }
-
-        [JsonProperty("colonia")]
-        public string Colonia { get; set; }
-
-        [JsonProperty("cp")]
-        public string Cp { get; set; }
-
-        [JsonProperty("ciudad")]
-        public string Ciudad { get; set; }
-
-        [JsonProperty("estado")]
-        public string Estado { get; set; }
-
-        [JsonProperty("correo")]
-        public string Correo { get; set; }
-
-        [JsonProperty("telefono")]
-        public string Telefono { get; set; }
-    }
-
     public class ResultObjectPerson
     {       
         [JsonProperty("personas")]
@@ -124,5 +67,10 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         [JsonProperty("telefono")]
         public string Telefono { get; set; }
         [NotMapped] public Empleado Empleado { get; set; }
+
+        public string FullName()
+        {
+            return $"{Nombre} {ApePat} {ApeMat}";
+        }
     }
 }

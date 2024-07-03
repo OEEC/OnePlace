@@ -1,0 +1,166 @@
+﻿@page "/actividad-usuarios"
+@inject IRepositorio http
+@inject IMostrarMensaje mensaje
+@inject IJSRuntime js
+
+<div class="card">
+    <div class="card-header">
+        <b>Actividad</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col">
+                <label>De:</label>
+                <input type="date" @bind-value="@Rango_Fechas.Fecha_Inicio" class="form-control form-control-sm" />
+            </div>
+            <div class="col">
+                <label>A:</label>
+                <input type="date" @bind-value="@Rango_Fechas.Fecha_Fin" class="form-control form-control-sm" />
+            </div>
+            <div class="col d-flex">
+                <button class="btn btn-sm btn-warning mt-auto" @onclick="GetContadors">
+                    <i class="fa fa-magnifying-glass"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 my-1 d-flex">
+    <div class="col-2 ml-auto">
+        <button class="btn btn-sm btn-warning col-12" @onclick="ExportRegistros">
+            <i class="fa fa-file-excel"></i>
+            Exportar
+        </button>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Estacion</th>
+            <th>Cantidad de entradas</th>
+            <th>Dia</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><input class="form-control form-control-sm" @bind-value="Rango_Fechas.Estacion" @oninput="FiltrarEstacion" placeholder="Filtrar estacioon"/></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <Virtualize Items="Contadors" Context="item" TItem="ContadorActividadEstacionDTO">
+            <tr>
+                <td>@item.Estacion</td>
+                <td>@item.Cantidad</td>
+                <td>@item.Fecha.ToShortDateString()</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+<Paginacion PaginaActual="Rango_Fechas.Pagina_ACtual" PaginasTotales="Rango_Fechas.Total_paginas" Radio="8" PaginaSeleccionada="Pagina_Seleccionada" />
+<p>Total de registros: @Rango_Fechas.Total_registros</p>
+@code {
+    List<ContadorActividadEstacionDTO> Contadors = new List<ContadorActividadEstacionDTO>();
+    ContadorActividadDTO Rango_Fechas = new();
+    Dictionary<string, string> directory = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetContadors();
+    }
+
+    private async Task GetContadors()
+    {
+        try
+        {
+            Rango_Fechas.Excel = false;
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetParametrosBusqueda());
+            var response = await http.Get<List<ContadorActividadEstacionDTO>>($"api/actividad?{url}");
+            if (response.Error)
+            {
+                await mensaje.MostrarMensajeError(await response.GetBody());
+            }
+            else
+            {
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("paginas", out IEnumerable<string> paginas_header))
+                {
+                    if (paginas_header is not null)
+                        if (paginas_header.Count() > 0)
+                            Rango_Fechas.Total_paginas = int.Parse(paginas_header.First().ToString());
+                }
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("conteo", out IEnumerable<string> conteo_header))
+                {
+                    if (conteo_header is not null)
+                        if (conteo_header.Count() > 0)
+                            Rango_Fechas.Total_registros = int.Parse(conteo_header.First().ToString());
+                }
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("pagina", out IEnumerable<string> pagina_header))
+                {
+                    if (pagina_header is not null)
+                        if (pagina_header.Count() > 0)
+                            Rango_Fechas.Pagina_ACtual = int.Parse(pagina_header.First().ToString());
+                }
+
+                Contadors = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await mensaje.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task ExportRegistros()
+    {
+        try
+        {
+            Rango_Fechas.Excel = true;
+            var url = Constructor_De_URL_Parametros.Generar_URL(SetParametrosBusqueda());
+            var response = await http.Get<byte[]>($"api/actividad?{url}");
+            if (response.Error)
+            {
+                await mensaje.MostrarMensajeError(await response.GetBody());
+            }
+            else
+            {
+                await js.GuardarComo($"Catalogo_Oneplace_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await mensaje.MostrarMensajeError(e.Message);
+        }
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        Rango_Fechas.Pagina_ACtual = pagina;
+        Rango_Fechas.Pagina = pagina;
+
+        await GetContadors();
+    }
+
+    private Dictionary<string, string> SetParametrosBusqueda()
+    {
+        directory[nameof(Rango_Fechas.Fecha_Inicio)] = Rango_Fechas.Fecha_Inicio.ToString("MM-dd-yyyy");
+        directory[nameof(Rango_Fechas.Fecha_Fin)] = Rango_Fechas.Fecha_Fin.ToString("MM-dd-yyyy");
+        directory[nameof(Rango_Fechas.Pagina)] = Rango_Fechas.Pagina.ToString();
+        directory[nameof(Rango_Fechas.Registros_por_pagina)] = Rango_Fechas.Registros_por_pagina.ToString();
+        directory[nameof(Rango_Fechas.Excel)] = Rango_Fechas.Excel.ToString();
+        directory[nameof(Rango_Fechas.Estacion)] = Rango_Fechas.Estacion;
+
+        return directory;
+    }
+
+    private async Task FiltrarEstacion(ChangeEventArgs e)
+    {
+        if(e.Value is not null)
+        {
+            Rango_Fechas.Estacion = e.Value.ToString() ?? string.Empty;
+            await GetContadors();
+        }
+    }
+
+}

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OnePlace.Server.Data;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.Entidades;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,7 +50,7 @@ namespace OnePlace.Server.Controllers
             var user = new ApplicationUser
             {
                 UserName = model.NumeroEmpleado,
-                noemp = model.NumeroEmpleado,               
+                noemp = model.NumeroEmpleado,
                 Idempleado = model.EmpleadoId,
                 Nombre = model.Nombre,
                 ApellidoMaterno = model.ApellidoMaterno,
@@ -90,10 +91,29 @@ namespace OnePlace.Server.Controllers
                 if (usuarioexite.Activo == true)
                 {
                     //con esto obtenemos un listado de roles
-                    var usuario = await _userManager.FindByNameAsync(userInfoLogin.NumeroEmpleado);
-                    var roles = await _userManager.GetRolesAsync(usuario);
+                    //var usuario = await _userManager.FindByNameAsync(userInfoLogin.NumeroEmpleado);
+                    var roles = await _userManager.GetRolesAsync(usuarioexite);
+
+                    if (!context.Contador.Any(x => x.Id_Empleado == usuarioexite.Idempleado && x.Fecha.Date == DateTime.Today))
+                    {
+                        var empleado = await context.Empleados.FindAsync(usuarioexite.Idempleado);
+                        if (empleado is not null)
+                        {
+                            await context.AddAsync(new Contador()
+                            {
+                                Fecha = DateTime.Now,
+                                Id_Accion = 1,
+                                Id_Empleado = usuarioexite.Idempleado,
+                                Id_Estacion = empleado.Idestacion ?? 0
+                            });
+
+                            await context.SaveChangesAsync();
+                        }
+                    }
+
+
                     //si es existoso construimos el token y le pasamos el listado de roles de arriba
-                    return BuildToken(usuario, roles);
+                    return BuildToken(usuarioexite, roles);
                 }
                 else
                 {
