@@ -13,7 +13,25 @@
     <div class="container-landingpage bg-white p-0 text-heebo">
 
         <!-- Navbar & Hero Start -->
-        <Background_Custom/>
+        <Background_Custom ShowContent="false">
+            <Fragment>
+                <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-5 py-lg-0">
+                    <a href="inicio" class="navbar-brand p-0">
+                        <img src="img/oneplace.png" alt="Logo">
+                    </a>
+                    <button class="navbar-toggler" type="button">
+                        <span class="fa fa-bars"></span>
+                    </button>
+                    <div class="navbar-collapse" id="navbarCollapse">
+                        <div class="navbar-nav ml-auto py-0">
+                            <a href="inicio" class="nav-item nav-link">Inicio</a>
+                            <a href="capacitacioninfoextra" class="nav-item nav-link">Capacitación</a>
+                        </div>
+                    </div>
+                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
+                </nav>
+            </Fragment>
+        </Background_Custom>
         <!-- Navbar & Hero End -->
 
 

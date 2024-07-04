@@ -102,7 +102,8 @@ namespace OnePlace.Shared.Entidades
         public string DescripcionVideo { get; set; }
         public string Imagen { get; set; }
         public bool Activo { get; set; }
-
+        [NotMapped]
+        public string VideoUrl { get; set; }
         //propiedades de navegacion
         public int CursoId { get; set; }
         public virtual Curso Curso { get; set; }

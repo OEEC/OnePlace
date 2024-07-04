@@ -460,13 +460,22 @@ namespace OnePlace.Server.Controllers
                 mostrar = false;
             }
 
-            foreach (var item in queryable)
+            foreach (var item in queryable.ToList())
             {
                 //si el usuario no subio imagen poner una por defecto
                 if (string.IsNullOrEmpty(item.Imagen))
                 {
                     // Aquí colocas la URL de la imagen por defecto
                     item.Imagen = "Img" + "/" + "Imagenotfound.jpg";
+                }
+
+                if (item.VideoId != 0)
+                {
+                    var video = await context.ArchivoAdjuntos.FirstOrDefaultAsync(x => x.ArchivoAdjuntoId == item.VideoId);
+                    if(video is not null)
+                    {
+                        item.VideoUrl = video.UrlLocal;
+                    }
                 }
             }
 

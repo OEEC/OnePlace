@@ -13,7 +13,62 @@
     <div class="container-landingpage bg-white p-0 text-heebo">
 
         <!-- Navbar & Hero Start -->
-        <Background_Custom />
+        <Background_Custom ShowContent="false">
+            <Fragment>
+                <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-5 py-lg-0">
+                    <a href="inicio" class="navbar-brand p-0">
+                        <img src="img/oneplace.png" alt="Logo">
+                    </a>
+                    <button class="navbar-toggler" type="button">
+                        <span class="fa fa-bars"></span>
+                    </button>
+                    <div class="navbar-collapse" id="navbarCollapse">
+                        <div class="navbar-nav ml-auto py-0">
+                            <a href="inicio" class="nav-item nav-link">Inicio</a>
+                            <a href="capacitacioninfoextra" class="nav-item nav-link">Capacitación</a>
+                        </div>
+                    </div>
+                    <EnlacesLogin ColorDropDown="btn btn-simsasecondary btn-sm ml-2 dropdown-caret-none" />
+                </nav>
+            </Fragment>
+            <FragmentContent>
+                <div class="col-12 row">
+                    <div class="col-6">
+                        @if (ListadeTemas is not null)
+                        {
+                            @if (ListadeTemas.Count > 0)
+                            {
+                                @if (!string.IsNullOrEmpty(ListadeTemas.FirstOrDefault()?.VideoUrl))
+                                {
+                                    <video controls width="100%" autoplay>
+                                        <source src="@ListadeTemas.FirstOrDefault()?.VideoUrl" type="video/mp4" />
+                                    </video>
+                                }
+                            }
+                        }
+                    </div>
+                    <div class="col-6">
+                        @if (ListadeTemas is not null)
+                        {
+                            @if (ListadeTemas.Count > 0)
+                            {
+                                @if (!string.IsNullOrEmpty(ListadeTemas.FirstOrDefault()?.NombreCortado))
+                                {
+                                    <b class="text-white">@ListadeTemas.FirstOrDefault()?.NombreCortado</b>
+                                }
+
+                                @if (!string.IsNullOrEmpty(ListadeTemas.FirstOrDefault()?.Descripcion))
+                                {
+                                    <p class="text-white">@ListadeTemas.FirstOrDefault()?.Descripcion</p>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+
+
+            </FragmentContent>
+        </Background_Custom>
         <!-- Navbar & Hero End -->
         <!--Cursos-->
 
@@ -245,6 +300,7 @@
         {
             Curso = responseHttp.Response;
             Procesando = false;
+            StateHasChanged();
         }
     }
 
