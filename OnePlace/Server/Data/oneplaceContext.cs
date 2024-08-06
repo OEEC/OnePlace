@@ -706,9 +706,9 @@ namespace OnePlace.Server.Data
 
             modelBuilder.Entity<Empleado>()
                 .HasOne(x => x.Zona)
-                .WithOne()
-                .HasForeignKey<Empleado>(x => x.ZonaId)
-                .HasPrincipalKey<Zona>(x => x.ZonaId);
+                .WithMany()
+                .HasForeignKey(x => x.ZonaId)
+                .HasPrincipalKey(x => x.ZonaId);
 
             modelBuilder.Entity<CursoZona>().HasKey(cz => new { cz.Id_Curso, cz.Id_Zona });
 

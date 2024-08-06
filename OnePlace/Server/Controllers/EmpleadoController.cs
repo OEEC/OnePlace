@@ -259,13 +259,13 @@ namespace OnePlace.Server.Controllers
 
                                             if (ws.Cells[r, 6].Value is not null)
                                             {
-                                                if (!context.Zonas.Any(x => x.Zona1 == ws.Cells[r, 6].Value.ToString() && x.Idestatus == 1))
+                                                if (!context.Zonas.Any(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower() && x.Idestatus == 1))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} la zona ingresada no existe. Zona: {ws.Cells[r, 6].Value} Fila: {r} (Err: 12)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
                                                 }
                                                 else
-                                                    empleado.ZonaId = context.Zonas.First(x => x.Zona1 == ws.Cells[r, 6].Value.ToString() && x.Idestatus == 1).ZonaId;
+                                                    empleado.ZonaId = context.Zonas.First(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower() && x.Idestatus == 1).ZonaId;
                                             }
                                             else
                                             {
@@ -377,13 +377,9 @@ namespace OnePlace.Server.Controllers
                                                 //empleado.Telefono = ws.Cells[r, 11].Value is not null ? ws.Cells[r, 11].Value.ToString() : string.Empty;
 
                                                 empleado.Fchalta = DateTime.Now;
+                                                empleado.Persona = persona;
 
-                                                context.Add(persona);
-                                                await context.SaveChangesAsync();
-
-                                                empleado.Idpersona = persona.Idpersona;
-
-                                                context.Add(empleado);
+                                                await context.AddAsync(empleado);
                                                 await context.SaveChangesAsync();
 
                                                 if (ws.Cells[r, 10].Value is not null && ws.Cells[r, 11].Value is not null)
