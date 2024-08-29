@@ -43,7 +43,7 @@
     </thead>
     <tbody>
         <tr>
-            <td><input class="form-control form-control-sm" @bind-value="Rango_Fechas.Estacion" @oninput="FiltrarEstacion" placeholder="Filtrar estacioon"/></td>
+            <td><input class="form-control form-control-sm" @bind-value="Rango_Fechas.Estacion" @oninput="FiltrarEstacion" placeholder="Filtrar estacioon" /></td>
             <td></td>
             <td></td>
         </tr>
@@ -144,19 +144,19 @@
 
     private Dictionary<string, string> SetParametrosBusqueda()
     {
-        directory[nameof(Rango_Fechas.Fecha_Inicio)] = Rango_Fechas.Fecha_Inicio.ToString("MM-dd-yyyy");
-        directory[nameof(Rango_Fechas.Fecha_Fin)] = Rango_Fechas.Fecha_Fin.ToString("MM-dd-yyyy");
-        directory[nameof(Rango_Fechas.Pagina)] = Rango_Fechas.Pagina.ToString();
-        directory[nameof(Rango_Fechas.Registros_por_pagina)] = Rango_Fechas.Registros_por_pagina.ToString();
-        directory[nameof(Rango_Fechas.Excel)] = Rango_Fechas.Excel.ToString();
-        directory[nameof(Rango_Fechas.Estacion)] = Rango_Fechas.Estacion;
+        directory[$"{nameof(Rango_Fechas.Fecha_Inicio)}"] = Rango_Fechas.Fecha_Inicio.ToString("MM-dd-yyyy");
+        directory[$"{nameof(Rango_Fechas.Fecha_Fin)}"] = Rango_Fechas.Fecha_Fin.ToString("MM-dd-yyyy");
+        directory[$"{nameof(Rango_Fechas.Pagina)}"] = Rango_Fechas.Pagina.ToString();
+        directory[$"{nameof(Rango_Fechas.Registros_por_pagina)}"] = Rango_Fechas.Registros_por_pagina.ToString();
+        directory[$"{nameof(Rango_Fechas.Excel)}"] = Rango_Fechas.Excel.ToString();
+        directory[$"{nameof(Rango_Fechas.Estacion)}"] = Rango_Fechas.Estacion;
 
         return directory;
     }
 
     private async Task FiltrarEstacion(ChangeEventArgs e)
     {
-        if(e.Value is not null)
+        if (e.Value is not null)
         {
             Rango_Fechas.Estacion = e.Value.ToString() ?? string.Empty;
             await GetContadors();
