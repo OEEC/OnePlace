@@ -200,7 +200,11 @@ namespace OnePlace.Server.Controllers
                 division = new ExpandoObject();
                 division.Division = "TIENDAS";
                 divisiones.Add(division);
-                
+
+                division = new ExpandoObject();
+                division.Division = "ADMINISTRATIVOS";
+                divisiones.Add(division);
+
                 ws_divisiones.Cells["A1"].LoadFromCollection(divisiones, x => { x.PrintHeaders = true; x.TableStyle = TableStyles.Medium2; });
                 ws_divisiones.Cells[1, 1, ws_divisiones.Dimension.End.Row, ws_divisiones.Dimension.End.Column].AutoFitColumns();
 
