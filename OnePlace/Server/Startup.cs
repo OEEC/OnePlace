@@ -17,6 +17,7 @@ using OnePlace.Client.Service;
 using OnePlace.Server.Data;
 using OnePlace.Server.Extenciones;
 using OnePlace.Server.Helpers;
+using OnePlace.Server.Mapper;
 using OnePlace.Server.Services;
 using System;
 using System.Linq;
@@ -89,7 +90,7 @@ namespace OnePlace.Server
             services.ConfigureHangFire(Configuration);
 
             //uso de Automapper          
-            services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(Startup), typeof(MapperProfileModelo));
 
             //servicio para guardar imagen de manera local 
             services.AddScoped<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();

@@ -1,13 +1,21 @@
 ﻿using Microsoft.JSInterop;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OnePlace.Client.Helpers
 {
     public static class IJSRuntimeExtensionMethods
     {
+        public static async void CloseMenu(this IJSRuntime js)
+        {
+            await js.InvokeAsync<object>("CloseMenu");
+        }
+
+        public static async void OpenMenu(this IJSRuntime js)
+        {
+            await js.InvokeAsync<object>("OpenMenu");
+        }
+
         //hacer un metodo de extension para reutilizar el confirm al borrar cualquier cosa
         public static async ValueTask<bool> Confirm(this IJSRuntime JS, string titulo, string mensaje, TipoMensajeSweetAlert tipoMensajeSweetAlert)
         {
@@ -40,8 +48,8 @@ namespace OnePlace.Client.Helpers
         public static ValueTask<object> RemoveItem(this IJSRuntime js, string key)
             => js.InvokeAsync<object>("localStorage.removeItem", key);
         public static async ValueTask<bool> PlayVideo(this IJSRuntime JS)
-        {           
-            return await JS.InvokeAsync<bool>("GetEventVideo");           
+        {
+            return await JS.InvokeAsync<bool>("GetEventVideo");
         }
     }
 }

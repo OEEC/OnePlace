@@ -1,70 +1,23 @@
-﻿
+﻿@inject IJSRuntime js
+
 @*solo los admin pueden ver el menu*@
 <AuthorizeView Roles="Administrador">
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbarcolor border-bottom box-shadow mb-3 fixed-topcustom">
-        <div class="container">
-
+    <nav class="navbar navbarcolor mb-3 fixed-topcustom">
+        <div class="d-flex justify-content-start">
+            <div class="col d-flex">
+                <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral" id="buttonSidepanel">
+                    <i class="fa fa-solid fa-bars"></i>
+                </button>
+            </div>
             <a class="navbar-brand" href="inicio">
                 <img src="Img/oneplace.png" />
             </a>
-            <button class="navbar-toggler" @onclick="ToggleNavMenu" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="@NavMenuCssClass navbar-collapse d-sm-inline-flex flex-sm-row-reverse" @onclick="CollapseNavMenu">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="inicio" Match="NavLinkMatch.All">
-                            <span class="oi oi-home" aria-hidden="true"></span> Inicio
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        @* <NavLink class="nav-link" href="indice-eventos">
-                            <span class="fa fa-calendar" aria-hidden="true"></span>&nbsp;Eventos
-                        </NavLink> *@
-                        <NavLink class="nav-link" href="configuracion">
-                            <span class="fa fa-paintbrush" aria-hidden="true"></span>&nbsp;Pagina inicio
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="indice-promociones">
-                            <span class="fas fa-ticket-alt" aria-hidden="true"></span>&nbsp;Promociones
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="indice-cursos">
-                            <span class="fa fa-folder-open" aria-hidden="true"></span>&nbsp;Cursos
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="indice-empleados">
-                            <span class="fas fa-user-friends" aria-hidden="true"></span>&nbsp;Empleados
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="indice-capacitacion">
-                            <span class="fa fa-info" aria-hidden="true"></span>&nbsp;Capacitación
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="actualizar-registros">
-                            <span class="fas fa-sync-alt" aria-hidden="true"></span>&nbsp;Actualizar                            
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="actividad-usuarios">
-                            <span class="fas fa-chart-line" aria-hidden="true"></span>&nbsp;Actividad
-                        </NavLink>
-                    </li>
-                </ul>
-            </div>
-
         </div>
         <div>
-            <EnlacesLogin ColorDropDown="btn btn-falcon-default btn-sm ml-2 dropdown-caret-none" ColorTexto="text-white" ColorIcono="color:white"/>
+            <EnlacesLogin ColorDropDown="btn btn-falcon-default btn-sm ml-2 dropdown-caret-none" ColorTexto="text-white" ColorIcono="color:white" />
         </div>
     </nav>
+    <MenuLateral />
 </AuthorizeView>
 
 @code {
@@ -80,6 +33,11 @@
     void CollapseNavMenu()
     {
         collapseNavMenu = true;
+    }
+
+    private void OpenMenuLateral()
+    {
+        js.OpenMenu();
     }
 }
 
