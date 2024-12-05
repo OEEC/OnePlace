@@ -341,7 +341,7 @@ namespace OnePlace.Server.Controllers
 
             //recorremos el listado de quizzes y luego recorremos cada pregunta de cada quiz, para obtener un listado de preguntas que pertenezcan a ese quiz 
 
-            List<Pregunta> listadepreguntas = new List<Pregunta>();
+            List<QuizPregunta> listadepreguntas = new List<QuizPregunta>();
             foreach (var quiz in listadequizzes)
             {
                 foreach (var item in quiz.LisadePreguntas)

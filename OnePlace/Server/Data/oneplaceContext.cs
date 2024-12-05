@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Hosting;
+using OnePlace.Client.Pages.QuizAmbiente;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
 
@@ -735,6 +736,35 @@ namespace OnePlace.Server.Data
                 .WithMany()
                 .HasForeignKey(x => x.Id_Accion);
 
+            modelBuilder.Entity<QPreguntas>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.GrupoId);
+
+            modelBuilder.Entity<QPreguntas>()
+                .HasOne(x => x.TipoPregunta)
+                .WithMany()
+                .HasForeignKey(x => x.TipoPreguntaId);
+
+            modelBuilder.Entity<QPreguntas>()
+                .HasMany(p => p.ListaRepuesta)
+                .WithOne(r => r.Pregunta)
+                .HasForeignKey(r => r.PreguntaId);
+            
+            modelBuilder.Entity<QTipoRespuesta>()
+                .HasOne(x => x.TipoPregunta)
+                .WithMany()
+                .HasForeignKey(x => x.TipoPreguntaId);
+
+            modelBuilder.Entity<QPreguntaTipoRespuesta>().HasKey(x => new { x.PreguntaId, x.TipoRespuestaId });
+            modelBuilder.Entity<QPreguntas>()
+                .HasMany(x => x.ListTipoRspuesta)
+                .WithMany(x => x.PreguntaList)
+                .UsingEntity<QPreguntaTipoRespuesta>(
+                l => l.HasOne(x => x.TipoRespuesta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.TipoRespuestaId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Pregunta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.PreguntaId).OnDelete(DeleteBehavior.Restrict));
+
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -775,7 +805,12 @@ namespace OnePlace.Server.Data
         public DbSet<TemaFase> TemaFases { get; set; }
         public DbSet<ActividadUsuario> ActividadUsuarios { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
-        public DbSet<Pregunta> Preguntas { get; set; }
+        public DbSet<QuizPregunta> Preguntas { get; set; }
+        public DbSet<QPreguntas> QPreguntas { get; set; }
+        public DbSet<QRespuesta> QRespuesta { get; set; }
+        public DbSet<QGrupo> QGrupo { get; set; }
+        public DbSet<QTipoPregunta> QTipoPregunta { get; set; }
+        public DbSet<QTipoRespuesta> QTipoRespuesta { get; set; }
         public DbSet<Respuesta> Respuestas { get; set; }
         public DbSet<PalabrasClave> PalabrasClave { get; set; }
         public DbSet<EstadosdelQuiz> EstadosdelQuiz { get; set; }

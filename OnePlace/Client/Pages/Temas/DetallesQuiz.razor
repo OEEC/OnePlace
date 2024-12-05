@@ -96,7 +96,7 @@ else
     private bool Procesando = true;
 
     private Quiz Quiz;
-    public List<Pregunta> ListadePreguntas { get; set; }
+    public List<QuizPregunta> ListadePreguntas { get; set; }
 
     private int paginaActual = 1;
     private int paginasTotales;
@@ -141,14 +141,14 @@ else
 
     private async Task CargarPreguntas(int pagina = 1)
     {
-        var responseHttp = await repositorio.Get<PaginadorGenerico<Pregunta>>($"api/Quiz/Listado/{QuizId}?pagina={pagina}");
+        var responseHttp = await repositorio.Get<PaginadorGenerico<QuizPregunta>>($"api/Quiz/Listado/{QuizId}?pagina={pagina}");
         if (!responseHttp.Error)
         {
             var resultado = responseHttp.Response.Resultado;
             paginaActual = responseHttp.Response.PaginaActual;
             paginasTotales = responseHttp.Response.TotalPaginas;
 
-            ListadePreguntas = (List<Pregunta>)resultado;
+            ListadePreguntas = (List<QuizPregunta>)resultado;
         }
     }
 }

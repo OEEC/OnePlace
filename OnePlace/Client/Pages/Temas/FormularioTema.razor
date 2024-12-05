@@ -143,7 +143,7 @@
                             }
                             <div class="col-sm-4">
                                 <div class="form-group">
-                                    <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => EditartemaquizDTO.Quiz.LisadePreguntas.Add(new Pregunta()))">
+                                    <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => EditartemaquizDTO.Quiz.LisadePreguntas.Add(new QuizPregunta()))">
                                         <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
                                     </Boton>
                                 </div>
@@ -275,7 +275,7 @@
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
-                                <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new Pregunta()))">
+                                <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new QuizPregunta()))">
                                     <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
                                 </Boton>
                             </div>
@@ -446,7 +446,7 @@ else
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new Pregunta()))">
+                            <Boton Class="btn btn-dark btn-sm mr-2" ButtonType="ButtonType.Button" @onclick="@(() => Quiz.LisadePreguntas.Add(new QuizPregunta()))">
                                 <Icono Icon="fas fa-plus mr-1" data-fa-transform="shrink-3"></Icono>Añadir Preguntas
                             </Boton>
                         </div>

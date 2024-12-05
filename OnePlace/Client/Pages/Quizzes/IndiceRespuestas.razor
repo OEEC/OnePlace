@@ -85,11 +85,11 @@
 
     #region VerRespuesta
 
-    public PreguntaRespuestaDTO PreguntaRespuestaDTO { get; set; }
+    public QPreguntaRespuestaDTO PreguntaRespuestaDTO { get; set; }
 
     public async Task VerRespuestas()
     {
-        var responseHttp = await repositorio.Get<PreguntaRespuestaDTO>($"api/Quiz/VerRespuestas/{TemaId}/{EmpleadoId}");
+        var responseHttp = await repositorio.Get<QPreguntaRespuestaDTO>($"api/Quiz/VerRespuestas/{TemaId}/{EmpleadoId}");
 
         if (responseHttp.Error)
         {

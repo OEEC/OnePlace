@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace OnePlace.Shared.DTOs
 {
-    public class PreguntaRespuestaDTO
+    public class QPreguntaRespuestaDTO
     {
         public Empleado Empleado { get; set; }
         public Tema Tema { get; set; }
-        public List<Pregunta> ListadePreguntas { get; set; }
+        public List<QuizPregunta> ListadePreguntas { get; set; }
         public List<Respuesta> ListadeRespuestas { get; set; }
     }
 }

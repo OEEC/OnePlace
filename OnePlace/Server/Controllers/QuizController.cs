@@ -48,9 +48,9 @@ namespace OnePlace.Server.Controllers
 
         [Route("Listado/{id}")]
         [HttpGet]
-        public async Task<ActionResult<PaginadorGenerico<Pregunta>>> Get(int id, string buscar, Boolean filtro, int pagina, int registros_por_pagina = 10)
+        public async Task<ActionResult<PaginadorGenerico<QuizPregunta>>> Get(int id, string buscar, Boolean filtro, int pagina, int registros_por_pagina = 10)
         {
-            PaginadorGenerico<Pregunta> _PaginadorConceptos;
+            PaginadorGenerico<QuizPregunta> _PaginadorConceptos;
 
             var pregunta = await context.Preguntas
                 .Where(x => x.Quiz.QuizId == id && x.Activo == true)
@@ -75,7 +75,7 @@ namespace OnePlace.Server.Controllers
             _TotalPaginas = (int)Math.Ceiling((double)_TotalRegistros / registros_por_pagina);
 
             //Instanciamos la 'Clase de paginación' y asignamos los nuevos valores
-            _PaginadorConceptos = new PaginadorGenerico<Pregunta>()
+            _PaginadorConceptos = new PaginadorGenerico<QuizPregunta>()
             {
                 RegistrosPorPagina = registros_por_pagina,
                 TotalRegistros = _TotalRegistros,
@@ -141,7 +141,7 @@ namespace OnePlace.Server.Controllers
 
             int Id = 0;//se tuvo que poner una variable id global para poder retonar algo ya que el return de respuesta esta adentro del if y no tiene alcance fuera de el            
 
-            List<Pregunta> listadodepreguntas = new List<Pregunta>();
+            List<QuizPregunta> listadodepreguntas = new List<QuizPregunta>();
             Quiz quiz = new Quiz();
 
             //Se recorre la lista de respuestas para obtener cada una de las preguntas y asi obtener las respuestas originales y sus palabras claves
@@ -750,7 +750,7 @@ namespace OnePlace.Server.Controllers
 
         [Route("VerRespuestas/{temaid}/{empleadoid}")]
         [HttpGet]
-        public async Task<ActionResult<PreguntaRespuestaDTO>> GetVerRespuestas(int temaid, int empleadoid)
+        public async Task<ActionResult<QPreguntaRespuestaDTO>> GetVerRespuestas(int temaid, int empleadoid)
         {
             //buscamos un empleado
             Empleado empleado = (from e in context.Empleados
@@ -784,7 +784,7 @@ namespace OnePlace.Server.Controllers
             var actividadquiz = await context.ActividadUsuarioQuiz
                 .Where(x => x.QuizId == quiz.QuizId && x.Idempleado == empleadoid).FirstOrDefaultAsync();
 
-            List<Pregunta> preguntas = new List<Pregunta>();
+            List<QuizPregunta> preguntas = new List<QuizPregunta>();
             List<Respuesta> listaderespuestas = new List<Respuesta>();
 
             if (actividadquiz != null)
@@ -806,7 +806,7 @@ namespace OnePlace.Server.Controllers
                 }
             }          
 
-            var model = new PreguntaRespuestaDTO();
+            var model = new QPreguntaRespuestaDTO();
             model.Empleado = empleado;
             model.Tema = quiz.Tema;
             model.ListadePreguntas = preguntas;
