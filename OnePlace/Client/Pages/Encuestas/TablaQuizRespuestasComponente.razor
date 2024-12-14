@@ -1,0 +1,68 @@
+﻿@inject IRepositorio http
+@inject IMostrarMensaje ms
+@implements IComponentInfoLoad
+
+<table class="table table-bordered table-striped" style="font-size:.8rem; text-align:center;">
+    <thead>
+        <tr>
+            <th>Estacion / Tienda</th>
+            <th>Organizacion</th>
+            <th>Comunicacion</th>
+            <th>Realizacion</th>
+            <th>Motivacion</th>
+            <th>Ambiente</th>
+            <th>Trato</th>
+            <th>Seguridad</th>
+            <th>No. Personas</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Items="RespuestasQuizDTO" Context="item">
+            <tr>
+                <td>@item.EstacionTienda</td>
+                <td>@item.Organizacion</td>
+                <td>@item.Comunacion</td>
+                <td>@item.Realizacion</td>
+                <td>@item.Motivacion</td>
+                <td>@item.Ambiente</td>
+                <td>@item.Trato</td>
+                <td>@item.Seguridad</td>
+                <td>@item.NoPersonas</td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+
+@code {
+    List<QuizRespuestasDTO> RespuestasQuizDTO = new();
+
+    public async Task LoadInfo(Dictionary<string, string> dictionary)
+    {
+        var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
+        var response = await http.Get<List<QuizRespuestasDTO>>($"api/pregunta/respuestas?{url}");
+        if (response.Error)
+        {
+            await ms.MostrarMensajeError(await response.GetBody());
+        }
+        else
+        {
+            RespuestasQuizDTO = response.Response;
+            StateHasChanged();
+        }
+    }
+
+    public async Task<byte[]> ExportData(Dictionary<string, string> dictionary)
+    {
+        var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
+        var response = await http.Get<byte[]>($"api/pregunta/respuestas?{url}");
+        if (response.Error)
+        {
+            await ms.MostrarMensajeError(await response.GetBody());
+            throw new NullReferenceException("Sin datos validos");
+        }
+        else
+        {
+            return response.Response;
+        }
+    }
+}

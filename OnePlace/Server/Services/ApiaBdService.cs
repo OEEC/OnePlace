@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OnePlace.Client.Service;
 using OnePlace.Server.Data;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,11 +20,11 @@ namespace OnePlace.Server.Services
     public class ApiaBdService : IApiaBdService
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ILogger<ApiaBdService> logger;
         private readonly ISimsacoreService simsacoreService;
-        public ApiaBdService(oneplaceContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ILogger<ApiaBdService> logger, ISimsacoreService simsacoreService)
+        public ApiaBdService(oneplaceContext context, UserManager<IdentityUsuario> userManager, IHttpContextAccessor httpContextAccessor, ILogger<ApiaBdService> logger, ISimsacoreService simsacoreService)
         {
             this.context = context;
             this.logger = logger;

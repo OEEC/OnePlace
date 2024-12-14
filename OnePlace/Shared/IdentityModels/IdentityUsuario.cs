@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace OnePlace.Server.Data
+namespace OnePlace.Shared.IdentityModels
 {
-    public class ApplicationUser : IdentityUser
+    public class IdentityUsuario : IdentityUser
     {
         public string Nombre { get; set; }
         public string ApellidoPaterno { get; set; }
@@ -20,8 +17,8 @@ namespace OnePlace.Server.Data
         //public string UserName { get; set; }
         //propiedades de navegacion
         public int Idempleado { get; set; }//el nombre debe de ser igual al campo en la bd
-        //public virtual Empleado Empleado { get; set; } // si ponemos el virtual la bd no lo reconoce por que no esta fisicamente en algun lugar esto lo hacia EF por "detras de camaras"
-               
+                                           //public virtual Empleado Empleado { get; set; } // si ponemos el virtual la bd no lo reconoce por que no esta fisicamente en algun lugar esto lo hacia EF por "detras de camaras"
+
         //este valor no lo acepta mysql, se tiene que mapear como string
         //public TipodeUsuario TipodeUsuarios { get; set; }
         public string TipodeUsuarios { get; set; }
@@ -30,5 +27,11 @@ namespace OnePlace.Server.Data
             Usuario = 1,//Usuario del sistema, tiene menos privilegios que el administrador
             Administrador//Administrador del sistema tiene todos los privilegios y permisos                      
         }
-    }   
+
+        [NotMapped]
+        public Empleado Empleado { get; set; } = null!;
+
+        [NotMapped]
+        public List<QRespuesta> Respuestas { get; set; } = new();
+    }
 }

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using OnePlace.Server.Data;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,17 +22,17 @@ namespace OnePlace.Server.Controllers
     public class CuentasController : ControllerBase
     {
         //creamos nuevos usarios
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         //con esto el usuario se va a poder logear
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly SignInManager<IdentityUsuario> _signInManager;
         //conesto podemos buscar la llave jwt
         private readonly IConfiguration _configuration;
 
         private readonly oneplaceContext context;
 
         public CuentasController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            UserManager<IdentityUsuario> userManager,
+            SignInManager<IdentityUsuario> signInManager,
             IConfiguration configuration,
             oneplaceContext context)
         {
@@ -47,7 +48,7 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
             //creamos una instancia de identityuser y usamos el metodo createasync 
-            var user = new ApplicationUser
+            var user = new IdentityUsuario
             {
                 UserName = model.NumeroEmpleado,
                 noemp = model.NumeroEmpleado,
@@ -129,7 +130,7 @@ namespace OnePlace.Server.Controllers
         }
 
         //creamos el metodo buildtoken que recibe como parametro un modelo userinfo el cual contiene usuario y contraseña
-        private UserToken BuildToken(ApplicationUser user, IList<string> roles)
+        private UserToken BuildToken(IdentityUsuario user, IList<string> roles)
         {
             //creamos un claim es una infomracion en la cual podemos confiar ya que la creamos desde la webapi
             var claims = new List<Claim>()
@@ -224,7 +225,7 @@ namespace OnePlace.Server.Controllers
                         //si le pasamos recoverypassword con el password nuevo tecleado, da error ya que recoverypassword es un DTO
                         //el nuevo objeto de applicationuser lo igualamos con todo lo que trae el oldusuario, solo cambiamos el password
                         //que es el unico campo que cambio y que nos interesa cambiar
-                        var nuevousuariosoloparaactualizar = new ApplicationUser();
+                        var nuevousuariosoloparaactualizar = new IdentityUsuario();
                         nuevousuariosoloparaactualizar = oldUsuario;
                         nuevousuariosoloparaactualizar.ContraseñaTextoPlano = recoveryPassword.Password;
                         context.Entry(oldUsuario).CurrentValues.SetValues(nuevousuariosoloparaactualizar);

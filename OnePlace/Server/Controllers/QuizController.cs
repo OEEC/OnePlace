@@ -10,6 +10,7 @@ using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,9 +27,9 @@ namespace OnePlace.Server.Controllers
     public class QuizController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IMapper mapper;
-        public QuizController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper)
+        public QuizController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IMapper mapper)
         {
             this.context = context;
             _userManager = userManager;

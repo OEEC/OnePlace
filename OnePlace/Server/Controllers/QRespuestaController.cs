@@ -9,6 +9,7 @@ using System.Linq;
 using OnePlace.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OnePlace.Shared.IdentityModels;
 
 namespace OnePlace.Server.Controllers
 {
@@ -17,9 +18,9 @@ namespace OnePlace.Server.Controllers
     public class QRespuestaController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public QRespuestaController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        public QRespuestaController(oneplaceContext context, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             this.userManager = userManager;

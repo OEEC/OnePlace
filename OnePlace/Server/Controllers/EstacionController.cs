@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
+using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
@@ -19,12 +21,30 @@ namespace OnePlace.Server.Controllers
     public class EstacionController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;      
-        public EstacionController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        private readonly IMapper mapper;
+
+        public EstacionController(oneplaceContext context, IMapper mapper)
         {
-            this.context = context;           
-            _userManager = userManager;
+            this.context = context;
+            this.mapper = mapper;
         }
+
+        //obtener estaciones por medio de filtros en base al dto de estacion
+        [HttpGet()]
+        public async Task<ActionResult<List<EstacionDTO>>> Get([FromQuery] EstacionDTO estacion)
+        {
+            var estaciones = context.Estaciones
+                .AsNoTracking()
+                .Where(x => !string.IsNullOrEmpty(x.Nombre) && x.Estatus == 1)
+                .OrderBy(x => x.Nombre)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(estacion.Nombre) && !string.IsNullOrWhiteSpace(estacion.Nombre))
+                estaciones = estaciones.Where(x => x.Nombre.ToLower().StartsWith(estacion.Nombre.ToLower()));
+
+            return Ok(estaciones.Select(mapper.Map<EstacionDTO>));
+        }
+
 
         [HttpGet("buscar/{textoBusqueda}")]
         public async Task<ActionResult<List<Estacion>>> GetEstacion(string textoBusqueda)

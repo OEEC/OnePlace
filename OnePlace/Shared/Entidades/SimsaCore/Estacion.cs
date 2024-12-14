@@ -134,5 +134,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
         //propiedades de navegacion
         [NotMapped] public List<Empleado> Empleados { get; set; }
+        [NotMapped] public Zona ZonaR { get; set; } = null!;
+        [NotMapped] public List<EmpleadoEstacion> EmpleadoEstaciones { get; set; } = new();
     }
 }

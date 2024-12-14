@@ -14,7 +14,7 @@ namespace OnePlace.Shared.Entidades
         public string? Grupo { get; set; }
 
         // Propiedad de navegación: Un grupo puede tener muchas preguntas
-        public ICollection<QPreguntas>? Preguntas { get; set; }
+        public List<QPreguntas>? Preguntas { get; set; }
 
     }
 }

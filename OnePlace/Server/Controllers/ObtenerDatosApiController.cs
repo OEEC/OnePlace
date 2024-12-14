@@ -9,6 +9,7 @@ using OnePlace.Client.ComponentesGenericos.Listado;
 using OnePlace.Client.Service;
 using OnePlace.Server.Data;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,9 +24,9 @@ namespace OnePlace.Server.Controllers
     public class ObtenerDatosApiController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly ISimsacoreService simsacoreService;
-        public ObtenerDatosApiController(oneplaceContext context, UserManager<ApplicationUser> userManager, ISimsacoreService simsacoreService)
+        public ObtenerDatosApiController(oneplaceContext context, UserManager<IdentityUsuario> userManager, ISimsacoreService simsacoreService)
         {
             this.context = context;
             _userManager = userManager;

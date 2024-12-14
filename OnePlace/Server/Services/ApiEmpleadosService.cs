@@ -19,15 +19,13 @@ namespace OnePlace.Server.Services
     public class ApiEmpleadosService : IApiEmpleadosService
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ILogger<ApiaBdService> logger;
         private readonly ISimsacoreService simsacoreService;
-        public ApiEmpleadosService(oneplaceContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ILogger<ApiaBdService> logger, ISimsacoreService simsacoreService)
+        public ApiEmpleadosService(oneplaceContext context, IHttpContextAccessor httpContextAccessor, ILogger<ApiaBdService> logger, ISimsacoreService simsacoreService)
         {
             this.context = context;
             this.logger = logger;
-            _userManager = userManager;
             this.httpContextAccessor = httpContextAccessor;
             this.simsacoreService = simsacoreService;
         }
