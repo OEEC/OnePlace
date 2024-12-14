@@ -57,7 +57,7 @@ namespace OnePlace.Server.Controllers
                         }).ToList(),
                         RespuestaUsuario = p.ListaRepuesta
                             .Where(r => r.UsuarioId == user.Id) // Filtrar respuestas por usuario actual
-                            .Select(r => new QRespuesta
+                            .Select(r => new QRespuestaDTO
                             {
                                 PreguntaId = r.PreguntaId,
                                 IdRespuesta = r.IdRespuesta,
