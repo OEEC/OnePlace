@@ -13,6 +13,7 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,9 +32,9 @@ namespace OnePlace.Server.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly ILogger<EmpleadoController> logger;
-        public EmpleadoController(oneplaceContext context, UserManager<ApplicationUser> userManager, ILogger<EmpleadoController> logger)
+        public EmpleadoController(oneplaceContext context, UserManager<IdentityUsuario> userManager, ILogger<EmpleadoController> logger)
         {
             this.context = context;
             _userManager = userManager;
@@ -81,7 +82,7 @@ namespace OnePlace.Server.Controllers
                 if (!context.Users.Any(x => x.UserName == empleado.Nombre_usuario))
                 {
                     //Asigna valores a objeto usuario
-                    var user = new ApplicationUser
+                    var user = new IdentityUsuario
                     {
                         //UserName = item.Noemp.Trim() + inicialesZona,
                         UserName = empleado.Nombre_usuario,
@@ -384,7 +385,7 @@ namespace OnePlace.Server.Controllers
 
                                                 if (ws.Cells[r, 10].Value is not null && ws.Cells[r, 11].Value is not null)
                                                 {
-                                                    var user = new ApplicationUser
+                                                    var user = new IdentityUsuario
                                                     {
                                                         //UserName = item.Noemp.Trim() + inicialesZona,
                                                         UserName = ws.Cells[r, 10].Value.ToString(),

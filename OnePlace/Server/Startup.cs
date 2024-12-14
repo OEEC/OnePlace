@@ -19,6 +19,7 @@ using OnePlace.Server.Extenciones;
 using OnePlace.Server.Helpers;
 using OnePlace.Server.Mapper;
 using OnePlace.Server.Services;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Linq;
 using System.Text;
@@ -45,7 +46,7 @@ namespace OnePlace.Server
                 (options => options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
 
             //configuramos identity para control de usuarios
-            services.AddIdentity<ApplicationUser, IdentityRole>(
+            services.AddIdentity<IdentityUsuario, IdentityRole>(
                  options =>
                  {
                      /*De forma predeterminada, requiere que las contrase�as contengan un car�cter en may�sculas,
@@ -116,6 +117,8 @@ namespace OnePlace.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddScoped<IUsuarioHelper, UsuarioHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

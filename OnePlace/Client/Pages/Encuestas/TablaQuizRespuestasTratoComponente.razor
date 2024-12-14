@@ -1,0 +1,70 @@
+﻿@inject IRepositorio http
+@inject IMostrarMensaje ms
+@implements IComponentInfoLoad
+
+<table class="table table-bordered table-striped ctable" style="font-size:.7rem; text-align:center;">
+    <thead>
+        <tr>
+            <th>Estacion / Tienda</th>
+            @foreach (var item in RespuestasQuizDTO.Preguntas)
+            {
+                <th>@item</th>
+            }
+            <th>Suma</th>
+            <th>Jefe directo</th>
+        </tr>
+    </thead>
+    <tbody>
+        <Virtualize Items="RespuestasQuizDTO.Respuestas" Context="item">
+            <tr>
+                <td><p>@item.EstacionTienda</p></td>
+                @foreach (var res in item.Respuestas)
+                {
+                    <td><p>@res</p></td>
+                }
+                <td><p>@item.Suma</p></td>
+                <td><p>@item.Encargado</p></td>
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+
+<style>
+    .ctable td {
+        align-content: center;
+    }
+</style>
+
+@code {
+    QuizPreguntasTratoDTO RespuestasQuizDTO = new();
+
+    public async Task LoadInfo(Dictionary<string, string> dictionary)
+    {
+        var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
+        var response = await http.Get<QuizPreguntasTratoDTO>($"api/pregunta/respuestas?{url}");
+        if (response.Error)
+        {
+            await ms.MostrarMensajeError(await response.GetBody());
+        }
+        else
+        {
+            RespuestasQuizDTO = response.Response;
+            StateHasChanged();
+        }
+    }
+
+    public async Task<byte[]> ExportData(Dictionary<string, string> dictionary)
+    {
+        var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
+        var response = await http.Get<byte[]>($"api/pregunta/respuestas?{url}");
+        if (response.Error)
+        {
+            await ms.MostrarMensajeError(await response.GetBody());
+            throw new NullReferenceException("Sin datos validos");
+        }
+        else
+        {
+            return response.Response;
+        }
+    }
+}

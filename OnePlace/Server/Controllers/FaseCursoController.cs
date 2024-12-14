@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,8 @@ namespace OnePlace.Server.Controllers
     public class FaseCursoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public FaseCursoController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        private readonly UserManager<IdentityUsuario> _userManager;
+        public FaseCursoController(oneplaceContext context, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             _userManager = userManager;

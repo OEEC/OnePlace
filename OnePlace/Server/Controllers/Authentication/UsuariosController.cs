@@ -9,12 +9,14 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using static OnePlace.Server.Data.ApplicationUser;
+using static OnePlace.Server.Data.IdentityUsuarios;
+//using static OnePlace.Server.Data.IdentityUsuario;
 
 namespace OnePlace.Server.Controllers
 {
@@ -24,12 +26,12 @@ namespace OnePlace.Server.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<IdentityUsuario> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
         //utilizamos un constructor para poder inyectar una instancia de applicationdbcontext y otras
         public UsuariosController(oneplaceContext context,
-            UserManager<ApplicationUser> userManager,
+            UserManager<IdentityUsuario> userManager,
             RoleManager<IdentityRole> roleManager)
         {
             this.context = context;//lo ponemos como un campo
@@ -57,7 +59,7 @@ namespace OnePlace.Server.Controllers
             List<UsuarioDTO> listaARetornar = new List<UsuarioDTO>();//listado con filtrado de registros
             List<UsuarioDTO> listaARetornarExport = new List<UsuarioDTO>();//listado sin filtrado de registros
 
-            List<ApplicationUser> listadeusuarios = new List<ApplicationUser>();//listado con filtrado por estacion
+            List<IdentityUsuario> listadeusuarios = new List<IdentityUsuario>();//listado con filtrado por estacion
             var queryable = context.Users.Where(x => x.Activo == true).AsQueryable();//listado inicial queryable
 
             //si viene un id de estacion entra al if
@@ -284,7 +286,7 @@ namespace OnePlace.Server.Controllers
                     if (!context.Users.Any(x => x.UserName == item.Obtener_Nombre_Usuario))
                     {
                         //Asigna valores a objeto usuario
-                        var user = new ApplicationUser
+                        var user = new IdentityUsuario
                         {
                             //UserName = item.Noemp.Trim() + inicialesZona,
                             UserName = item.Obtener_Nombre_Usuario,

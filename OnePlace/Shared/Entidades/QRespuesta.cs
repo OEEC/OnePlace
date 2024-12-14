@@ -1,4 +1,5 @@
 ﻿using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +19,8 @@ namespace OnePlace.Shared.Entidades
         public string? Respuesta { get; set; }
         public DateTime? fecha { get; set; }
         [NotMapped]
-        public QPreguntas Pregunta { get; set;}
+        public QPreguntas Pregunta { get; set; }
+        [NotMapped]
+        public IdentityUsuario Usuario { get; set; } = null!;
     }
 }

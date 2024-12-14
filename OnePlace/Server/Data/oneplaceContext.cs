@@ -10,10 +10,11 @@ using Microsoft.Extensions.Hosting;
 using OnePlace.Client.Pages.QuizAmbiente;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 
 namespace OnePlace.Server.Data
 {
-    public partial class oneplaceContext : IdentityDbContext<ApplicationUser>//extendemos la clase identity al applicationuser
+    public partial class oneplaceContext : IdentityDbContext<IdentityUsuario>//extendemos la clase identity al applicationuser
     {
         //esto lo genera databasefirst 
         //public oneplaceContext()
@@ -738,8 +739,9 @@ namespace OnePlace.Server.Data
 
             modelBuilder.Entity<QPreguntas>()
                 .HasOne(x => x.Grupo)
-                .WithMany()
-                .HasForeignKey(x => x.GrupoId);
+                .WithMany(x => x.Preguntas)
+                .HasForeignKey(x => x.GrupoId)
+                .HasPrincipalKey(x => x.Idgrupo);
 
             modelBuilder.Entity<QPreguntas>()
                 .HasOne(x => x.TipoPregunta)
@@ -750,7 +752,7 @@ namespace OnePlace.Server.Data
                 .HasMany(p => p.ListaRepuesta)
                 .WithOne(r => r.Pregunta)
                 .HasForeignKey(r => r.PreguntaId);
-            
+
             modelBuilder.Entity<QTipoRespuesta>()
                 .HasOne(x => x.TipoPregunta)
                 .WithMany()
@@ -764,8 +766,36 @@ namespace OnePlace.Server.Data
                 l => l.HasOne(x => x.TipoRespuesta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.TipoRespuestaId).OnDelete(DeleteBehavior.Restrict),
                 r => r.HasOne(x => x.Pregunta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.PreguntaId).OnDelete(DeleteBehavior.Restrict));
 
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Usuario)
+                .WithOne(x => x.Empleado)
+                .HasForeignKey<IdentityUsuario>(x => x.Idempleado)
+                .HasPrincipalKey<Empleado>(x => x.Idempleado);
+
+            modelBuilder.Entity<QRespuesta>()
+                .HasOne(x => x.Usuario)
+                .WithMany(x => x.Respuestas)
+                .HasForeignKey(x => x.UsuarioId);
+
+            modelBuilder.Entity<Estacion>()
+                .HasOne(x => x.ZonaR)
+                .WithMany()
+                .HasForeignKey(x => x.Zona);
+
+            modelBuilder.Entity<Empleado>()
+                .HasMany(x => x.Estaciones)
+                .WithMany(x => x.Empleados)
+                .UsingEntity<EmpleadoEstacion>(
+                r => r.HasOne(x => x.Estacion).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EstacionId).OnDelete(DeleteBehavior.Restrict),
+                l => l.HasOne(x => x.Empleado).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EmpleadoId).OnDelete(DeleteBehavior.Restrict));
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Puesto)
+                .WithMany()
+                .HasForeignKey(x => x.Idpuesto)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         //esto lo genera databasefirst 
@@ -788,6 +818,7 @@ namespace OnePlace.Server.Data
         public virtual DbSet<Zona> Zonas { get; set; }
         public virtual DbSet<Tienda> Tienda { get; set; }
         public DbSet<AreaDepartamentoEmpresa> area_departamento_empresa { get; set; }
+        public DbSet<EmpleadoEstacion> EmpleadoEstaciones { get; set; }
 
         #endregion
 

@@ -10,6 +10,7 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,10 @@ namespace OnePlace.Server.Controllers
     public class EventoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IMapper mapper;
         private readonly IBackgroundJobClient backgroundJobClient;
-        public EventoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper, IBackgroundJobClient backgroundJobClient)
+        public EventoController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IMapper mapper, IBackgroundJobClient backgroundJobClient)
         {
             this.context = context;
             _userManager = userManager;

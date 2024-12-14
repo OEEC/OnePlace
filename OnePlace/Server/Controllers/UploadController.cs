@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,8 +27,8 @@ namespace OnePlace.Server.Controllers
         private readonly IHttpContextAccessor httpContextAccessor;
 
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public UploadController(IWebHostEnvironment environment, oneplaceContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
+        private readonly UserManager<IdentityUsuario> _userManager;
+        public UploadController(IWebHostEnvironment environment, oneplaceContext context, UserManager<IdentityUsuario> userManager, IHttpContextAccessor httpContextAccessor)
         {
             this.context = context;
             _userManager = userManager;

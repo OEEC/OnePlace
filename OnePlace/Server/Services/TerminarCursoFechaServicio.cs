@@ -8,7 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static OnePlace.Server.Data.ApplicationUser;
+//using static OnePlace.Server.Data.IdentityUsuario;
+using static OnePlace.Server.Data.IdentityUsuarios;
 
 namespace OnePlace.Server.Services
 {
@@ -19,14 +20,12 @@ namespace OnePlace.Server.Services
     public class TerminarCursoFechaServicio : ITerminarCursoFechaServicio
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ILogger<TerminarCursoFechaServicio> logger;       
-        public TerminarCursoFechaServicio(oneplaceContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ILogger<TerminarCursoFechaServicio> logger)
+        public TerminarCursoFechaServicio(oneplaceContext context, IHttpContextAccessor httpContextAccessor, ILogger<TerminarCursoFechaServicio> logger)
         {
             this.context = context;
-            this.logger = logger;            
-            _userManager = userManager;
+            this.logger = logger;
             this.httpContextAccessor = httpContextAccessor;
         }
 
