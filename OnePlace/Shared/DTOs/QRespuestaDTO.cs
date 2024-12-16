@@ -14,5 +14,6 @@ namespace OnePlace.Shared.DTOs
         public string? Respuesta { get; set; }
         public DateTime? Fecha { get; set; }
         public int Identificador { get { return new Random().Next(1, 100); } }
+        public int TipoRespuesta { get; set; }
     }
 }

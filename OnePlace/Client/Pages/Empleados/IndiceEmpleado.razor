@@ -90,10 +90,10 @@
                                            ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                            placeholder="Buscar Por Nombre">
                             <SelectedTemplate>
-                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </SelectedTemplate>
                             <ResultTemplate>
-                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </ResultTemplate>
                             <NotFoundTemplate>
                                 Lo sentimos, no hay empleados con esos datos.
@@ -115,10 +115,10 @@
                                            ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                            placeholder="Buscar Por Apellido Paterno">
                             <SelectedTemplate>
-                                 @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                 @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </SelectedTemplate>
                             <ResultTemplate>
-                                 @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                 @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </ResultTemplate>
                             <NotFoundTemplate>
                                 Lo sentimos, no hay empleados con esos datos.
@@ -143,10 +143,10 @@
                                            ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                            placeholder="Buscar Por Apellido Materno">
                             <SelectedTemplate>
-                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </SelectedTemplate>
                             <ResultTemplate>
-                                @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                             </ResultTemplate>
                             <NotFoundTemplate>
                                 Lo sentimos, no hay empleados con esos datos.
@@ -260,7 +260,7 @@
                             @if (item.Persona != null)
                             {
                                     <CardPerfil 
-                                        Nombre="@(item.Persona.Nombre+" "+item.Persona.ApePat)" 
+                                        Nombre="@(item.Persona.Nombre+" "+item.Persona.Ape_pat)" 
                                         UrlDetalles="detalles-empleado" 
                                         Id="@item.Idempleado" 
                                         Imagen="@item.Img"

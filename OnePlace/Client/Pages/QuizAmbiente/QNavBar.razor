@@ -1,4 +1,5 @@
-﻿<style>
+﻿@inject HttpClient HttpClient
+<style>
     .navbar {
         /*background-color: #e63946; /* Rojo */
         background: rgb(255,255,255);
@@ -36,7 +37,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    @* <a class="nav-link text-white" href="#">Inicio</a>*@
+                    <span><b>@area.AreaTrabajo </b></span>
+                    <span><b>@area.Division</b></span>
                 </li>
             </ul>
         </div>
@@ -44,5 +46,31 @@
 </nav>
 
 @code {
+    private QNavbarDTO area = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadArea();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error inicializando: {ex.Message}");
+        }
+    }
+
+    private async Task LoadArea()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<QNavbarDTO>("api/grupo/departamento");
+            area = response;
+            Console.WriteLine($"estacion: {response}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar departamento: {ex.Message}");
+        }
+    }
 }

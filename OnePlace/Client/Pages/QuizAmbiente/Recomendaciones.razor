@@ -6,26 +6,20 @@
 @inject IJSRuntime JS
 @using System.Security.Claims
 @using OnePlace.Shared.DTOs;
-
 <QNavBar />
-<h1 class="text-center my-4">Cuestionario</h1>
-
 <!-- Barra de grupos -->
 <GroupSelector Groups="Groups" CurrentGroup="CurrentGroup" OnGroupChange="ChangeGroup" />
 
-<!-- Iniciar el formulario -->
-<form @ref="formElement">
-    <!-- Contenido del grupo -->
+<form @ref="formElement" onsubmit="return false;">
     <div class="container">
         @if (string.IsNullOrEmpty(CurrentGroup.Grupo))
         {
             <div class="alert alert-info" role="alert">
-                Cargando pregntas....
+                Cargando preguntas....
             </div>
         }
         else
         {
-            <h2 class="text-primary">@CurrentGroup.Grupo</h2>
             <div class="mt-3">
                 @if (Questions.Any())
                 {
@@ -37,25 +31,22 @@
                                 <div>
                                     @foreach (var respuesta in question.TipoRespuestas)
                                     {
-                                        <!-- Verificar si existe una respuesta del usuario -->
-                                        @if (respuesta.TipoPreguntaId == 1)
+                                        if (respuesta.TipoPreguntaId == 1)
                                         {
-                                            @if(question.Idpregunta == 31)
+                                            // Radios
+                                            // Cambiamos "radio-binomio" por un name dinámico en base al Id de la pregunta
+                                            if (question.Idpregunta == 31)
                                             {
-                                                // var RespuestaCheck = question.RespuestaUsuario?.FirstOrDefault()?.Respuesta;
-                                                <!-- Generar los botones de radio -->
-                                                countBi++;
                                                 @for (int i = 1; i <= respuesta.Cantidad; i++)
                                                 {
-                                                    <div class="form-check form-check-inline">
+                                                    <div class="form-check">
                                                         <input class="form-check-input"
                                                                type="radio"
-                                                               name="radio-binomio"
-                                                               id="@($"respuesta-{question.Idpregunta}-{countBi}")"
-                                                               value="@(respuesta?.Texto == "Si" ? 1 : 0)"
-                                                                @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())"
-                                                                />
-                                                        <label class="form-check-label" for="radio-binomio">
+                                                               name="respuesta-@(question.Idpregunta)"
+                                                               id="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")"
+                                                               value="@(respuesta?.Texto == "Si" ? "Si" : "No")"
+                                   @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())" />
+                                                        <label class="form-check-label" for="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")">
                                                             @(respuesta?.Texto)
                                                         </label>
                                                     </div>
@@ -63,45 +54,37 @@
                                             }
                                             else if (question.Idpregunta == 32)
                                             {
-                                               @for (int i = 1; i <= respuesta.Cantidad; i++)
-                                                { 
+                                                @for (int i = 1; i <= respuesta.Cantidad; i++)
+                                                {
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input"
                                                                type="radio"
-                                                               name="radio-concideras"
-                                                               id="@($"respuesta-{question.Idpregunta}-{i}")"
+                                                               name="respuesta-@(question.Idpregunta)"
+                                                               id="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")"
                                                                value="@(respuesta?.Texto)"
-                                                                @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())" />
-                                                        <label class="form-check-label" for="radio-concideras">
+                                   @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())" />
+                                                        <label class="form-check-label" for="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")">
                                                             @(respuesta?.Texto)
                                                         </label>
                                                     </div>
                                                 }
                                             }
                                         }
-                                        @if (respuesta.TipoPreguntaId == 3)
+                                        else if (respuesta.TipoPreguntaId == 3)
                                         {
-                                            var texttoRespuesta = question.RespuestaUsuario?.FirstOrDefault()?.Respuesta;
-                                            <div class="form-group">
-                                                @* <label for="exampleFormControlTextarea1">Example textarea</label>*@
+                                            // Textarea
+                                            // Cambiamos el modo de asignar valor inicial a través del contenido en vez de 'value'
+                                            var textoRespuesta = question.RespuestaUsuario?.FirstOrDefault()?.Respuesta ?? string.Empty;
+
+                                            <div class="form-group mt-3">
                                                 <textarea class="form-control"
-                                                          id="@($"respuesta-text-{question.Idpregunta}")"
-                                                          value="@texttoRespuesta"
+                                                          name="respuesta-@(question.Idpregunta)-texto"
+                                                          id="@($"texto-{question.Idpregunta}-{respuesta.IdTipoRespuesta}")"
                                                           placeholder="Escribe tu respuesta aquí..."
-                                                          @oninput="(e) => SelectAnswer(question.Idpregunta, e.Value.ToString())"
-                                                          rows="3"></textarea>
+                                      @oninput="(e) => SelectAnswer(question.Idpregunta, e.Value.ToString())"
+                                                          rows="3">@textoRespuesta</textarea>
                                             </div>
                                         }
-@*                                        var selectedAnswer = question.RespuestaUsuario?.FirstOrDefault()?.Respuesta;
-                                        <!-- Mostrar mensaje si no hay respuesta seleccionada -->
-                                        @if (selectedAnswer == null)
-                                        {
-                                            <p class="text-warning mt-2">Sin respuesta aún.</p>
-                                        }
-                                        else
-                                        {
-                                            <p class="text-success mt-2">Ultima Respuesta: <strong>@selectedAnswer</strong></p>
-                                        }*@
                                     }
                                 </div>
                             </div>
@@ -116,16 +99,12 @@
                 }
 
                 <!-- Navegación entre grupos -->
-                <div class="d-flex justify-content-between mt-4 mb-4">
-                    <button class="btn btn-warning btn-lg" @onclick="LoadPreviousGroup" disabled="@IsFirstGroup()">Anterior</button>
-                    <button class="btn btn-warning btn-lg"
+                <div class="d-flex justify-content-center mt-4 mb-4">
+                    <button class="btn btn-warning btn-lg" type="button"
                         @onclick="SaveAndLoadNextGroup"
                             disabled="@(!ListaRespuestas.Any() && !HasUserResponses())">
-                        @(IsLastGroup() ? "Finalizar" : "Siguiente")
+                        Finalizar
                     </button>
-                    @* <button class="btn btn-warning btn-lg" @onclick="SaveAndLoadNextGroup" disabled="@IsLastGroup()">Finalizar</button>*@
-                    @*                <button class="btn btn-warning btn-lg" @onclick="LoadPreviousGroup" disabled="@IsFirstGroup()">Anterior</button>
-                <button class="btn btn-warning btn-lg" @onclick="SaveAndLoadNextGroup" disabled="@IsLastGroup()">Siguiente</button>*@
                 </div>
             </div>
         }
@@ -137,19 +116,14 @@
     private QGrupo CurrentGroup = new();
     private List<QPreguntaConRespuestasDTO> Questions = new();
     private List<QRespuestaDTO> ListaRespuestas = new();
-    private List<int> Options = new() { 1, 2, 3, 4, 5 };
-    private Dictionary<int, string> Answers = new();
     private bool shouldRender = true;
     private ElementReference formElement;
-    private int countBi = 0;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            //Funcion para cargar los grupos
             await LoadGroupsAsync();
-            //Si no hay nungun grupo, seleccionado carga el primero
             if (Groups.Any())
             {
                 await ChangeGroup(Groups.First());
@@ -160,11 +134,12 @@
             Console.WriteLine($"Error inicializando: {ex.Message}");
         }
     }
+
     protected override bool ShouldRender()
     {
         return shouldRender;
     }
-    //Trae todos los grupos
+
     private async Task LoadGroupsAsync()
     {
         try
@@ -172,7 +147,6 @@
             var response = await HttpClient.GetFromJsonAsync<List<QGrupo>>("api/grupo/grupos");
             if (response != null)
             {
-                // Filtrar los grupos que tengan Idgrupo menor o igual a 1
                 Groups = response.Where(g => g.Idgrupo == 8).ToList();
             }
         }
@@ -181,28 +155,27 @@
             Console.WriteLine($"Error al cargar grupos: {ex.Message}");
         }
     }
-    //Cambia el grupo y trae las preguntas del grrupo seleccionado
+
     private async Task ChangeGroup(QGrupo group)
     {
         try
         {
-            shouldRender = false; // Detener el renderizado mientras cambian los datos
+            shouldRender = false;
             CurrentGroup = group;
-            ListaRespuestas.Clear(); // Limpiar las respuestas anteriores
+            ListaRespuestas.Clear();
             await LoadQuestionsAsync(group.Idgrupo);
-            shouldRender = true; // Habilitar el renderizado después de cargar los datos
+            shouldRender = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error cambiando grupo: {ex.Message}");
         }
     }
-    //Trae las preguntas con las respuestas de acuerdo al grupo seleccionado
+
     private async Task LoadQuestionsAsync(int groupId)
     {
         try
         {
-            //Questions.Clear();
             var response = await HttpClient.GetFromJsonAsync<List<QPreguntaConRespuestasDTO>>($"api/pregunta/preguntas/{groupId}");
             Questions.Clear();
             if (response != null) Questions = response;
@@ -214,12 +187,6 @@
         }
     }
 
-    private bool IsGroupDisabled(QGrupo group)
-    {
-        // Solo el botón del grupo actualmente renderizado estará habilitado
-        return group.Idgrupo != CurrentGroup.Idgrupo;
-    }
-    //Guarda el valor de la respuesta en un arreglo
     private void SelectAnswer(int questionId, string answer)
     {
         var existingAnswer = ListaRespuestas.FirstOrDefault(r => r.PreguntaId == questionId);
@@ -238,59 +205,54 @@
                     Fecha = DateTime.Now
                 });
         }
-        shouldRender = false; // No necesitas renderizar después de seleccionar una respuesta
+        shouldRender = false;
         Console.WriteLine($"Pregunta: {questionId}, Respuesta: {answer}");
     }
-    //Guarda las respuestas y cambia al siguiente grupo
+
     private async Task SaveAndLoadNextGroup()
     {
-        // Verificar si se cumplen las condiciones antes de guardar
         if (!ListaRespuestas.Any() && !HasUserResponses())
         {
             await mensaje.MostrarMensajeError("Por favor, responde al menos una pregunta antes de continuar.");
             return;
         }
 
-        // Llama a la función JS que obtiene los datos del formulario.
         string jsonData = await JS.InvokeAsync<string>("myFunctions.getFormData", formElement);
 
-        // Deserializa el JSON a un diccionario o a la estructura que requieras.
         var formValues = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData);
 
-        // Aquí 'formValues' contiene las llaves (name de inputs) y sus valores.
-        // Ahora puedes transformar este diccionario a la lista de respuestas que tu backend espera.
+        // Limpiamos y volvemos a llenar la lista de respuestas a partir de formValues.
         ListaRespuestas.Clear();
+
         foreach (var kvp in formValues)
         {
-            // Asumiendo que las llaves del formulario están construidas como "respuesta-{idPregunta}"
-            // y que el valor es la respuesta del usuario, adaptarlo según tu caso:
             if (kvp.Key.StartsWith("respuesta-"))
             {
-                // Obtener el ID de la pregunta a partir de la llave
                 var parts = kvp.Key.Split('-');
-                if (parts.Length == 2 && int.TryParse(parts[1], out int questionId))
+                // Ejemplos de keys:
+                // "respuesta-31" -> solo radios
+                // "respuesta-31-texto" -> textarea
+
+                if (parts.Length >= 2 && int.TryParse(parts[1], out int questionId))
                 {
+                    // Aquí no distinguimos el tipo, simplemente guardamos lo que venga.
+                    // Si es "texto", estará en parts[2], si no, solo es la respuesta del radio.
+                    var respuesta = kvp.Value;
                     ListaRespuestas.Add(new QRespuestaDTO
                         {
                             PreguntaId = questionId,
-                            Respuesta = kvp.Value,
+                            Respuesta = respuesta,
                             Fecha = DateTime.Now
                         });
                 }
             }
-            else
-            {
-                // Si tienes otros campos, puedes procesarlos aquí.
-            }
         }
 
-        // Guardar las respuestas
-        if (!await SaveAnswersAsync()) // Retorna un bool para saber si guardó exitosamente
+        if (!await SaveAnswersAsync())
         {
-            return; // Detener el cambio de grupo si falló la validación o el guardado
+            return;
         }
 
-        // Cambiar al siguiente grupo
         var currentIndex = Groups.IndexOf(CurrentGroup);
         if (currentIndex < Groups.Count - 1)
         {
@@ -298,16 +260,10 @@
         }
         else
         {
-            // Redirigir a la página de finalizar
             navigationManager.NavigateTo("/finalizar");
         }
     }
-    //Cambai el estilo de los botones de los grupos
-    private string GetGroupClass(QGrupo group)
-    {
-        return group.Idgrupo == CurrentGroup.Idgrupo ? "btn-warning" : "btn-outline-danger";
-    }
-    //CArga el grupo anterior
+
     private async Task LoadPreviousGroup()
     {
         var currentIndex = Groups.IndexOf(CurrentGroup);
@@ -317,14 +273,11 @@
         }
     }
 
-    //Si es el primer grupo desactiva el boton para ir al grupo anterior
     private bool IsFirstGroup() => Groups.IndexOf(CurrentGroup) == 0;
-    //Si es el ultimo grupo desactia el boton para ir al siguiente grupo
     private bool IsLastGroup() => Groups.IndexOf(CurrentGroup) == Groups.Count - 1;
 
     private bool HasUserResponses()
     {
-        // Verificar si en alguna pregunta existe al menos una respuesta de usuario
         return Questions.Any(q => q.RespuestaUsuario != null && q.RespuestaUsuario.Any());
     }
 
@@ -332,26 +285,23 @@
     {
         try
         {
-            // Validar que haya respuestas
             if (!ListaRespuestas.Any() && !HasUserResponses())
             {
                 await mensaje.MostrarMensajeError("Por favor, responde las preguntas antes de continuar.");
                 return false;
             }
 
-            // Validar que no falten respuestas
             if (ListaRespuestas.Any() && Questions.Count() > ListaRespuestas.Count() && !HasUserResponses())
             {
                 await mensaje.MostrarMensajeError("Hay preguntas sin respuesta.");
                 return false;
             }
 
-            // Enviar respuestas al backend
-            var response = await HttpClient.PostAsJsonAsync("api/qrespuesta/guardar", ListaRespuestas);
+            var response = await HttpClient.PostAsJsonAsync("api/qrespuesta/guardarRecom", ListaRespuestas);
             if (response.IsSuccessStatusCode)
             {
                 Console.WriteLine("Respuestas guardadas exitosamente.");
-                ListaRespuestas.Clear(); // Limpiar respuestas después de guardar
+                ListaRespuestas.Clear();
                 return true;
             }
             else

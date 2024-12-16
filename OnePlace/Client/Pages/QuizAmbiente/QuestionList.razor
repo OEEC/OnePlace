@@ -2,7 +2,7 @@
 {
     @foreach (var question in Questions)
     {
-        <QuestionCard Question="question" OnSelectAnswer="OnSelectAnswer" />
+        <QuestionCard Question="question" OnSelectAnswer="OnSelectAnswer" ListaEncargados="Encargados" />
     }
 }
 else
@@ -15,4 +15,5 @@ else
 @code {
     [Parameter] public List<QPreguntaConRespuestasDTO> Questions { get; set; }
     [Parameter] public EventCallback<(int questionId, string answer)> OnSelectAnswer { get; set; }
+    [Parameter] public List<Empleado> Encargados { get; set; }
 }

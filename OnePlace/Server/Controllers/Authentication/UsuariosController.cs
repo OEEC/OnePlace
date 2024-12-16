@@ -293,8 +293,8 @@ namespace OnePlace.Server.Controllers
                             noemp = item.Noemp,
                             Idempleado = item.Idempleado,
                             Nombre = item.Persona.Nombre,
-                            ApellidoMaterno = item.Persona.ApeMat,
-                            ApellidoPaterno = item.Persona.ApePat,
+                            ApellidoMaterno = item.Persona.Ape_mat,
+                            ApellidoPaterno = item.Persona.Ape_pat,
                             //Empleado = null,
                             ContraseñaTextoPlano = $"S1msa*{item.Noemp}",
                             Activo = true

@@ -41,8 +41,8 @@ namespace OnePlace.Server.Services
             {
                 Persona persona = new Persona();
                 persona.Idpersona = item.Idpersona;
-                persona.ApePat = item.ApePat;
-                persona.ApeMat = item.ApeMat;
+                persona.Ape_pat = item.Ape_pat;
+                persona.Ape_mat = item.Ape_mat;
                 persona.Nombre = item.Nombre;
                 persona.Sexo = item.Sexo;
 

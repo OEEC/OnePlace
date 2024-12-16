@@ -267,7 +267,7 @@ namespace OnePlace.Server.Reportes
             var nombre = "";
             if (model != null)
             {
-                nombre = model.Persona.Nombre + " " + model.Persona.ApePat;
+                nombre = model.Persona.Nombre + " " + model.Persona.Ape_pat;
             } 
 
             var textpink  = FontFactory.GetFont("Arial", 15, Font.NORMAL, BaseColor.Pink);
@@ -401,7 +401,7 @@ namespace OnePlace.Server.Reportes
             ColumnText.ShowTextAligned(
                 canvas,
                 Element.ALIGN_RIGHT,
-                new Phrase(model.Persona.Nombre + " " + model.Persona.ApePat + " " + model.Persona.ApeMat, new Font(bf)),
+                new Phrase(model.Persona.Nombre + " " + model.Persona.Ape_pat + " " + model.Persona.Ape_mat, new Font(bf)),
                 650, 285, 0
             );
 

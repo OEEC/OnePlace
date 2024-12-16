@@ -318,7 +318,7 @@ namespace OnePlace.Server.Controllers
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId).ToList(),
                         Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
-                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault()?.Persona?.FullName() ?? string.Empty,
+                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault()?.Persona?.FullName ?? string.Empty,
                         Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault()?.Puesto?.Puesto1 ?? string.Empty
                     }).ToList();
 

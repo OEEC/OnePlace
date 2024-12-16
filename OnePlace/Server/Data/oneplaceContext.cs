@@ -457,11 +457,11 @@ namespace OnePlace.Server.Data
 
                 entity.Property(e => e.Idpersona).HasColumnName("idpersona");
 
-                entity.Property(e => e.ApeMat)
+                entity.Property(e => e.Ape_mat)
                     .HasMaxLength(100)
                     .HasColumnName("ape_mat");
 
-                entity.Property(e => e.ApePat)
+                entity.Property(e => e.Ape_pat)
                     .HasMaxLength(100)
                     .HasColumnName("ape_pat");
 

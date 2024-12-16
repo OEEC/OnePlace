@@ -38,40 +38,25 @@
                 else if (respuesta.TipoPreguntaId == 2)
                 {
                     var inputRespuesta = Question.RespuestaUsuario?.FirstOrDefault()?.Respuesta;
-                    <div class="form-group">
+@*                    <div class="form-group">
                         <input type="text"
                                class="form-control"
                                id="@($"respuesta-text-{Question.Idpregunta}")"
                                value="@inputRespuesta"
                                placeholder="Escribe tu respuesta aquí..."
                                @onchange="(e) => AnswerChanged(e.Value.ToString())" />
+                    </div>*@
+
+                    <div class="form-group">
+                        <select class="form-select" aria-label="seleccionar encargaado"
+                                @onchange="(e) => AnswerChanged(e.Value.ToString())">
+                            <option selected disabled>Selecciona a la persona</option>
+                            @foreach (var encargado in ListaEncargados)
+                            {
+                                <option value="@encargado.Idempleado">@encargado.Persona.FullName</option>
+                            }
+                        </select>
                     </div>
-                }
-                else if (respuesta.TipoPreguntaId == 3)
-                {
-                    if (Question.Idpregunta == 31 && respuesta.IdTipoRespuesta == 12 || Question.Idpregunta == 32 && respuesta.IdTipoRespuesta == 12)
-                    {
-                       var texttoRespuesta = Question.RespuestaUsuario?.FirstOrDefault(r => r.PreguntaId == Question.Idpregunta)?.Respuesta ?? "";
-
-                        var respuestas = Question.RespuestaUsuario?
-                        .Where(r => r.PreguntaId == Question.Idpregunta && r.Respuesta != null)
-                        .Select(r => r.Respuesta)
-                        .ToList();
-
-                        // Si existen respuestas, unirlas con una coma, si no, devolver una cadena vacía
-                        string todasLasRespuestas = (respuestas != null && respuestas.Any())
-                        ? string.Join(", ", respuestas)
-                        : "";
-
-                        Console.WriteLine($"Error al cargar grupos: {todasLasRespuestas}");
-                        <div class="form-group">
-                            <textarea class="form-control"
-                                id="@($"respuesta-text-{Question.Idpregunta}")"
-                                placeholder="Escribe tu respuesta aquí..."
-                                              @onchange="(e) => AnswerChanged(e.Value.ToString())"
-                                rows="3">@texttoRespuesta</textarea>
-                        </div>
-                    }
                 }
 
             }
@@ -82,6 +67,7 @@
 @code {
     [Parameter] public QPreguntaConRespuestasDTO Question { get; set; }
     [Parameter] public EventCallback<(int questionId, string answer)> OnSelectAnswer { get; set; }
+    [Parameter] public List<Empleado> ListaEncargados { get; set; }
 
     private async Task AnswerChanged(string answer)
     {

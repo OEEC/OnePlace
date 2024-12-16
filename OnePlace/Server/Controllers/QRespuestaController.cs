@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnePlace.Server.Data;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.Entidades.SimsaCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
@@ -10,6 +11,7 @@ using OnePlace.Shared.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnePlace.Shared.IdentityModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OnePlace.Server.Controllers
 {
@@ -29,11 +31,6 @@ namespace OnePlace.Server.Controllers
         [HttpPost("guardar")]
         public async Task<IActionResult> GuardarRespuestas([FromBody] List<QRespuestaDTO> respuestasDto)
         {
-            //if (respuestasDto == null || !respuestasDto.Any())
-            //{
-            //    return BadRequest("No hay respuestas para guardar.");
-            //}
-
             var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
             if (user == null)
             {
@@ -57,13 +54,6 @@ namespace OnePlace.Server.Controllers
                             respuestaExistente.Respuesta = dto.Respuesta;
                             respuestaExistente.fecha = dto.Fecha ?? DateTime.Now; // Actualizar la fecha si es necesario
                         } 
-                        //else if (respuestaExistente != null && respuestaExistente.Pregunta.TipoPreguntaId == 4) 
-                        //{
-                        //    foreach (var item in respuestasDto)
-                        //    {
-                                
-                        //    }
-                        //}
                         else
                         {
                             // Crear una nueva respuesta si no existe
@@ -84,6 +74,64 @@ namespace OnePlace.Server.Controllers
                     return Ok("Respuestas guardadas/actualizadas exitosamente.");
                 }
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al guardar respuestas: {ex.Message}");
+            }
+        }
+
+        [HttpPost("guardarRecom")]
+        public async Task<IActionResult> GuardarRecomendaciones([FromBody] List<QRespuestaDTO> respuestasDto)
+        {
+            var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            if (user == null)
+            {
+                return Unauthorized("Usuario no autenticado.");
+            }
+
+            try
+            {
+                if (respuestasDto == null || !respuestasDto.Any())
+                {
+                    return BadRequest("No hay respuestas para guardar.");
+                }
+
+                foreach (var dto in respuestasDto)
+                {
+                    // Si el IdRespuesta viene con valor, intentamos actualizar esa respuesta
+                    QRespuesta respuestaExistente = null;
+                    if (dto.IdRespuesta.HasValue && dto.IdRespuesta.Value > 0)
+                    {
+                        respuestaExistente = await context.QRespuesta
+                            .FirstOrDefaultAsync(r => r.PreguntaId == dto.PreguntaId
+                                                   && r.UsuarioId == user.Id
+                                                   && r.IdRespuesta == dto.IdRespuesta.Value);
+                    }
+
+                    if (respuestaExistente != null)
+                    {
+                        // Actualizamos la respuesta existente
+                        respuestaExistente.Respuesta = dto.Respuesta;
+                        respuestaExistente.fecha = dto.Fecha ?? DateTime.Now;
+                    }
+                    else
+                    {
+                        // Creamos una nueva respuesta
+                        var nuevaRespuesta = new QRespuesta
+                        {
+                            PreguntaId = dto.PreguntaId,
+                            UsuarioId = user.Id,
+                            Respuesta = dto.Respuesta,
+                            fecha = dto.Fecha ?? DateTime.Now
+                        };
+
+                        context.QRespuesta.Add(nuevaRespuesta);
+                    }
+                }
+
+                await context.SaveChangesAsync();
+                return Ok("Respuestas guardadas/actualizadas exitosamente.");
             }
             catch (Exception ex)
             {
@@ -116,6 +164,92 @@ namespace OnePlace.Server.Controllers
                 return StatusCode(500, $"Error al obtener respuestas: {ex.Message}");
             }
 
+        }
+
+        [HttpGet("encargados")]
+        public async Task<IActionResult> Encargados()
+        {
+            //var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            //if (user == null)
+            //{
+            //    return Unauthorized("Usuario no autenticado.");
+            //}
+
+            try
+            {
+                List<Empleado> encargados = new();
+                // IDs de puestos según tu lógica
+                var supervisorPuestoId = 77;
+                var jefeDeTurnoPuestoId = 33;
+                var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141, 
+                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 
+                                                208, 209, 210, 211, 212, 213, 219 };
+
+                // Obtener el usuario actual
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+
+                // Cargar el empleado actual junto con sus estaciones
+                var empleado = await context.Empleados
+                    .Include(e => e.Estaciones) // Carga las estaciones asociadas al empleado
+                    .FirstOrDefaultAsync(e => e.Idempleado == user.Idempleado);
+
+                if (empleado == null)
+                {
+                    // Manejo del caso donde no se encuentra el empleado
+                    return BadRequest();
+                }
+
+                // Si el empleado es supervisor o jefe de turno
+                if (empleado.Idpuesto == supervisorPuestoId || empleado.Idpuesto == jefeDeTurnoPuestoId)
+                {
+
+                    // Buscar gerentes que estén asignados al menos a una de las mismas estaciones
+                    var gerentesRelacionados = await context.Empleados
+                        .Include(e => e.Estaciones) // Incluir estaciones para hacer el filtrado
+                        .Include(e => e.Persona)
+                        .Where(e => e.Idpuesto.HasValue && gerentePuestoIds.Contains(e.Idpuesto.Value))
+                        .Where(e => e.Estaciones.Any(est => est.Idestacion == empleado.Idestacion))
+                        .ToListAsync();
+
+                    encargados = gerentesRelacionados;
+                }
+                else if(empleado.Division == "TIENDAS")
+                {
+
+                    // Buscar gerentes que estén asignados al menos a una de las mismas estaciones
+                    var supervisoresRelacionados = await context.Empleados
+                        .Include(e => e.Estaciones) // Incluir estaciones para filtrar
+                        .Include(e => e.Persona)
+                        .Where(e => e.Idpuesto.HasValue && e.Idpuesto.Value == supervisorPuestoId)
+                        .Where(e => e.Estaciones.Any(est => est.Idestacion == empleado.Idestacion))
+                        .ToListAsync();
+
+                    encargados = supervisoresRelacionados;
+                } 
+                else if(empleado.Division == "ESTACIONES")
+                {
+                    var estacionesDelEmpleado = empleado.Estaciones.Select(est => est.Idestacion).ToList();
+
+                    // Buscar gerentes que estén asignados al menos a una de las mismas estaciones
+                    var jefesRelacionados = await context.Empleados
+                        .Include(e => e.Estaciones) // Incluir estaciones para filtrar
+                        .Include(e => e.Persona)
+                        .Where(e => e.Idpuesto.HasValue && jefeDeTurnoPuestoId == e.Idpuesto.Value)
+                        .Where(e => e.Estaciones.Any(est => est.Idestacion == empleado.Idestacion))
+                        .ToListAsync();
+
+                    encargados = jefesRelacionados;
+                }
+
+                // Ejecutamos la consulta y obtenemos la lista
+
+                return Ok(encargados);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al guardar respuestas: {ex.Message}");
+            }
         }
     }
 }

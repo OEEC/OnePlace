@@ -8,7 +8,6 @@
 @inject NavigationManager navigationManager
 
 <QNavBar />
-<h1 class="text-center my-4">Cuestionario</h1>
 
 <GroupSelector Groups="Groups" CurrentGroup="CurrentGroup" OnGroupChange="ChangeGroup" />
 
@@ -21,16 +20,16 @@
     }
     else
     {
-        <h2 class="text-primary">@CurrentGroup.Grupo</h2>
+        @*<h2 class="text-primary">@CurrentGroup.Grupo</h2>*@
         <div class="mt-3">
-            <QuestionList Questions="Questions" OnSelectAnswer="SelectAnswer" />
-
+            <QuestionList Questions="Questions" OnSelectAnswer="SelectAnswer" Encargados="ListaEncargados" />
+              
             <div class="d-flex justify-content-between mt-4 mb-4">
                 <button class="btn btn-warning btn-lg" @onclick="LoadPreviousGroup" disabled="@IsFirstGroup()">Anterior</button>
                 <button class="btn btn-warning btn-lg"
                         @onclick="SaveAndLoadNextGroup"
                         >
-                    @(IsLastGroup() ? "Finalizar" : "Siguiente")
+                    @(IsLastGroup() ? "Recomendaciónes" : "Siguiente")
                 </button>
             </div>
         </div>
@@ -42,6 +41,7 @@
     private QGrupo CurrentGroup = new();
     private List<QPreguntaConRespuestasDTO> Questions = new();
     private List<QRespuestaDTO> ListaRespuestas = new();
+    private List<Empleado> ListaEncargados = new();
     private bool shouldRender = true;
 
     protected override async Task OnInitializedAsync()
@@ -102,6 +102,12 @@
             var response = await HttpClient.GetFromJsonAsync<List<QPreguntaConRespuestasDTO>>($"api/pregunta/preguntas/{groupId}");
             Questions.Clear();
             if (response != null) Questions = response;
+            if (groupId == 6)
+            {
+                var encargados = await HttpClient.GetFromJsonAsync<List<Empleado>>("api/qrespuesta/encargados");
+                ListaEncargados = encargados;
+                Console.WriteLine(JsonConvert.SerializeObject(ListaEncargados));
+            }
         }
         catch (Exception ex)
         {
