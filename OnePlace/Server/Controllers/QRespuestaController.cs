@@ -29,10 +29,10 @@ namespace OnePlace.Server.Controllers
         [HttpPost("guardar")]
         public async Task<IActionResult> GuardarRespuestas([FromBody] List<QRespuestaDTO> respuestasDto)
         {
-            if (respuestasDto == null || !respuestasDto.Any())
-            {
-                return BadRequest("No hay respuestas para guardar.");
-            }
+            //if (respuestasDto == null || !respuestasDto.Any())
+            //{
+            //    return BadRequest("No hay respuestas para guardar.");
+            //}
 
             var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
             if (user == null)
@@ -42,38 +42,48 @@ namespace OnePlace.Server.Controllers
 
             try
             {
-                // Iterar sobre las respuestas enviadas
-                foreach (var dto in respuestasDto)
+                if (respuestasDto != null || respuestasDto.Any()) 
                 {
-                    // Verificar si ya existe una respuesta para el usuario y la pregunta
-                    var respuestaExistente = await context.QRespuesta
-                        .FirstOrDefaultAsync(r => r.PreguntaId == dto.PreguntaId && r.UsuarioId == user.Id);
+                    // Iterar sobre las respuestas enviadas
+                    foreach (var dto in respuestasDto)
+                    {
+                        // Verificar si ya existe una respuesta para el usuario y la pregunta
+                        var respuestaExistente = await context.QRespuesta
+                            .FirstOrDefaultAsync(r => r.PreguntaId == dto.PreguntaId && r.UsuarioId == user.Id && r.IdRespuesta != dto.IdRespuesta);
 
-                    if (respuestaExistente != null)
-                    {
-                        // Actualizar la respuesta existente
-                        respuestaExistente.Respuesta = dto.Respuesta;
-                        respuestaExistente.fecha = dto.Fecha ?? DateTime.Now; // Actualizar la fecha si es necesario
-                    }
-                    else
-                    {
-                        // Crear una nueva respuesta si no existe
-                        var nuevaRespuesta = new QRespuesta
+                        if (respuestaExistente != null)
                         {
-                            PreguntaId = dto.PreguntaId,
-                            UsuarioId = user.Id,
-                            Respuesta = dto.Respuesta,
-                            fecha = dto.Fecha ?? DateTime.Now
-                        };
+                            // Actualizar la respuesta existente
+                            respuestaExistente.Respuesta = dto.Respuesta;
+                            respuestaExistente.fecha = dto.Fecha ?? DateTime.Now; // Actualizar la fecha si es necesario
+                        } 
+                        //else if (respuestaExistente != null && respuestaExistente.Pregunta.TipoPreguntaId == 4) 
+                        //{
+                        //    foreach (var item in respuestasDto)
+                        //    {
+                                
+                        //    }
+                        //}
+                        else
+                        {
+                            // Crear una nueva respuesta si no existe
+                            var nuevaRespuesta = new QRespuesta
+                            {
+                                PreguntaId = dto.PreguntaId,
+                                UsuarioId = user.Id,
+                                Respuesta = dto.Respuesta,
+                                fecha = dto.Fecha ?? DateTime.Now
+                            };
 
-                        context.QRespuesta.Add(nuevaRespuesta);
+                            context.QRespuesta.Add(nuevaRespuesta);
+                        }
                     }
+
+                    // Guardar los cambios en la base de datos
+                     await context.SaveChangesAsync();
+                    return Ok("Respuestas guardadas/actualizadas exitosamente.");
                 }
-
-                // Guardar los cambios en la base de datos
-                await context.SaveChangesAsync();
-
-                return Ok("Respuestas guardadas/actualizadas exitosamente.");
+                return NoContent();
             }
             catch (Exception ex)
             {

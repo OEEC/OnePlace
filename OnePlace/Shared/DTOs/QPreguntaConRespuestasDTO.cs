@@ -13,7 +13,7 @@ namespace OnePlace.Shared.DTOs
         public int? GrupoId { get; set; }
         public string? Pregunta { get; set; }
         public int? TipoPreguntaId { get; set; }
-        public List<QRespuesta>? RespuestaUsuario { get; set; }
+        public List<QRespuestaDTO>? RespuestaUsuario { get; set; }
         public List<QTipoRespuestaDTO>? TipoRespuestas { get; set; }
     }
 }
