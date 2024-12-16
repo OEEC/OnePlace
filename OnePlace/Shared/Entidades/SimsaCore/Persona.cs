@@ -70,7 +70,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
         public string FullName()
         {
-            return $"{Nombre} {ApePat} {ApeMat}";
+            return $"{Nombre.Trim()} {ApePat.Trim()} {ApeMat.Trim()}";
         }
     }
 }
