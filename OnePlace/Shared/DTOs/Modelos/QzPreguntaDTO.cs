@@ -17,6 +17,9 @@ namespace OnePlace.Shared.DTOs.Modelos
         public List<QzTipoRespuestaDTO> ListTipoRspuesta { get; set; } = new();
         public List<QPreguntaTipoRespuesta> ListPreguntaTipoRespuesta { get; set; } = new();
         [JsonIgnore]
+        public int Estatus { get; set; }
+
+        [JsonIgnore]
         public string UsuarioId { get; set; } = string.Empty;
     }
 }
