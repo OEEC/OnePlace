@@ -136,7 +136,7 @@ namespace OnePlace.Server.Controllers
                 respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 6);
 
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Recomendacion))
-                respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8);
+                respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8 || x.PreguntaId == 30);
 
             //ejecucion de la consulta
             var respuestaslist = await respuestas.ToListAsync();
@@ -194,7 +194,9 @@ namespace OnePlace.Server.Controllers
                                   .OrderBy(x => x.PreguntaId)
                                   .Select(x => x.Respuesta.ToInt())
                                   .Sum(x => x),
-                        Encargado = res.FirstOrDefault(x => x.Pregunta.Pregunta == "Nombre de jefe directo:" && x.UsuarioId == baseres.UsuarioId)?.Respuesta ?? string.Empty,
+                        Encargado = res.FirstOrDefault(x => x.PreguntaId == 30 && x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
+                            x => x.Idempleado == res.FirstOrDefault(x => x.PreguntaId == 30 && x.UsuarioId == baseres.UsuarioId)?.Respuesta.ToInt()
+                            )?.Persona.FullName ?? string.Empty,
                     }).ToList();
 
                 QuizPreguntasTratoDTO Preguntas = new()
@@ -266,7 +268,7 @@ namespace OnePlace.Server.Controllers
             else if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Recomendacion))
             {
                 //conteo de pregutas totales en base a las respuestas de los usuarios
-                var countpreguntas = respuestaslist.Where(x => x.Pregunta.Estatus == 1).GroupBy(x => x.PreguntaId).Count();
+                var countpreguntas = respuestaslist.Where(x => x.Pregunta.Estatus == 1 && x.PreguntaId != 30).GroupBy(x => x.PreguntaId).Count();
 
                 //agrupacion de las preguntas en base a las respuestas de los usuarios
                 var respuestasdtos = respuestaslist.GroupBy(x => new
@@ -318,14 +320,14 @@ namespace OnePlace.Server.Controllers
                     x => x, (baseres, res) => new QuizRespuestasRecomendacionDTO
                     {
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
-                        Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1).ToList(),
+                        Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1 && x.Idpregunta != 30).ToList(),
                         Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
-                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
+                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
                             x => x.Idempleado ==
-                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Respuesta.ToInt() ?? 0))?.Persona.FullName ?? string.Empty,
-                        Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
+                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Respuesta.ToInt() ?? 0))?.Persona.FullName ?? string.Empty,
+                        Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
                             x => x.Idempleado ==
-                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Respuesta.ToInt() ?? 0))?.Puesto?.Puesto1 ?? string.Empty
+                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Respuesta.ToInt() ?? 0))?.Puesto?.Puesto1 ?? string.Empty
                     }).ToList();
 
                 QuizPreguntasRecomendacionDTO preguntas = new()
