@@ -180,7 +180,7 @@ namespace OnePlace.Server.Controllers
                 List<Empleado> encargados = new();
                 // IDs de puestos según tu lógica
                 var supervisorPuestoId = 77;
-                var jefeDeTurnoPuestoId = 33;
+                var jefeDeTurnoPuestoId = 32;
                 var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141, 
                                                142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 
                                                 208, 209, 210, 211, 212, 213, 219 };

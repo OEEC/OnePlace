@@ -82,7 +82,7 @@
                                                           id="@($"texto-{question.Idpregunta}-{respuesta.IdTipoRespuesta}")"
                                                           placeholder="Escribe tu respuesta aquí..."
                                       @oninput="(e) => SelectAnswer(question.Idpregunta, e.Value.ToString())"
-                                                          rows="3">@textoRespuesta</textarea>
+                                                          rows="3"></textarea>
                                             </div>
                                         }
                                     }
@@ -101,9 +101,8 @@
                 <!-- Navegación entre grupos -->
                 <div class="d-flex justify-content-center mt-4 mb-4">
                     <button class="btn btn-warning btn-lg" type="button"
-                        @onclick="SaveAndLoadNextGroup"
-                            disabled="@(!ListaRespuestas.Any() && !HasUserResponses())">
-                        Finalizar
+                        @onclick="SaveAndLoadNextGroup">
+                        <i class="bi bi-save"></i> Guardar
                     </button>
                 </div>
             </div>
@@ -116,7 +115,6 @@
     private QGrupo CurrentGroup = new();
     private List<QPreguntaConRespuestasDTO> Questions = new();
     private List<QRespuestaDTO> ListaRespuestas = new();
-    private bool shouldRender = true;
     private ElementReference formElement;
 
     protected override async Task OnInitializedAsync()
@@ -133,11 +131,6 @@
         {
             Console.WriteLine($"Error inicializando: {ex.Message}");
         }
-    }
-
-    protected override bool ShouldRender()
-    {
-        return shouldRender;
     }
 
     private async Task LoadGroupsAsync()
@@ -160,11 +153,9 @@
     {
         try
         {
-            shouldRender = false;
             CurrentGroup = group;
             ListaRespuestas.Clear();
             await LoadQuestionsAsync(group.Idgrupo);
-            shouldRender = true;
         }
         catch (Exception ex)
         {
@@ -205,7 +196,6 @@
                     Fecha = DateTime.Now
                 });
         }
-        shouldRender = false;
         Console.WriteLine($"Pregunta: {questionId}, Respuesta: {answer}");
     }
 

@@ -49,7 +49,7 @@ namespace OnePlace.Server.Controllers
                 var preguntasConRespuestas = await context.QPreguntas
                     .Include(x => x.ListaRepuesta)
                     .Include(p => p.ListTipoRspuesta)
-                    .Where(p => p.GrupoId == groupId)
+                    .Where(p => p.GrupoId == groupId && p.Estatus == 1)
                     .Select(p => new QPreguntaConRespuestasDTO
                     {
                         Idpregunta = p.Idpregunta,
@@ -322,7 +322,7 @@ namespace OnePlace.Server.Controllers
                         Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
                         Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
                             x => x.Idempleado ==
-                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Respuesta.ToInt() ?? 0))?.Persona.FullName() ?? string.Empty,
+                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Respuesta.ToInt() ?? 0))?.Persona.FullName ?? string.Empty,
                         Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
                             x => x.Idempleado ==
                             (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 33)?.Respuesta.ToInt() ?? 0))?.Puesto?.Puesto1 ?? string.Empty

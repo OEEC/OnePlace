@@ -1,4 +1,4 @@
-﻿@page "/preguntas"
+﻿@page "/ambiente"
 @using System.Net.Http.Json
 @using System.Security.Claims
 @using OnePlace.Shared.DTOs
@@ -23,13 +23,12 @@
         @*<h2 class="text-primary">@CurrentGroup.Grupo</h2>*@
         <div class="mt-3">
             <QuestionList Questions="Questions" OnSelectAnswer="SelectAnswer" Encargados="ListaEncargados" />
-              
+
             <div class="d-flex justify-content-between mt-4 mb-4">
-                <button class="btn btn-warning btn-lg" @onclick="LoadPreviousGroup" disabled="@IsFirstGroup()"><i class="bi bi-arrow-left"></i> Anterior</button>
+                <button class="btn btn-warning btn-lg" @onclick="GoBack"><i class="bi bi-arrow-left"></i> Anterior</button>
                 <button class="btn btn-warning btn-lg"
-                        @onclick="SaveAndLoadNextGroup"
-                        >
-                    @(IsLastGroup() ? (MarkupString)"Recomendaciones <i class=\"bi bi-arrow-right\"></i>" : (MarkupString)"Siguiente <i class=\"bi bi-arrow-right\"></i>")
+                    @onclick="SaveAndLoadNextGroup">
+                    Siguiente <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -47,10 +46,15 @@
     {
         try
         {
+            QGrupo nuevoGrupo = new QGrupo
+                {
+                    Idgrupo = 5,
+                    Grupo = "Ambiente"
+                };
             await LoadGroupsAsync();
             if (Groups.Any())
             {
-                await ChangeGroup(Groups.First());
+                await ChangeGroup(nuevoGrupo);
             }
         }
         catch (Exception ex)
@@ -124,11 +128,11 @@
         else
         {
             ListaRespuestas.Add(new QRespuestaDTO
-            {
-                PreguntaId = questionId,
-                Respuesta = answer,
-                Fecha = DateTime.Now
-            });
+                {
+                    PreguntaId = questionId,
+                    Respuesta = answer,
+                    Fecha = DateTime.Now
+                });
         }
         StateHasChanged();
     }
@@ -145,15 +149,9 @@
         {
             return;
         }
-
-        var currentIndex = Groups.IndexOf(CurrentGroup);
-        if (currentIndex < Groups.Count - 1)
-        {
-            await ChangeGroup(Groups[currentIndex + 1]);
-        }
         else
         {
-            navigationManager.NavigateTo("/recomendaciones");
+            navigationManager.NavigateTo("/trato");
         }
     }
 
@@ -208,5 +206,11 @@
     private bool HasUserResponses()
     {
         return Questions.Any(q => q.RespuestaUsuario != null && q.RespuestaUsuario.Any());
+    }
+
+    private void GoBack()
+    {
+        navigationManager.NavigateTo("/motivacion");
+
     }
 }

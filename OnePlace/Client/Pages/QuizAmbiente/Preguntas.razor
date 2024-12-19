@@ -167,7 +167,6 @@
     private List<QPreguntaConRespuestasDTO> Questions = new();
     private List<QRespuestaDTO> ListaRespuestas = new();
     private Dictionary<int, string> Answers = new();
-    private bool shouldRender = true;
     private ElementReference formElement;
 
     protected override async Task OnInitializedAsync()
@@ -187,8 +186,6 @@
         }
     }
 
-    protected override bool ShouldRender() => shouldRender;
-
     private async Task LoadGroupsAsync()
     {
         try
@@ -206,11 +203,9 @@
     {
         try
         {
-            shouldRender = false;
             CurrentGroup = group;
             ListaRespuestas.Clear();
             await LoadQuestionsAsync(group.Idgrupo);
-            shouldRender = true;
         }
         catch (Exception ex)
         {
@@ -252,7 +247,6 @@
                     Fecha = DateTime.Now
                 });
         }
-        shouldRender = false;
     }
 
     private async Task SaveAndLoadNextGroup()
