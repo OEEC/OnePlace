@@ -9,6 +9,7 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +23,10 @@ namespace OnePlace.Server.Controllers
     public class TemaController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IAlmacenadorArchivos almacenadorDeArchivos;
         private readonly IMapper mapper;
-        public TemaController(oneplaceContext context, UserManager<ApplicationUser> userManager, IAlmacenadorArchivos almacenadorDeArchivos, IMapper mapper)
+        public TemaController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IAlmacenadorArchivos almacenadorDeArchivos, IMapper mapper)
         {
             this.context = context;
             _userManager = userManager;

@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Hosting;
+using OnePlace.Client.Pages.QuizAmbiente;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 
 namespace OnePlace.Server.Data
 {
-    public partial class oneplaceContext : IdentityDbContext<ApplicationUser>//extendemos la clase identity al applicationuser
+    public partial class oneplaceContext : IdentityDbContext<IdentityUsuario>//extendemos la clase identity al applicationuser
     {
         //esto lo genera databasefirst 
         //public oneplaceContext()
@@ -455,11 +457,11 @@ namespace OnePlace.Server.Data
 
                 entity.Property(e => e.Idpersona).HasColumnName("idpersona");
 
-                entity.Property(e => e.ApeMat)
+                entity.Property(e => e.Ape_mat)
                     .HasMaxLength(100)
                     .HasColumnName("ape_mat");
 
-                entity.Property(e => e.ApePat)
+                entity.Property(e => e.Ape_pat)
                     .HasMaxLength(100)
                     .HasColumnName("ape_pat");
 
@@ -735,7 +737,65 @@ namespace OnePlace.Server.Data
                 .WithMany()
                 .HasForeignKey(x => x.Id_Accion);
 
+            modelBuilder.Entity<QPreguntas>()
+                .HasOne(x => x.Grupo)
+                .WithMany(x => x.Preguntas)
+                .HasForeignKey(x => x.GrupoId)
+                .HasPrincipalKey(x => x.Idgrupo);
+
+            modelBuilder.Entity<QPreguntas>()
+                .HasOne(x => x.TipoPregunta)
+                .WithMany()
+                .HasForeignKey(x => x.TipoPreguntaId);
+
+            modelBuilder.Entity<QPreguntas>()
+                .HasMany(p => p.ListaRepuesta)
+                .WithOne(r => r.Pregunta)
+                .HasForeignKey(r => r.PreguntaId);
+
+            modelBuilder.Entity<QTipoRespuesta>()
+                .HasOne(x => x.TipoPregunta)
+                .WithMany()
+                .HasForeignKey(x => x.TipoPreguntaId);
+
+            modelBuilder.Entity<QPreguntaTipoRespuesta>().HasKey(x => new { x.PreguntaId, x.TipoRespuestaId });
+            modelBuilder.Entity<QPreguntas>()
+                .HasMany(x => x.ListTipoRspuesta)
+                .WithMany(x => x.PreguntaList)
+                .UsingEntity<QPreguntaTipoRespuesta>(
+                l => l.HasOne(x => x.TipoRespuesta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.TipoRespuestaId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Pregunta).WithMany(x => x.ListPreguntaTipoRespuesta).HasForeignKey(x => x.PreguntaId).OnDelete(DeleteBehavior.Restrict));
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Usuario)
+                .WithOne(x => x.Empleado)
+                .HasForeignKey<IdentityUsuario>(x => x.Idempleado)
+                .HasPrincipalKey<Empleado>(x => x.Idempleado);
+
+            modelBuilder.Entity<QRespuesta>()
+                .HasOne(x => x.Usuario)
+                .WithMany(x => x.Respuestas)
+                .HasForeignKey(x => x.UsuarioId);
+
+            modelBuilder.Entity<Estacion>()
+                .HasOne(x => x.ZonaR)
+                .WithMany()
+                .HasForeignKey(x => x.Zona);
+
+            modelBuilder.Entity<Empleado>()
+                .HasMany(x => x.Estaciones)
+                .WithMany(x => x.Empleados)
+                .UsingEntity<EmpleadoEstacion>(
+                r => r.HasOne(x => x.Estacion).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EstacionId).OnDelete(DeleteBehavior.Restrict),
+                l => l.HasOne(x => x.Empleado).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EmpleadoId).OnDelete(DeleteBehavior.Restrict));
+
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Puesto)
+                .WithMany()
+                .HasForeignKey(x => x.Idpuesto)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         //esto lo genera databasefirst 
@@ -758,6 +818,7 @@ namespace OnePlace.Server.Data
         public virtual DbSet<Zona> Zonas { get; set; }
         public virtual DbSet<Tienda> Tienda { get; set; }
         public DbSet<AreaDepartamentoEmpresa> area_departamento_empresa { get; set; }
+        public DbSet<EmpleadoEstacion> EmpleadoEstaciones { get; set; }
 
         #endregion
 
@@ -775,7 +836,12 @@ namespace OnePlace.Server.Data
         public DbSet<TemaFase> TemaFases { get; set; }
         public DbSet<ActividadUsuario> ActividadUsuarios { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
-        public DbSet<Pregunta> Preguntas { get; set; }
+        public DbSet<QuizPregunta> Preguntas { get; set; }
+        public DbSet<QPreguntas> QPreguntas { get; set; }
+        public DbSet<QRespuesta> QRespuesta { get; set; }
+        public DbSet<QGrupo> QGrupo { get; set; }
+        public DbSet<QTipoPregunta> QTipoPregunta { get; set; }
+        public DbSet<QTipoRespuesta> QTipoRespuesta { get; set; }
         public DbSet<Respuesta> Respuestas { get; set; }
         public DbSet<PalabrasClave> PalabrasClave { get; set; }
         public DbSet<EstadosdelQuiz> EstadosdelQuiz { get; set; }

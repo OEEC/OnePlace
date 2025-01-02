@@ -14,10 +14,8 @@ namespace OnePlace.Shared.Entidades.SimsaCore
     {
         [JsonProperty("idpersona")]
         public int Idpersona { get; set; }
-        [JsonProperty("ape_pat")]
-        public string ApePat { get; set; }
-        [JsonProperty("ape_mat")]
-        public string ApeMat { get; set; }
+        public string Ape_pat { get; set; }
+        public string Ape_mat { get; set; }
         [JsonProperty("nombre")]
         public string Nombre { get; set; }
         [JsonProperty("sexo")]
@@ -68,9 +66,9 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         public string Telefono { get; set; }
         [NotMapped] public Empleado Empleado { get; set; }
 
-        public string FullName()
+        public string FullName
         {
-            return $"{Nombre} {ApePat} {ApeMat}";
+            get { return $"{Nombre?.Trim()} {Ape_pat?.Trim()} {Ape_mat?.Trim()}"; }
         }
     }
 }

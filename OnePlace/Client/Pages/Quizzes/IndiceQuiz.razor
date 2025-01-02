@@ -29,10 +29,10 @@
                                                ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                                placeholder="Buscar Empleados">
                                 <SelectedTemplate>
-                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                    @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                                 </SelectedTemplate>
                                 <ResultTemplate>
-                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                    @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                                 </ResultTemplate>
                                 <NotFoundTemplate>
                                     Lo sentimos, no hay empleados con esos datos.
@@ -72,7 +72,7 @@
                         <tr>
                             <td>
                                 <span class="tonogris">
-                                    @item.Empleado.Persona.Nombre @item.Empleado.Persona.ApePat @item.Empleado.Persona.ApeMat
+                                    @item.Empleado.Persona.Nombre @item.Empleado.Persona.Ape_pat @item.Empleado.Persona.Ape_mat
                                 </span>
                             </td>
                             <td>@item.Tema.Nombre</td>

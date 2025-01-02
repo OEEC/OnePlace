@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
+using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.Entidades.SimsaCore;
 using System;
 using System.Collections.Generic;
@@ -23,11 +25,26 @@ namespace OnePlace.Server.Controllers
     public class DepartamentoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public DepartamentoController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        private readonly IMapper mapper;
+
+        public DepartamentoController(oneplaceContext context, IMapper mapper)
         {
             this.context = context;
-            _userManager = userManager;
+            this.mapper = mapper;
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<DepartamentoDTO>>> Get([FromQuery] DepartamentoDTO dep)
+        {
+            var departamentos = context.Departamentos
+                .AsNoTracking()
+                .Where(x => !string.IsNullOrEmpty(x.Departamento1) && x.Idestatus == 1)
+                .OrderBy(x => x.Departamento1)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(dep.Departamento) && !string.IsNullOrWhiteSpace(dep.Departamento))
+                departamentos = departamentos.Where(x => x.Departamento1.ToLower().StartsWith(dep.Departamento.ToLower()));
+
+            return Ok(departamentos.Select(mapper.Map<DepartamentoDTO>));
         }
 
         //buscar deptos para filtro
@@ -52,8 +69,8 @@ namespace OnePlace.Server.Controllers
         public async Task<ActionResult<List<Departamento>>> GetDepartamentoByRazonId(int razonId)
         {
             var departamentos = await context.area_departamento_empresa
-                .Where( x => x.Idempresa == razonId)
-                .Include( x => x.Departamento)
+                .Where(x => x.Idempresa == razonId)
+                .Include(x => x.Departamento)
                 .ToListAsync();
             //Variable creada para hacer un disctinct de departamentos para no traer departamentos repetidos
             var departamentosEnum = departamentos.DistinctBy(x => x.Departamento.Departamento1);

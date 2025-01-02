@@ -13,6 +13,40 @@
     <div class="container-landingpage bg-white p-0 text-heebo">
 
         <Background_Custom />
+@*        <div class="banner">
+            <div class="row pt-3">
+                <div class="col-md-12 d-flex justify-content-center">
+                    <img src="img/santa-2.png" class="img-fluid mx-auto d-block mb-4" width="300" height="300" alt="Quiz">
+                </div>
+                <div class="col-md-12 pt-5">
+                    <div class="banner-text">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- Alinear la imagen y el h1 -->
+                                <div class="d-flex align-items-center" style="padding-left: 13%;">
+                                    <img src="img/reno-removebg.png" class="img-fluid" width="60" height="60" alt="reno">
+                                    <h1>
+                                       <span class="text-danger">POSADA MI GASITA</span>
+                                    </h1>
+                                    <img src="img/one-solo-no-fondo.png" class="img-fluid" width="60" height="60" alt="one">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button class="btn btn-danger btn-lg" @onclick="goToFotos">FOTOS <i class="fa-solid fa-camera"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+@*        <div class="text-center mt-3" style="background: rgb(244,180,0);
+                                            background: linear-gradient(90deg, rgba(244,180,0,0.5998774509803921) 0%, rgba(232,230,9,0) 50%, rgba(244,180,0,0.6026785714285714) 100%);">
+            <div class="pt-5 pb-5">
+                <img src="img/q.png" class="img-fluid mx-auto d-block mb-4" style="height: 150px; width: 150px;" alt="Quiz">
+                <p class="h4" style="color: #f4b400 ;"><strong>cuestionario de ambiente laboral</strong></p>
+                <button class="btn btn-outline-danger" @onclick="goToQuiz">Responder</button>
+            </div>
+        </div>*@
         <div class="container-xxl py-5" id="promociones">
             <div class="container px-lg-5">
                 <div class="row g-5">
@@ -448,4 +482,14 @@ else
     }
 
     #endregion
+
+    private void goToQuiz()
+    {
+        navigationManager.NavigateTo("/quiz");
+    }
+
+    private void goToFotos()
+    {
+        navigationManager.NavigateTo("https://drive.google.com/drive/u/2/folders/1gBUHeEnX310XwmTmqYdjGGpuJirQoWgC");
+    }
 }

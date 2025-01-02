@@ -1,0 +1,309 @@
+﻿@page "/recomendaciones"
+@inject HttpClient HttpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IMostrarMensaje mensaje
+@inject NavigationManager navigationManager
+@inject IJSRuntime JS
+@using System.Security.Claims
+@using OnePlace.Shared.DTOs;
+<QNavBar />
+<!-- Barra de grupos -->
+<GroupSelector Groups="Groups" CurrentGroup="CurrentGroup" OnGroupChange="ChangeGroup" />
+
+<form @ref="formElement" onsubmit="return false;">
+    <div class="container">
+        @if (string.IsNullOrEmpty(CurrentGroup.Grupo))
+        {
+            <div class="alert alert-info" role="alert">
+                Cargando preguntas....
+            </div>
+        }
+        else
+        {
+            <div class="mt-3">
+                @if (Questions.Any())
+                {
+                    @foreach (var question in Questions)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <p class="card-text"><b>@question.Pregunta</b></p>
+                                <div>
+                                    @foreach (var respuesta in question.TipoRespuestas)
+                                    {
+                                        if (respuesta.TipoPreguntaId == 1)
+                                        {
+                                            // Radios
+                                            // Cambiamos "radio-binomio" por un name dinámico en base al Id de la pregunta
+                                            if (question.Idpregunta == 31)
+                                            {
+                                                @for (int i = 1; i <= respuesta.Cantidad; i++)
+                                                {
+                                                    <div class="form-check">
+                                                        <input class="form-check-input"
+                                                               type="radio"
+                                                               name="respuesta-@(question.Idpregunta)"
+                                                               id="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")"
+                                                               value="@(respuesta?.Texto == "Si" ? "Si" : "No")"
+                                   @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())" />
+                                                        <label class="form-check-label" for="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")">
+                                                            @(respuesta?.Texto)
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                            else if (question.Idpregunta == 32)
+                                            {
+                                                @for (int i = 1; i <= respuesta.Cantidad; i++)
+                                                {
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input"
+                                                               type="radio"
+                                                               name="respuesta-@(question.Idpregunta)"
+                                                               id="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")"
+                                                               value="@(respuesta?.Texto)"
+                                   @onchange="(e) => SelectAnswer(question.Idpregunta,e.Value.ToString())" />
+                                                        <label class="form-check-label" for="@($"respuesta-{question.Idpregunta}-{respuesta.IdTipoRespuesta}-radio")">
+                                                            @(respuesta?.Texto)
+                                                        </label>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                        else if (respuesta.TipoPreguntaId == 3)
+                                        {
+                                            // Textarea
+                                            // Cambiamos el modo de asignar valor inicial a través del contenido en vez de 'value'
+                                            var textoRespuesta = question.RespuestaUsuario?.FirstOrDefault()?.Respuesta ?? string.Empty;
+
+                                            <div class="form-group mt-3">
+                                                <textarea class="form-control"
+                                                          name="respuesta-@(question.Idpregunta)-texto"
+                                                          id="@($"texto-{question.Idpregunta}-{respuesta.IdTipoRespuesta}")"
+                                                          placeholder="Escribe tu respuesta aquí..."
+                                      @oninput="(e) => SelectAnswer(question.Idpregunta, e.Value.ToString())"
+                                                          rows="3"></textarea>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning" role="alert">
+                        No hay preguntas en este grupo.
+                    </div>
+                }
+
+                <!-- Navegación entre grupos -->
+                <div class="d-flex justify-content-center mt-4 mb-4">
+                    <button class="btn btn-warning btn-lg" type="button"
+                        @onclick="SaveAndLoadNextGroup">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</form>
+
+@code {
+    private List<QGrupo> Groups = new();
+    private QGrupo CurrentGroup = new();
+    private List<QPreguntaConRespuestasDTO> Questions = new();
+    private List<QRespuestaDTO> ListaRespuestas = new();
+    private ElementReference formElement;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadGroupsAsync();
+            if (Groups.Any())
+            {
+                await ChangeGroup(Groups.First());
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error inicializando: {ex.Message}");
+        }
+    }
+
+    private async Task LoadGroupsAsync()
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<QGrupo>>("api/grupo/grupos");
+            if (response != null)
+            {
+                Groups = response.Where(g => g.Idgrupo == 8).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar grupos: {ex.Message}");
+        }
+    }
+
+    private async Task ChangeGroup(QGrupo group)
+    {
+        try
+        {
+            CurrentGroup = group;
+            ListaRespuestas.Clear();
+            await LoadQuestionsAsync(group.Idgrupo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cambiando grupo: {ex.Message}");
+        }
+    }
+
+    private async Task LoadQuestionsAsync(int groupId)
+    {
+        try
+        {
+            var response = await HttpClient.GetFromJsonAsync<List<QPreguntaConRespuestasDTO>>($"api/pregunta/preguntas/{groupId}");
+            Questions.Clear();
+            if (response != null) Questions = response;
+        }
+        catch (Exception ex)
+        {
+            await mensaje.MostrarMensajeError($"Error cargando preguntas: {ex.Message}");
+            Console.WriteLine($"Error cargando preguntas: {ex.Message}");
+        }
+    }
+
+    private void SelectAnswer(int questionId, string answer)
+    {
+        var existingAnswer = ListaRespuestas.FirstOrDefault(r => r.PreguntaId == questionId);
+
+        if (existingAnswer != null)
+        {
+            existingAnswer.Respuesta = answer;
+            existingAnswer.Fecha = DateTime.Now;
+        }
+        else
+        {
+            ListaRespuestas.Add(new QRespuestaDTO
+                {
+                    PreguntaId = questionId,
+                    Respuesta = answer,
+                    Fecha = DateTime.Now
+                });
+        }
+        Console.WriteLine($"Pregunta: {questionId}, Respuesta: {answer}");
+    }
+
+    private async Task SaveAndLoadNextGroup()
+    {
+        if (!ListaRespuestas.Any() && !HasUserResponses())
+        {
+            await mensaje.MostrarMensajeError("Por favor, responde al menos una pregunta antes de continuar.");
+            return;
+        }
+
+        string jsonData = await JS.InvokeAsync<string>("myFunctions.getFormData", formElement);
+
+        var formValues = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData);
+
+        // Limpiamos y volvemos a llenar la lista de respuestas a partir de formValues.
+        ListaRespuestas.Clear();
+
+        foreach (var kvp in formValues)
+        {
+            if (kvp.Key.StartsWith("respuesta-"))
+            {
+                var parts = kvp.Key.Split('-');
+                // Ejemplos de keys:
+                // "respuesta-31" -> solo radios
+                // "respuesta-31-texto" -> textarea
+
+                if (parts.Length >= 2 && int.TryParse(parts[1], out int questionId))
+                {
+                    // Aquí no distinguimos el tipo, simplemente guardamos lo que venga.
+                    // Si es "texto", estará en parts[2], si no, solo es la respuesta del radio.
+                    var respuesta = kvp.Value;
+                    ListaRespuestas.Add(new QRespuestaDTO
+                        {
+                            PreguntaId = questionId,
+                            Respuesta = respuesta,
+                            Fecha = DateTime.Now
+                        });
+                }
+            }
+        }
+
+        if (!await SaveAnswersAsync())
+        {
+            return;
+        }
+
+        var currentIndex = Groups.IndexOf(CurrentGroup);
+        if (currentIndex < Groups.Count - 1)
+        {
+            await ChangeGroup(Groups[currentIndex + 1]);
+        }
+        else
+        {
+            navigationManager.NavigateTo("/finalizar");
+        }
+    }
+
+    private async Task LoadPreviousGroup()
+    {
+        var currentIndex = Groups.IndexOf(CurrentGroup);
+        if (currentIndex > 0)
+        {
+            await ChangeGroup(Groups[currentIndex - 1]);
+        }
+    }
+
+    private bool IsFirstGroup() => Groups.IndexOf(CurrentGroup) == 0;
+    private bool IsLastGroup() => Groups.IndexOf(CurrentGroup) == Groups.Count - 1;
+
+    private bool HasUserResponses()
+    {
+        return Questions.Any(q => q.RespuestaUsuario != null && q.RespuestaUsuario.Any());
+    }
+
+    private async Task<bool> SaveAnswersAsync()
+    {
+        try
+        {
+            if (!ListaRespuestas.Any() && !HasUserResponses())
+            {
+                await mensaje.MostrarMensajeError("Por favor, responde las preguntas antes de continuar.");
+                return false;
+            }
+
+            if (ListaRespuestas.Any() && Questions.Count() > ListaRespuestas.Count() && !HasUserResponses())
+            {
+                await mensaje.MostrarMensajeError("Hay preguntas sin respuesta.");
+                return false;
+            }
+
+            var response = await HttpClient.PostAsJsonAsync("api/qrespuesta/guardarRecom", ListaRespuestas);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Respuestas guardadas exitosamente.");
+                ListaRespuestas.Clear();
+                return true;
+            }
+            else
+            {
+                await mensaje.MostrarMensajeError($"Error al guardar respuestas: {response.ReasonPhrase}");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            await mensaje.MostrarMensajeError($"Error al guardar respuestas: {ex.Message}");
+            return false;
+        }
+    }
+}

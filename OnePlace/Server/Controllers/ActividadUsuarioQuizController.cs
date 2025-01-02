@@ -1,18 +1,14 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace OnePlace.Server.Controllers
@@ -23,12 +19,10 @@ namespace OnePlace.Server.Controllers
     {
 
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper mapper;
-        public ActividadUsuarioQuizController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper)
+        public ActividadUsuarioQuizController(oneplaceContext context, IMapper mapper)
         {
             this.context = context;
-            _userManager = userManager;
             this.mapper = mapper;
         }
 
@@ -36,7 +30,6 @@ namespace OnePlace.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<List<ActividadUsuarioQuiz>>> Get([FromQuery] ParametrosBusqueda parametrosBusqueda)
         {
-            bool mostrar = true;
             //query para traer los eventos
             //var queryable = context.Eventos.Where(x => x.Activo == mostrar).OrderBy(x => x.EventoId).AsQueryable();
 
@@ -66,8 +59,6 @@ namespace OnePlace.Server.Controllers
             }
             if (parametrosBusqueda.Activo == true)
             {
-                //queryable = queryable.Where(x => x.Activo == false);
-                mostrar = false;
             }
 
             //paginacion

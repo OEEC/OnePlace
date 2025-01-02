@@ -12,6 +12,7 @@ namespace OnePlace.Shared.Entidades
 {
     public class Quiz
     {
+        [Key]
         public int QuizId { get; set; }
 
         //[Required(ErrorMessage = "El campo {0} es requerido")]
@@ -22,7 +23,7 @@ namespace OnePlace.Shared.Entidades
         public string Imagen { get; set; }
         public DateTime? FechaRegistro { get; set; }
         public bool Activo { get; set; }
-        public List<Pregunta> LisadePreguntas { get; set; } = new List<Pregunta>();
+        public List<QuizPregunta> LisadePreguntas { get; set; } = new List<QuizPregunta>();
         public string NombreCortado
         {
             get
@@ -64,8 +65,9 @@ namespace OnePlace.Shared.Entidades
         public int? TemaId { get; set; }
         public virtual Tema Tema { get; set; }
     }
-    public class Pregunta
+    public class QuizPregunta
     {
+        [Key]
         public int PreguntaId { get; set; }
         public string NombrePregunta { get; set; }
         public string PreguntaRespuesta { get; set; }
@@ -85,7 +87,7 @@ namespace OnePlace.Shared.Entidades
         public bool Correcta { get; set; }
         public bool Activo { get; set; }
         public int? PreguntaId { get; set; }
-        public virtual Pregunta Pregunta { get; set; }
+        public virtual QuizPregunta Pregunta { get; set; }
     }
     public class PalabrasClave
     {

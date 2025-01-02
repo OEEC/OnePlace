@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -24,8 +25,8 @@ namespace OnePlace.Server.Controllers
     public class CodigoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public CodigoController(oneplaceContext context, UserManager<ApplicationUser> userManager)
+        private readonly UserManager<IdentityUsuario> _userManager;
+        public CodigoController(oneplaceContext context, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             _userManager = userManager;

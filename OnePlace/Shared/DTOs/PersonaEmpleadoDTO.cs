@@ -64,8 +64,8 @@ namespace OnePlace.Shared.DTOs
             Persona persona = new()
             {
                 Nombre = Nombre,
-                ApeMat = Apellido_Mat,
-                ApePat = Apellido_Pat,
+                Ape_mat = Apellido_Mat,
+                Ape_pat = Apellido_Pat,
                 Correo = Correo,
                 Telefono = Telefono,
                 Rfc = RFC,

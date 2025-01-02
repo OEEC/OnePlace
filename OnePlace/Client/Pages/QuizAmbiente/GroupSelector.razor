@@ -1,0 +1,53 @@
+﻿<div class="d-flex justify-content-center mb-4 mt-4">
+    @if (Groups?.Any() == true)
+    {
+        @foreach (var group in Groups)
+        {
+            <button class="btn me-2 @GetGroupClass(group)"
+            @onclick="() => OnGroupChange.InvokeAsync(group)"
+                    disabled="@IsGroupDisabled(group)">
+                @switch (group.Idgrupo)
+                {
+                    case 1:
+                        @*<i class="fa-solid fa-users-viewfinder ml-1"></i> @group.Grupo*@
+                        <h5><b><i class="fa-solid fa-users-viewfinder ml-1"></i> @group.Grupo</b></h5>
+                        break;
+                    case 2:
+                        <h5><b><i class="fa-solid fa-ear-listen"></i> @group.Grupo</b></h5>
+                        break;
+                    case 3:
+                        <h5><b><i class="fa-regular fa-lightbulb"></i> @group.Grupo</b></h5>
+                        break;
+                    case 4:
+                        <h5><b><i class="fa-solid fa-arrow-trend-up"></i> @group.Grupo</b></h5>
+                        break;
+                    case 5:
+                        <h5><b><i class="fa-solid fa-users-rays"></i> @group.Grupo</b></h5>
+                        break;
+                    case 6:
+                        <h5><b> <i class="fa-solid fa-hand-holding-heart"></i> @group.Grupo</b></h5>
+                        break;
+                    case 7:
+                        <h5><b><i class="bi bi-cone-striped"></i>  @group.Grupo</b></h5>
+                        break;
+                    case 8:
+                        <h4><b><i class="fa-solid fa-bullhorn"></i> @group.Grupo</b></h4>
+                        break;
+                }
+            </button>
+        }
+    }
+    else
+    {
+        <p>Cargando grupos...</p>
+    }
+</div>
+
+@code {
+    [Parameter] public List<QGrupo> Groups { get; set; }
+    [Parameter] public QGrupo CurrentGroup { get; set; }
+    [Parameter] public EventCallback<QGrupo> OnGroupChange { get; set; }
+
+    private bool IsGroupDisabled(QGrupo group) => group.Idgrupo != CurrentGroup.Idgrupo;
+    private string GetGroupClass(QGrupo group) => group.Idgrupo == CurrentGroup.Idgrupo ? "btn-warning" : "btn-outline-danger";
+}

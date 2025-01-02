@@ -13,10 +13,11 @@ using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
-using static OnePlace.Server.Data.ApplicationUser;
+//using static OnePlace.Server.Data.IdentityUsuario;
 using Hangfire;
 using OnePlace.Server.Services;
 using OnePlace.Client.ComponentesGenericos.Paginador;
+using OnePlace.Shared.IdentityModels;
 
 namespace OnePlace.Server.Controllers
 {
@@ -26,9 +27,9 @@ namespace OnePlace.Server.Controllers
     public class CursoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IBackgroundJobClient backgroundJobClient;
-        public CursoController(oneplaceContext context, UserManager<ApplicationUser> userManager, IBackgroundJobClient backgroundJobClient)
+        public CursoController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IBackgroundJobClient backgroundJobClient)
         {
             this.context = context;
             this.backgroundJobClient = backgroundJobClient;
@@ -341,7 +342,7 @@ namespace OnePlace.Server.Controllers
 
             //recorremos el listado de quizzes y luego recorremos cada pregunta de cada quiz, para obtener un listado de preguntas que pertenezcan a ese quiz 
 
-            List<Pregunta> listadepreguntas = new List<Pregunta>();
+            List<QuizPregunta> listadepreguntas = new List<QuizPregunta>();
             foreach (var quiz in listadequizzes)
             {
                 foreach (var item in quiz.LisadePreguntas)

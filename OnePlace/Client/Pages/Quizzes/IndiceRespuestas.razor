@@ -32,7 +32,7 @@
                 <li class="list-group-item">
                     Empleado:
                     <span class="tonogris">
-                        @PreguntaRespuestaDTO.Empleado.Persona.Nombre @PreguntaRespuestaDTO.Empleado.Persona.ApePat
+                        @PreguntaRespuestaDTO.Empleado.Persona.Nombre @PreguntaRespuestaDTO.Empleado.Persona.Ape_pat
                     </span>
                 </li>
             </ul>
@@ -85,11 +85,11 @@
 
     #region VerRespuesta
 
-    public PreguntaRespuestaDTO PreguntaRespuestaDTO { get; set; }
+    public QPreguntaRespuestaDTO PreguntaRespuestaDTO { get; set; }
 
     public async Task VerRespuestas()
     {
-        var responseHttp = await repositorio.Get<PreguntaRespuestaDTO>($"api/Quiz/VerRespuestas/{TemaId}/{EmpleadoId}");
+        var responseHttp = await repositorio.Get<QPreguntaRespuestaDTO>($"api/Quiz/VerRespuestas/{TemaId}/{EmpleadoId}");
 
         if (responseHttp.Error)
         {

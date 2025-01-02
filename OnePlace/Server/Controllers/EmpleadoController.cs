@@ -13,6 +13,7 @@ using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades.SimsaCore;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,9 +32,9 @@ namespace OnePlace.Server.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly ILogger<EmpleadoController> logger;
-        public EmpleadoController(oneplaceContext context, UserManager<ApplicationUser> userManager, ILogger<EmpleadoController> logger)
+        public EmpleadoController(oneplaceContext context, UserManager<IdentityUsuario> userManager, ILogger<EmpleadoController> logger)
         {
             this.context = context;
             _userManager = userManager;
@@ -81,15 +82,15 @@ namespace OnePlace.Server.Controllers
                 if (!context.Users.Any(x => x.UserName == empleado.Nombre_usuario))
                 {
                     //Asigna valores a objeto usuario
-                    var user = new ApplicationUser
+                    var user = new IdentityUsuario
                     {
                         //UserName = item.Noemp.Trim() + inicialesZona,
                         UserName = empleado.Nombre_usuario,
                         noemp = empleado.Noemp,
                         Idempleado = empleado.Idempleado,
                         Nombre = persona.Nombre,
-                        ApellidoMaterno = persona.ApeMat,
-                        ApellidoPaterno = persona.ApePat,
+                        ApellidoMaterno = persona.Ape_mat,
+                        ApellidoPaterno = persona.Ape_pat,
                         //Empleado = null,
                         ContraseñaTextoPlano = empleado.Password_usuario,
                         Activo = true
@@ -228,8 +229,8 @@ namespace OnePlace.Server.Controllers
                                                 //uploadResult.ErrorMessage = $"{thrustFileName} el nombre de la persona no puede estar vacio. Fila: {r} (Err: 11)";
                                                 //hasErrors = true;
                                                 persona.Nombre = ws.Cells[r, 1].Value.ToString();
-                                                persona.ApePat = ws.Cells[r, 2].Value.ToString();
-                                                persona.ApeMat = ws.Cells[r, 3].Value.ToString();
+                                                persona.Ape_pat = ws.Cells[r, 2].Value.ToString();
+                                                persona.Ape_mat = ws.Cells[r, 3].Value.ToString();
                                             }
                                             else
                                             {
@@ -384,15 +385,15 @@ namespace OnePlace.Server.Controllers
 
                                                 if (ws.Cells[r, 10].Value is not null && ws.Cells[r, 11].Value is not null)
                                                 {
-                                                    var user = new ApplicationUser
+                                                    var user = new IdentityUsuario
                                                     {
                                                         //UserName = item.Noemp.Trim() + inicialesZona,
                                                         UserName = ws.Cells[r, 10].Value.ToString(),
                                                         noemp = empleado.Noemp,
                                                         Idempleado = empleado.Idempleado,
                                                         Nombre = persona.Nombre,
-                                                        ApellidoMaterno = persona.ApeMat,
-                                                        ApellidoPaterno = persona.ApePat,
+                                                        ApellidoMaterno = persona.Ape_mat,
+                                                        ApellidoPaterno = persona.Ape_pat,
                                                         //Empleado = null,
                                                         ContraseñaTextoPlano = ws.Cells[r, 11].Value.ToString(),
                                                         Activo = true
@@ -893,7 +894,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
+                                            .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.Ape_pat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
                                             .ToListAsync();
 
                 return empleados;
@@ -923,7 +924,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                           .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.ApePat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
+                                           .Where(x => x.Persona.Nombre.ToLower().Contains(textoBusqueda) || x.Persona.Ape_pat.ToLower().Contains(textoBusqueda) || x.Noemp.ToLower().Contains(textoBusqueda))
                                            .Take(50)
                                            .ToListAsync();
 
@@ -1094,7 +1095,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                            .Where(x => x.Persona.ApePat.ToLower().Contains(apellido))
+                                            .Where(x => x.Persona.Ape_pat.ToLower().Contains(apellido))
                                             .ToListAsync();
 
                 return empleados;
@@ -1124,7 +1125,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                           .Where(x => x.Persona.ApePat.ToLower().Contains(apellido))
+                                           .Where(x => x.Persona.Ape_pat.ToLower().Contains(apellido))
                                            .Take(50)
                                            .ToListAsync();
 
@@ -1161,7 +1162,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                            .Where(x => x.Persona.ApeMat.ToLower().Contains(apellido))
+                                            .Where(x => x.Persona.Ape_mat.ToLower().Contains(apellido))
                                             .ToListAsync();
 
                 return empleados;
@@ -1191,7 +1192,7 @@ namespace OnePlace.Server.Controllers
                                                       Division = e.Division,
                                                       Persona = context.Personas.Where(x => x.Idpersona == e.Idpersona).FirstOrDefault(),
                                                   })
-                                           .Where(x => x.Persona.ApeMat.ToLower().Contains(apellido))
+                                           .Where(x => x.Persona.Ape_mat.ToLower().Contains(apellido))
                                            .Take(50)
                                            .ToListAsync();
 

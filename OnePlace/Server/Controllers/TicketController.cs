@@ -10,6 +10,7 @@ using OnePlace.Server.Reportes;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Entidades.Reporteador;
+using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,10 +24,10 @@ namespace OnePlace.Server.Controllers
     public class TicketController : ControllerBase
     {       
         private readonly oneplaceContext context;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUsuario> _userManager;
         private readonly IMapper mapper;
 
-        public TicketController(oneplaceContext context, UserManager<ApplicationUser> userManager, IMapper mapper)
+        public TicketController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IMapper mapper)
         {
             this.context = context;
             _userManager = userManager;

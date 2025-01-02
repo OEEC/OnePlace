@@ -29,10 +29,10 @@
                                            ValueChanged="@((Empleado item) => CargarEmpleadosFiltro(item))"
                                            placeholder="Buscar Empleados">
                                 <SelectedTemplate>
-                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                    @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                                 </SelectedTemplate>
                                 <ResultTemplate>
-                                    @empleado.Persona.Nombre @empleado.Persona.ApePat @empleado.Persona.ApeMat
+                                    @empleado.Persona.Nombre @empleado.Persona.Ape_pat @empleado.Persona.Ape_mat
                                 </ResultTemplate>
                                 <NotFoundTemplate>
                                     Lo sentimos, no hay empleados con esos datos.
@@ -151,7 +151,7 @@
                             <tr>
                                 <td>
                                     <span class="text-primary">
-                                        @item.Empleado.Persona.Nombre @item.Empleado.Persona.ApePat @item.Empleado.Persona.ApeMat
+                                        @item.Empleado.Persona.Nombre @item.Empleado.Persona.Ape_pat @item.Empleado.Persona.Ape_mat
                                     </span>
                                 </td>
                                 <td>@item.Curso.Nombre</td>
@@ -401,7 +401,7 @@
                                  {
                                      x.Empleado.Noemp,
                                      x.Empleado.Persona.Nombre,
-                                     x.Empleado.Persona.ApePat,
+                                     x.Empleado.Persona.Ape_pat,
                                      x.Curso,
                                      x.EstadoCurso,
                                      x.Empleado.Fchbaja,
@@ -426,7 +426,7 @@
 
                 if (int.Parse(empleadoseleccionado) > 0)
                 {
-                    sheet.Cells[1, 1].Value = "Cursos realizados por:" + " " + EmpleadoSeleccionado.Persona.Nombre + " " + EmpleadoSeleccionado.Persona.ApePat;
+                    sheet.Cells[1, 1].Value = "Cursos realizados por:" + " " + EmpleadoSeleccionado.Persona.Nombre + " " + EmpleadoSeleccionado.Persona.Ape_pat;
                 }
 
                 if (int.Parse(cursoseleccionado) > 0)
@@ -482,7 +482,7 @@
                     col = 1;
                     sheet.Cells[rowindex, col++].Value = item.Noemp;
                     sheet.Cells[rowindex, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;//fue para alinear la primera columa ya que por defaulr venia a la izquierda
-                    sheet.Cells[rowindex, col++].Value = item.Nombre + " " + item.ApePat;
+                    sheet.Cells[rowindex, col++].Value = item.Nombre + " " + item.Ape_pat;
                     sheet.Cells[rowindex, col++].Value = item.Curso.Nombre;
                     sheet.Cells[rowindex, col++].Value = item.EstadoCurso.GetDescription();
                     sheet.Cells[rowindex, col++].Value = item.Fchbaja != null ? "Inactivo" : "Activo";

@@ -1,0 +1,19 @@
+﻿@if (Questions?.Any() == true)
+{
+    @foreach (var question in Questions)
+    {
+        <QuestionCard Question="question" OnSelectAnswer="OnSelectAnswer" ListaEncargados="Encargados" />
+    }
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        No hay preguntas en este grupo.
+    </div>
+}
+
+@code {
+    [Parameter] public List<QPreguntaConRespuestasDTO> Questions { get; set; }
+    [Parameter] public EventCallback<(int questionId, string answer)> OnSelectAnswer { get; set; }
+    [Parameter] public List<Empleado> Encargados { get; set; }
+}
