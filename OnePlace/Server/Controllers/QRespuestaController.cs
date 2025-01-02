@@ -180,6 +180,7 @@ namespace OnePlace.Server.Controllers
                 List<Empleado> encargados = new();
                 // IDs de puestos según tu lógica
                 var supervisorPuestoId = 77;
+                var jefeTiendaPuestoId = 214;
                 var jefeDeTurnoPuestoId = 32;
                 var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141, 
                                                142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 
@@ -220,7 +221,7 @@ namespace OnePlace.Server.Controllers
                     var supervisoresRelacionados = await context.Empleados
                         .Include(e => e.Estaciones) // Incluir estaciones para filtrar
                         .Include(e => e.Persona)
-                        .Where(e => e.Idpuesto.HasValue && e.Idpuesto.Value == supervisorPuestoId)
+                        .Where(e => e.Idpuesto.HasValue && e.Idpuesto.Value == supervisorPuestoId || e.Idpuesto.Value == jefeTiendaPuestoId)
                         .Where(e => e.Estaciones.Any(est => est.Idestacion == empleado.Idestacion))
                         .ToListAsync();
 
