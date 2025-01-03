@@ -240,6 +240,18 @@ namespace OnePlace.Server.Controllers
                         .ToListAsync();
 
                     encargados = jefesRelacionados;
+                } 
+                else if (empleado.Division == "ADMINISTRATIVO")
+                {
+                    var gerentesRelacionados = await context.Empleados
+                        .Include(e => e.Estaciones) // Incluir estaciones si las usarás más adelante
+                        .Include(e => e.Persona)    // Incluir persona si la necesitas más adelante
+                        .Where(e => e.Idpuesto.HasValue && gerentePuestoIds.Contains(e.Idpuesto.Value)) // Filtrar por puestos
+                        .Where(e => e.Division == "ADMINISTRATIVO")
+                        .Where(e => e.Iddepartamento == empleado.Iddepartamento) // Mismo departamento
+                        .ToListAsync();
+
+                    encargados = gerentesRelacionados;
                 }
 
                 // Ejecutamos la consulta y obtenemos la lista
