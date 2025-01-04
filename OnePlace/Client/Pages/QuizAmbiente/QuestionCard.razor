@@ -1,6 +1,20 @@
 ﻿<div class="card mb-3">
     <div class="card-body">
-        <p class="card-text"><b>@Question.Pregunta</b></p>
+        <p class="card-text">
+            <b>@Question.Pregunta</b>
+            <b>
+                @if (Question.Idpregunta == 21)
+                {
+                    @(Encargados.Gerente != null ? Encargados.Gerente.Persona.FullName :
+                        Encargados.JefeTurno != null ? Encargados.JefeTurno.Persona.FullName :
+                        Encargados.Supervisor != null ? Encargados.Supervisor.Persona.FullName : string.Empty)
+                }
+                else if (Question.Idpregunta == 22)
+                {
+                    @(Encargados.Supervisor != null ? Encargados.Supervisor.Persona.FullName : string.Empty)
+                }
+            </b>
+        </p>
         <div>
 
             @foreach (var respuesta in Question.TipoRespuestas)
@@ -24,18 +38,17 @@
                     for (int i = 1; i <= respuesta.Cantidad; i++)
                     {
 
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input"
-                                       type="radio"
-                                       name="@($"respuesta-{Question.Idpregunta}")"
-                                       id="@($"respuesta-{Question.Idpregunta}-{i}")"
-                                       value="@i"
-                       @onchange="(e) => AnswerChanged(e.Value.ToString())"
-                                        />
-                                <label class="form-check-label" for="@($"respuesta-{Question.Idpregunta}-{i}")">
-                                    @(respuesta?.Texto ?? i.ToString())
-                                </label>
-                            </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="@($"respuesta-{Question.Idpregunta}")"
+                                   id="@($"respuesta-{Question.Idpregunta}-{i}")"
+                                   value="@i"
+                                   @onchange="(e) => AnswerChanged(e.Value.ToString())" />
+                            <label class="form-check-label" for="@($"respuesta-{Question.Idpregunta}-{i}")">
+                                @(respuesta?.Texto ?? i.ToString())
+                            </label>
+                        </div>
 
                     }
                 }
@@ -64,6 +77,7 @@
     [Parameter] public QPreguntaConRespuestasDTO Question { get; set; }
     [Parameter] public EventCallback<(int questionId, string answer)> OnSelectAnswer { get; set; }
     [Parameter] public List<Empleado> ListaEncargados { get; set; }
+    [Parameter] public EncargadosDTO Encargados { get; set; } = new();
 
     private async Task AnswerChanged(string answer)
     {

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnePlace.Shared.IdentityModels;
 using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
+using OnePlace.Shared.DTOs.Modelos;
 
 namespace OnePlace.Server.Controllers
 {
@@ -21,11 +23,13 @@ namespace OnePlace.Server.Controllers
     {
         private readonly oneplaceContext context;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly IMapper mapper;
 
-        public QRespuestaController(oneplaceContext context, UserManager<IdentityUsuario> userManager)
+        public QRespuestaController(oneplaceContext context, UserManager<IdentityUsuario> userManager, IMapper mapper)
         {
             this.context = context;
             this.userManager = userManager;
+            this.mapper = mapper;
         }
 
         [HttpPost("guardar")]
@@ -39,7 +43,7 @@ namespace OnePlace.Server.Controllers
 
             try
             {
-                if (respuestasDto != null || respuestasDto.Any()) 
+                if (respuestasDto != null || respuestasDto.Any())
                 {
                     // Iterar sobre las respuestas enviadas
                     foreach (var dto in respuestasDto)
@@ -53,7 +57,7 @@ namespace OnePlace.Server.Controllers
                             // Actualizar la respuesta existente
                             respuestaExistente.Respuesta = dto.Respuesta;
                             respuestaExistente.fecha = dto.Fecha ?? DateTime.Now; // Actualizar la fecha si es necesario
-                        } 
+                        }
                         else
                         {
                             // Crear una nueva respuesta si no existe
@@ -70,7 +74,7 @@ namespace OnePlace.Server.Controllers
                     }
 
                     // Guardar los cambios en la base de datos
-                     await context.SaveChangesAsync();
+                    await context.SaveChangesAsync();
                     return Ok("Respuestas guardadas/actualizadas exitosamente.");
                 }
                 return NoContent();
@@ -167,6 +171,58 @@ namespace OnePlace.Server.Controllers
         }
 
         [HttpGet("encargados")]
+        public async Task<IActionResult> ObtenerEncargadosDeEmpleado()
+        {
+            try
+            {
+                //var supervisorPuestoId = 77;
+                var jefeTiendaPuestoId = 214;
+                var jefeDeTurnoPuestoId = 32;
+                var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
+                                                208, 209, 210, 211, 212, 213, 219 };
+
+                EncargadosDTO encargados = new();
+
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null) return BadRequest();
+
+                // Cargar el empleado actual
+                var empleado = await context.Empleados.Where(e => e.Idempleado == user.Idempleado)
+                    .Include(x => x.Puesto)
+                    .Include(x => x.Estacion)
+                    .Select(x => mapper.Map<EmpleadoDTO>(x)).FirstOrDefaultAsync();
+                if (empleado is null) return BadRequest();
+
+                var relacionencargadosestaciones = await context.EmpleadoEstaciones
+                    .Where(x => x.EstacionId == empleado.Estacion.Id)
+                    .Include(x=>x.Empleado.Persona)
+                    .ToListAsync();
+
+                if (empleado.Puesto.Id == jefeDeTurnoPuestoId || empleado.Puesto.Id == jefeTiendaPuestoId)
+                {
+                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                }
+                else if (gerentePuestoIds.Contains(empleado.Puesto.Id))
+                {
+                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                    encargados.JefeTurno = relacionencargadosestaciones.Where(x => x.Esjefeturno).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                }
+                else
+                {
+                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                    encargados.JefeTurno = relacionencargadosestaciones.Where(x => x.Esjefeturno).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente).Select(x => mapper.Map<EmpleadoDTO>(x.Empleado)).FirstOrDefault();
+                }
+
+                return Ok(encargados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
         public async Task<IActionResult> Encargados()
         {
             //var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
@@ -182,8 +238,8 @@ namespace OnePlace.Server.Controllers
                 var supervisorPuestoId = 77;
                 var jefeTiendaPuestoId = 214;
                 var jefeDeTurnoPuestoId = 32;
-                var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141, 
-                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 
+                var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
                                                 208, 209, 210, 211, 212, 213, 219 };
 
                 // Obtener el usuario actual
@@ -214,7 +270,7 @@ namespace OnePlace.Server.Controllers
 
                     encargados = gerentesRelacionados;
                 }
-                else if(empleado.Division == "TIENDAS")
+                else if (empleado.Division == "TIENDAS")
                 {
 
                     // Buscar gerentes que estén asignados al menos a una de las mismas estaciones
@@ -226,8 +282,8 @@ namespace OnePlace.Server.Controllers
                         .ToListAsync();
 
                     encargados = supervisoresRelacionados;
-                } 
-                else if(empleado.Division == "ESTACIONES")
+                }
+                else if (empleado.Division == "ESTACIONES")
                 {
                     var estacionesDelEmpleado = empleado.Estaciones.Select(est => est.Idestacion).ToList();
 
@@ -240,7 +296,7 @@ namespace OnePlace.Server.Controllers
                         .ToListAsync();
 
                     encargados = jefesRelacionados;
-                } 
+                }
                 else if (empleado.Division == "ADMINISTRATIVO")
                 {
                     var gerentesRelacionados = await context.Empleados

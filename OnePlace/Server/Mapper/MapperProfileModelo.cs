@@ -30,6 +30,8 @@ namespace OnePlace.Server.Mapper
             CreateMap<Puesto, PuestoDTO>()
                 .ForMember(x => x.Id, opt => opt.MapFrom(y => y.Idpuesto))
                 .ForMember(x => x.Puesto, opt => opt.MapFrom(y => y.Puesto1));
+            CreateMap<Persona, PersonaDTO>()
+                .ForMember(x => x.Id, opt => opt.MapFrom(y => y.Idpersona));
         }
     }
 }

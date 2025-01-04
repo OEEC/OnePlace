@@ -7,5 +7,6 @@
 
         public EstacionDTO Estacion { get; set; }
         public PuestoDTO Puesto { get; set; }
+        public PersonaDTO Persona { get; set; }
     }
 }

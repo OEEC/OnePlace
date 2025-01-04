@@ -22,12 +22,12 @@
     {
         @*<h2 class="text-primary">@CurrentGroup.Grupo</h2>*@
         <div class="mt-3">
-            <QuestionList Questions="Questions" OnSelectAnswer="SelectAnswer" Encargados="ListaEncargados" />
+            <QuestionList Questions="Questions" OnSelectAnswer="SelectAnswer" Encargados="ListaEncargados" EncargadosEstaciones="EncargadosEstaciones" />
 
             <div class="d-flex justify-content-between mt-4 mb-4">
                 <button class="btn btn-warning btn-lg" @onclick="GoBack"><i class="bi bi-arrow-left"></i> Anterior</button>
                 <button class="btn btn-warning btn-lg"
-                    @onclick="SaveAndLoadNextGroup">
+                        @onclick="SaveAndLoadNextGroup">
                     Siguiente <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
@@ -41,6 +41,7 @@
     private List<QPreguntaConRespuestasDTO> Questions = new();
     private List<QRespuestaDTO> ListaRespuestas = new();
     private List<Empleado> ListaEncargados = new();
+    private EncargadosDTO EncargadosEstaciones = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,7 +104,7 @@
             Questions.Clear();
             if (response != null) Questions = response;
             StateHasChanged();
-         
+
         }
         catch (Exception ex)
         {
@@ -113,8 +114,8 @@
 
     private async Task LoadEncargados()
     {
-        var encargados = await HttpClient.GetFromJsonAsync<List<Empleado>>("api/qrespuesta/encargados");
-        ListaEncargados = encargados;
+        var encargados = await HttpClient.GetFromJsonAsync<EncargadosDTO>("api/qrespuesta/encargados");
+        EncargadosEstaciones = encargados;
         Console.WriteLine(JsonConvert.SerializeObject(ListaEncargados));
     }
 

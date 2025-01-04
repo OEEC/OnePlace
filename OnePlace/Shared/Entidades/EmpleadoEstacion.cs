@@ -7,6 +7,10 @@ namespace OnePlace.Shared.Entidades
     {
         public int EmpleadoId { get; set; }
         public int EstacionId { get; set; }
+        public int PuestoId { get; set; }
+        public int DepartamentoId { get; set; }
+        public bool Esgerente { get; set; }
+        public bool Esjefeturno { get; set; }
 
         [NotMapped]
         public Empleado Empleado { get; set; } = null!;
