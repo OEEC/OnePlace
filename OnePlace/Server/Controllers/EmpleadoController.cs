@@ -379,6 +379,7 @@ namespace OnePlace.Server.Controllers
 
                                                 empleado.Fchalta = DateTime.Now;
                                                 empleado.Persona = persona;
+                                                empleado.Idestatus = "1";
 
                                                 await context.AddAsync(empleado);
                                                 await context.SaveChangesAsync();
@@ -495,7 +496,7 @@ namespace OnePlace.Server.Controllers
                                     {
                                         if (ws.Cells[r, 1] != null)
                                         {
-                                            if (context.Empleados.Any(x => x.Noemp.Equals(ws.Cells[r, 1].Value.ToString()) && x.Idestatus.Equals("1")))
+                                            if (context.Empleados.Any(x => x.Noemp.Equals(ws.Cells[r, 1].Value.ToString())))
                                             {
                                                 empleado = context.Empleados.First(x => x.Noemp.Equals(ws.Cells[r, 1].Value.ToString()));
 
