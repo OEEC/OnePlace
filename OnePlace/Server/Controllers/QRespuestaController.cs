@@ -320,5 +320,35 @@ namespace OnePlace.Server.Controllers
                 return StatusCode(500, $"Error al guardar respuestas: {ex.Message}");
             }
         }
+
+        [HttpGet("UserHasAnsweredAllGroups")]
+        public async Task<ActionResult<bool>> UserHasAnsweredAllGroups()
+        {
+            // 1. Obtener el usuario actual
+            var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+            if (user == null)
+            {
+                // Podrías regresar false si no está autenticado
+                return false;
+            }
+
+            // 2. Obtener cuántos grupos hay en total
+            var totalGrupos = await context.QGrupo.CountAsync();
+
+            // 3. Obtener los ID de grupo que el usuario ya respondió
+            var gruposRespondidos = await (
+                from respuesta in context.QRespuesta
+                join pregunta in context.QPreguntas
+                    on respuesta.PreguntaId equals pregunta.Idpregunta
+                where respuesta.UsuarioId == user.Id
+                select pregunta.GrupoId
+            ).Distinct().ToListAsync();
+
+            // 4. Evaluar si respondió al menos una pregunta en cada grupo
+            bool userHasAnsweredAllGroups = (gruposRespondidos.Count >= totalGrupos);
+
+            // 5. Regresar el valor
+            return Ok(userHasAnsweredAllGroups);
+        }
     }
 }
