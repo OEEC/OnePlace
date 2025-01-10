@@ -782,6 +782,7 @@ namespace OnePlace.Server.Data
                 .WithMany()
                 .HasForeignKey(x => x.Zona);
 
+            modelBuilder.Entity<EmpleadoEstacion>().HasKey(x => new { x.EmpleadoId, x.EstacionId, x.PuestoId });
             modelBuilder.Entity<Empleado>()
                 .HasMany(x => x.Estaciones)
                 .WithMany(x => x.Empleados)
