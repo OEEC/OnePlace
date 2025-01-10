@@ -203,12 +203,12 @@ namespace OnePlace.Server.Controllers
 
                 if (empleado.Division == "TIENDAS")
                 {
-                    supervisorId = 40;
+                    supervisorId = 77;
                     jefeId = 214;
                 }
                 else if (empleado.Division == "ESTACIONES")
                 {
-                    supervisorId = 77;
+                    supervisorId = 40;
                     jefeId = 32;
                 }
                 //40 77 - supervisores
