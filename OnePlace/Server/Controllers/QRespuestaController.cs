@@ -212,23 +212,23 @@ namespace OnePlace.Server.Controllers
                     jefeId = 32;
                 }
                 //40 77 - supervisores
+                if (gerentePuestoIds.Contains(empleado.Puesto.Id))
+                {
+
+                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
+                                                                        .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                                                                        .FirstOrDefault();
+                    encargados.Gerente = encargados.Supervisor;
+                }
                 if (empleado.Puesto.Id == jefeDeTurnoPuestoId || jefeTiendaPuestoId == empleado.Puesto.Id)
                 {
-
-                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
-                                                                        .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
-                                                                        .FirstOrDefault();
-                    encargados.JefeTurno = encargados.Supervisor;
-                }
-                else if (gerentePuestoIds.Contains(empleado.Puesto.Id))
-                {
                     encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
                                                                         .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                         .FirstOrDefault();
 
-                    encargados.JefeTurno = relacionencargadosestaciones.Where(x => x.Esjefeturno && x.PuestoId == jefeId)
-                                                                       .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
-                                                                       .FirstOrDefault();
+                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && x.Empleado.Division == empleado.Division)
+                                                                     .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                                                                     .FirstOrDefault();
                 }
                 else
                 {
