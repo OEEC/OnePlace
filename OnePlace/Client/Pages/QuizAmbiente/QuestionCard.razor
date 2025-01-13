@@ -5,8 +5,8 @@
             <b>
                 @if (Question.Idpregunta == 24)
                 {
-                    @(Encargados.Gerente != null ? Encargados.Gerente.Persona.FullName :
-                        Encargados.JefeTurno != null ? Encargados.JefeTurno.Persona.FullName :
+                    @(Encargados.JefeTurno != null ? Encargados.JefeTurno.Persona.FullName :
+                        Encargados.Gerente != null ? Encargados.Gerente.Persona.FullName :
                         Encargados.Supervisor != null ? Encargados.Supervisor.Persona.FullName : string.Empty)
                 }
                 else if (Question.Idpregunta == 23)
