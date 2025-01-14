@@ -16,5 +16,7 @@ namespace OnePlace.Shared.Entidades
         public Empleado Empleado { get; set; } = null!;
         [NotMapped]
         public Estacion Estacion { get; set; } = null!;
+        [NotMapped]
+        public Puesto Puesto { get; set; } = null!;
     }
 }

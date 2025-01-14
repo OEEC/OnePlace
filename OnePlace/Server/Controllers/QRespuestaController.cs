@@ -177,7 +177,8 @@ namespace OnePlace.Server.Controllers
             {
                 int supervisorId = 0;
                 int jefeId = 0;
-                //var supervisorPuestoId = 77;
+                var supervisorEstacionId = 40;
+                var supervisorTiendaId = 77;
                 var jefeTiendaPuestoId = 214;
                 var jefeDeTurnoPuestoId = 32;
                 var gerentePuestoIds = new[] { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
@@ -211,8 +212,16 @@ namespace OnePlace.Server.Controllers
                     supervisorId = 40;
                     jefeId = 32;
                 }
-                //40 77 - supervisores
-                if (gerentePuestoIds.Contains(empleado.Puesto.Id))
+
+                if (empleado.Puesto.Id == supervisorEstacionId || empleado.Puesto.Id == supervisorTiendaId)
+                {
+                    encargados.Supervisor = context.Empleados
+                        .Where(x => x.Noemp == "0000001")
+                        .Include(x => x.Persona)
+                        .Select(mapper.Map<EmpleadoDTO>)
+                        .FirstOrDefault();
+                }
+                else if (gerentePuestoIds.Contains(empleado.Puesto.Id))
                 {
 
                     encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
@@ -220,7 +229,7 @@ namespace OnePlace.Server.Controllers
                                                                         .FirstOrDefault();
                     encargados.Gerente = encargados.Supervisor;
                 }
-                if (empleado.Puesto.Id == jefeDeTurnoPuestoId || jefeTiendaPuestoId == empleado.Puesto.Id)
+                else if (empleado.Puesto.Id == jefeDeTurnoPuestoId || jefeTiendaPuestoId == empleado.Puesto.Id)
                 {
                     encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
                                                                         .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))

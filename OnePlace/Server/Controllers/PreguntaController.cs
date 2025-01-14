@@ -14,6 +14,7 @@ using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Enums;
 using OnePlace.Shared.Extensiones;
 using OnePlace.Shared.IdentityModels;
+using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -110,16 +111,18 @@ namespace OnePlace.Server.Controllers
             var respuestas = context.QRespuesta
                 .AsNoTracking()
                 .IgnoreAutoIncludes()
-                .Where(x => x.fecha >= filtroDTO.Fecha_Inicio && x.fecha <= filtroDTO.Fecha_Fin)
-                .Include(x => x.Pregunta.Grupo)
+                .Where(x => x.fecha >= filtroDTO.Fecha_Inicio && x.fecha <= filtroDTO.Fecha_Fin && x.Usuario.Empleado.Estacion.ZonaR != null)
+                .Include(x => x.Pregunta)
                 .Include(x => x.Usuario.Empleado.Estacion.ZonaR)
-                .Include(x => x.Usuario.Empleado.Estacion.Empleados)
-                .ThenInclude(x => x.Persona)
-                .Include(x => x.Usuario.Empleado.Estacion.Empleados)
+                .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
+                .ThenInclude(x => x.Empleado.Persona)
+                .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
                 .ThenInclude(x => x.Puesto)
                 .AsQueryable();
 
             //filtros de respuestas
+            #region Filtros de respuestas
+
             if (filtroDTO.ZonaId != 0)
                 respuestas = respuestas.Where(x => x.Usuario.Empleado.ZonaId == filtroDTO.ZonaId);
 
@@ -128,6 +131,9 @@ namespace OnePlace.Server.Controllers
 
             if (filtroDTO.DepartamentoId != 0)
                 respuestas = respuestas.Where(x => x.Usuario.Empleado.Iddepartamento == filtroDTO.DepartamentoId);
+
+            if (!string.IsNullOrEmpty(filtroDTO.Division) && filtroDTO.Division.ToLower() != "todas")
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Division.Trim().ToLower() == filtroDTO.Division.ToLower());
 
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Quiz))
                 respuestas = respuestas.Where(x => x.Pregunta.GrupoId != 8);
@@ -138,6 +144,7 @@ namespace OnePlace.Server.Controllers
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Recomendacion))
                 respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8 || x.PreguntaId == 30);
 
+            #endregion
             //ejecucion de la consulta
             var respuestaslist = await respuestas.ToListAsync();
 
@@ -156,7 +163,9 @@ namespace OnePlace.Server.Controllers
                         Trato = res.Where(x => x.Pregunta.GrupoId == 6 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
                         Seguridad = res.Where(x => x.Pregunta.GrupoId == 7 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
                         NoPersonas = res.GroupBy(z => z.UsuarioId).Select(x => x.Key).Count(),
-                    }).ToList();
+                    })
+                    .OrderBy(x => x.EstacionTienda)
+                    .ToList();
 
                 if (filtroDTO.Excel)
                 {
@@ -177,7 +186,7 @@ namespace OnePlace.Server.Controllers
                 var preguntasencabecados = await context.QPreguntas
                     .AsNoTracking()
                     .Include(x => x.Grupo)
-                    .Where(x => x.GrupoId == 6 && x.Estatus == 1 && x.Pregunta != "Nombre de jefe directo:")
+                    .Where(x => x.GrupoId == 6 && x.Estatus == 1)
                     .OrderBy(x => x.Idpregunta)
                     .Select(x => x.Pregunta)
                     .ToListAsync();
@@ -194,10 +203,10 @@ namespace OnePlace.Server.Controllers
                                   .OrderBy(x => x.PreguntaId)
                                   .Select(x => x.Respuesta.ToInt())
                                   .Sum(x => x),
-                        Encargado = res.FirstOrDefault(x => x.PreguntaId == 30 && x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
-                            x => x.Idempleado == res.FirstOrDefault(x => x.PreguntaId == 30 && x.UsuarioId == baseres.UsuarioId)?.Respuesta.ToInt()
-                            )?.Persona.FullName ?? string.Empty,
-                    }).ToList();
+                        Encargado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerEncargado() ?? string.Empty,
+                    })
+                    .OrderBy(x => x.EstacionTienda)
+                    .ToList();
 
                 QuizPreguntasTratoDTO Preguntas = new()
                 {
@@ -322,13 +331,11 @@ namespace OnePlace.Server.Controllers
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1 && x.Idpregunta != 30).ToList(),
                         Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
-                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
-                            x => x.Idempleado ==
-                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Respuesta.ToInt() ?? 0))?.Persona.FullName ?? string.Empty,
-                        Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Usuario.Empleado.Estacion.Empleados.FirstOrDefault(
-                            x => x.Idempleado ==
-                            (res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId && x.PreguntaId == 30)?.Respuesta.ToInt() ?? 0))?.Puesto?.Puesto1 ?? string.Empty
-                    }).ToList();
+                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerEncargado() ?? string.Empty,
+                        Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerPuestoEncargado() ?? string.Empty
+                    })
+                    .OrderBy(x => x.EstacionTienda)
+                    .ToList();
 
                 QuizPreguntasRecomendacionDTO preguntas = new()
                 {
@@ -394,6 +401,321 @@ namespace OnePlace.Server.Controllers
                     for (int i = 0; i < preguntas.Respuestas.Count; i++)
                     {
                         DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasRecomendacionDTO.EstacionTienda)] = preguntas.Respuestas[i].EstacionTienda;
+                        for (int j = 0; j < preguntas.Respuestas[i].Preguntas.Count; j++)
+                        {
+                            row[$"Pregunta{j}"] = preguntas.Respuestas[i].Preguntas[j].Pregunta;
+                            for (int k = 0; k < preguntas.Respuestas[i].Preguntas[j].ListaRepuesta.Count; k++)
+                            {
+                                if (k == 0)
+                                    row[$"Respuesta{j}"] = preguntas.Respuestas[i].Preguntas[j].ListaRepuesta[k].Respuesta;
+                                else
+                                    row[$"Motivo{j}"] = preguntas.Respuestas[i].Preguntas[j].ListaRepuesta[k].Respuesta;
+                            }
+                        }
+                        row[nameof(QuizRespuestasRecomendacionDTO.Fecha)] = preguntas.Respuestas[i].Fecha;
+                        row[nameof(QuizRespuestasRecomendacionDTO.Calificado)] = preguntas.Respuestas[i].Calificado;
+                        row[nameof(QuizRespuestasRecomendacionDTO.Puesto)] = preguntas.Respuestas[i].Puesto;
+                        table.Rows.Add(row);
+                    }
+
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excel = new();
+
+                    var ws = excel.Workbook.Worksheets.Add("Quiz Trato");
+
+                    ws.Cells["A1"].LoadFromDataTable(table, true, TableStyles.Medium2);
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
+                }
+
+
+                return Ok(preguntas);
+            }
+
+            return NoContent();
+        }
+
+        [HttpGet("respuestas/empleados")]
+        public async Task<ActionResult> GetRespuestasEmpleados([FromQuery] QPreguntasFiltroDTO filtroDTO)
+        {
+            //consulta de respuestas entre fechas
+            var respuestas = context.QRespuesta
+                .AsNoTracking()
+                .IgnoreAutoIncludes()
+                .Where(x => x.fecha >= filtroDTO.Fecha_Inicio && x.fecha <= filtroDTO.Fecha_Fin && x.Usuario.Empleado.Estacion.ZonaR != null)
+                .Include(x => x.Pregunta)
+                .Include(x => x.Usuario.Empleado.Estacion.ZonaR)
+                .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
+                .ThenInclude(x => x.Empleado.Persona)
+                .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
+                .ThenInclude(x => x.Puesto)
+                .AsQueryable();
+
+            //filtros de respuestas
+            #region Filtros de respuestas
+
+            if (filtroDTO.ZonaId != 0)
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.ZonaId == filtroDTO.ZonaId);
+
+            if (filtroDTO.EstacionId != 0)
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Idestacion == filtroDTO.EstacionId);
+
+            if (filtroDTO.DepartamentoId != 0)
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Iddepartamento == filtroDTO.DepartamentoId);
+
+            if (!string.IsNullOrEmpty(filtroDTO.Division) && filtroDTO.Division.ToLower() != "todas")
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Division.Trim().ToLower() == filtroDTO.Division.ToLower());
+
+            if (filtroDTO.TipoQuizEmpleado.Equals(TipoQuizEmpleado.QuizTrato))
+                respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 6);
+
+            if (filtroDTO.TipoQuizEmpleado.Equals(TipoQuizEmpleado.Recomendacion))
+                respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8 || x.PreguntaId == 30);
+
+            #endregion
+            //ejecucion de la consulta
+            var respuestaslist = await respuestas.ToListAsync();
+
+            //creacion de responce de acuerdo al tipo de quiz seleccionado
+            if (filtroDTO.TipoQuizEmpleado.Equals(TipoQuizEmpleado.QuizTrato))
+            {
+                var preguntasencabecados = await context.QPreguntas
+                    .AsNoTracking()
+                    .Where(x => x.GrupoId == 6 && x.Estatus == 1)
+                    .OrderBy(x => x.Idpregunta)
+                    .Select(x => x.Pregunta)
+                    .ToListAsync();
+
+                var respuestasgrouptrato = respuestaslist.GroupBy(x => (x.UsuarioId, x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.Usuario.FullName),
+                    x => x, (baseres, res) => new QuizRespuestasTratoDTO
+                    {
+                        Empleado = baseres.FullName,
+                        EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
+                        Respuestas = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
+                                        .OrderBy(x => x.PreguntaId)
+                                        .Select(x => x.Respuesta.ToInt())
+                                        .ToList(),
+                        Suma = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
+                                  .OrderBy(x => x.PreguntaId)
+                                  .Select(x => x.Respuesta.ToInt())
+                                  .Sum(x => x),
+                        Encargado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerEncargado() ?? string.Empty,
+                    })
+                    .OrderBy(x => x.EstacionTienda)
+                    .ToList();
+
+                QuizPreguntasTratoDTO Preguntas = new()
+                {
+                    Preguntas = preguntasencabecados,
+                    Respuestas = respuestasgrouptrato
+                };
+
+                if (filtroDTO.Excel)
+                {
+                    DataTable table = new("QuizTrato");
+                    DataColumn column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Empleado),
+                        Caption = "Empleado"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.EstacionTienda),
+                        Caption = "Estacion / Tienda"
+                    };
+                    table.Columns.Add(column);
+                    for (int i = 0; i < Preguntas.Preguntas.Count; i++)
+                    {
+                        column = new()
+                        {
+                            DataType = System.Type.GetType("System.Int32"),
+                            ColumnName = $"Pregunta{i}",
+                            Caption = Preguntas.Preguntas[i]
+                        };
+                        table.Columns.Add(column);
+                    }
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.Int32"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Suma),
+                        Caption = "Suma"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Encargado),
+                        Caption = "Encargado"
+                    };
+                    table.Columns.Add(column);
+                    for (int i = 0; i < Preguntas.Respuestas.Count; i++)
+                    {
+                        DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasTratoDTO.Empleado)] = Preguntas.Respuestas[i].Empleado;
+                        row[nameof(QuizRespuestasTratoDTO.EstacionTienda)] = Preguntas.Respuestas[i].EstacionTienda;
+                        row[nameof(QuizRespuestasTratoDTO.Suma)] = Preguntas.Respuestas[i].Suma;
+                        for (int j = 0; j < Preguntas.Respuestas[i].Respuestas.Count; j++)
+                        {
+                            row[$"Pregunta{j}"] = Preguntas.Respuestas[i].Respuestas[j];
+                        }
+                        row[nameof(QuizRespuestasTratoDTO.Encargado)] = Preguntas.Respuestas[i].Encargado;
+                        table.Rows.Add(row);
+                    }
+
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excel = new();
+
+                    var ws = excel.Workbook.Worksheets.Add("Quiz Trato");
+
+                    ws.Cells["A1"].LoadFromDataTable(table, true, TableStyles.Medium2);
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
+                }
+
+                return Ok(Preguntas);
+            }
+            else if (filtroDTO.TipoQuizEmpleado.Equals(TipoQuizEmpleado.Recomendacion))
+            {
+                //conteo de pregutas totales en base a las respuestas de los usuarios
+                var countpreguntas = respuestaslist.Where(x => x.Pregunta.Estatus == 1 && x.PreguntaId != 30).GroupBy(x => x.PreguntaId).Count();
+
+                //agrupacion de las preguntas en base a las respuestas de los usuarios
+                var respuestasdtos = respuestaslist.GroupBy(x => new
+                {
+                    x.Pregunta.Idpregunta,
+                    x.Pregunta.Pregunta,
+                    x.UsuarioId,
+                    x.Pregunta.TipoPreguntaId,
+                    x.Pregunta.Estatus
+                }, x => x, (baseres, res) => new QzPreguntaDTO
+                {
+                    Idpregunta = baseres.Idpregunta,
+                    UsuarioId = baseres.UsuarioId,
+                    Pregunta = baseres.Pregunta,
+                    TipoPreguntaId = baseres.TipoPreguntaId,
+                    Estatus = baseres.Estatus,
+                    //agregamos las respuestas del usuario a la pregunta correspondiente
+                    ListaRepuesta = res.Where(x => x.PreguntaId == baseres.Idpregunta && x.UsuarioId == baseres.UsuarioId)
+                                       .Select(x => mapper.Map<QzRespuestaSimpleDTO>(x))
+                                       .ToList()
+                })
+                .OrderBy(x => x.Idpregunta);
+
+                //igualamos los items de las respuestas a 2 en caso de de que sea una pregunta multiple
+                //estos nos evita problemas al momento de mostrar las respuestas, ya que saldrian desfasadas de sus columnas correspondientes
+                var resdtos = respuestasdtos.Select(x =>
+                {
+                    if (x.TipoPreguntaId == 4)
+                    {
+                        if (x.ListaRepuesta.Count < 2)
+                        {
+                            for (int i = x.ListaRepuesta.Count; i < 2; i++)
+                            {
+                                //se agrega una respuesta vacia para la igualacion
+                                x.ListaRepuesta.Add(new()
+                                {
+                                    PreguntaId = x.Idpregunta,
+                                    Respuesta = string.Empty,
+                                    UsuarioId = x.UsuarioId,
+                                });
+                            }
+                        }
+                    }
+                    return x;
+                });
+
+                //agrupamos las respuestas por estacion y usuario, y agregamos las preguntas que le corresponden al usuario
+                var quizrecomendacion = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.UsuarioId, x.Usuario.FullName),
+                    x => x, (baseres, res) => new QuizRespuestasRecomendacionDTO
+                    {
+                        Empleado = baseres.FullName,
+                        EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
+                        Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1 && x.Idpregunta != 30).ToList(),
+                        Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
+                        Calificado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerEncargado() ?? string.Empty,
+                        Puesto = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerPuestoEncargado() ?? string.Empty
+                    })
+                    .OrderBy(x => x.EstacionTienda)
+                    .ToList();
+
+                QuizPreguntasRecomendacionDTO preguntas = new()
+                {
+                    CantidadPreguntas = countpreguntas,
+                    Respuestas = quizrecomendacion
+                };
+
+                if (filtroDTO.Excel)
+                {
+                    DataTable table = new("QuizRecomendacion");
+                    DataColumn column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Empleado),
+                        Caption = "Empleado"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.EstacionTienda),
+                        Caption = "Estacion / Tienda"
+                    };
+                    table.Columns.Add(column);
+                    for (int i = 0; i < preguntas.CantidadPreguntas; i++)
+                    {
+                        column = new()
+                        {
+                            DataType = System.Type.GetType("System.String"),
+                            ColumnName = $"Pregunta{i}",
+                            Caption = $"Preunta{i + 1}"
+                        };
+                        table.Columns.Add(column);
+                        column = new()
+                        {
+                            DataType = System.Type.GetType("System.String"),
+                            ColumnName = $"Respuesta{i}",
+                            Caption = $"Respuesta {i + 1}"
+                        };
+                        table.Columns.Add(column);
+                        column = new()
+                        {
+                            DataType = System.Type.GetType("System.String"),
+                            ColumnName = $"Motivo{i}",
+                            Caption = $"Motivo {i + 1}"
+                        };
+                        table.Columns.Add(column);
+                    }
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Fecha),
+                        Caption = "Fecha"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Calificado),
+                        Caption = "Calificado"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Puesto),
+                        Caption = "Puesto"
+                    };
+                    table.Columns.Add(column);
+                    for (int i = 0; i < preguntas.Respuestas.Count; i++)
+                    {
+                        DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasRecomendacionDTO.Empleado)] = preguntas.Respuestas[i].Empleado;
                         row[nameof(QuizRespuestasRecomendacionDTO.EstacionTienda)] = preguntas.Respuestas[i].EstacionTienda;
                         for (int j = 0; j < preguntas.Respuestas[i].Preguntas.Count; j++)
                         {

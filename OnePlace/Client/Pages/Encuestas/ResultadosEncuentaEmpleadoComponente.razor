@@ -1,4 +1,4 @@
-﻿@page "/encuesta/resultados"
+﻿@page "/encuesta/resultados/empleados"
 @inject IRepositorio http
 @inject IMostrarMensaje ms
 @inject IJSRuntime js
@@ -9,18 +9,6 @@
     </div>
     <div class="card-body">
         <div class="col-12 row">
-            <div class="col-4">
-                <label>Zona</label>
-                <DropDownFilter TValue="int" TListado="ZonaDTO" Listado="Zonas" @bind-Valor="Filtro.ZonaId" FiltrarValor="CargarZonas"
-                                Default_Placeholder="Seleccione una zona" Propiedad_Valor="Id">
-                    <Render Context="zona">
-                        @zona.Zona
-                    </Render>
-                    <RenderValue Context="zona">
-                        @zona.Zona
-                    </RenderValue>
-                </DropDownFilter>
-            </div>
             <div class="col-4">
                 <label>Tienda / Estacion</label>
                 <DropDownFilter TValue="int" TListado="EstacionDTO" Listado="Estaciones" @bind-Valor="Filtro.EstacionId" FiltrarValor="CargarEstaciones"
@@ -44,10 +32,10 @@
             </div>
             <div class="col-4">
                 <label>Tipo de quiz</label>
-                <select class="form-control form-control-sm" @bind="Filtro.TipoQuiz">
-                    @foreach (var item in Enum.GetValues(typeof(TipoQuiz)))
+                <select class="form-control form-control-sm" @bind="Filtro.TipoQuizEmpleado">
+                    @foreach (var item in Enum.GetValues(typeof(TipoQuizEmpleado)))
                     {
-                        <option value="@item">@(((TipoQuiz)item).Descripcion())</option>
+                        <option value="@item">@(((TipoQuizEmpleado)item).Descripcion())</option>
                     }
                 </select>
             </div>
@@ -78,26 +66,19 @@
     </div>
 </div>
 <div class="overflow-auto my-2">
-    @if (Filtro.TipoQuiz.Equals(TipoQuiz.Quiz))
+    @if (Filtro.TipoQuizEmpleado.Equals(TipoQuizEmpleado.QuizTrato))
     {
-        <TablaQuizRespuestasComponente @ref="infoLoad" />
+        <TablaQuizRespuestasTratoComponente ShowEmpleados="true" @ref="infoLoad" />
     }
-    else if (Filtro.TipoQuiz.Equals(TipoQuiz.QuizTrato))
+    else if (Filtro.TipoQuizEmpleado.Equals(TipoQuizEmpleado.Recomendacion))
     {
-        <TablaQuizRespuestasTratoComponente @ref="infoLoad" />
-    }
-    else if (Filtro.TipoQuiz.Equals(TipoQuiz.Recomendacion))
-    {
-        <TablaQuizRespuestasRecomendacionComponente @ref="infoLoad" />
+        <TablaQuizRespuestasRecomendacionComponente ShowEmpleados="true" @ref="infoLoad" />
     }
 </div>
 
 @code {
     QPreguntasFiltroDTO Filtro = new();
 
-    Dictionary<string, string> QueryFiltro = new();
-
-    List<ZonaDTO> Zonas = new();
     List<EstacionDTO> Estaciones = new();
     List<DepartamentoDTO> Departamentos = new();
     List<string> Divisiones = new() { "TODAS", "ESTACIONES", "TIENDAS" };
@@ -107,27 +88,7 @@
     protected override async Task OnInitializedAsync()
     {
         await Task.WhenAll(
-        CargarZonas(),
-        CargarEstaciones(),
-        CargarDepartamentos());
-    }
-
-    private async Task CargarZonas(string valor = "")
-    {
-        Dictionary<string, string> Query = new();
-
-        Query[nameof(ZonaDTO.Zona)] = valor;
-
-        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
-        var response = await http.Get<List<ZonaDTO>>($"api/zona?{url}");
-        if (response.Error)
-        {
-            await ms.MostrarMensajeError(await response.GetBody());
-        }
-        else
-        {
-            Zonas = response.Response;
-        }
+        CargarEstaciones());
     }
 
     private async Task CargarEstaciones(string valor = "")
@@ -148,49 +109,28 @@
         }
     }
 
-    private async Task CargarDepartamentos(string valor = "")
-    {
-        Dictionary<string, string> Query = new();
-
-        Query[nameof(DepartamentoDTO.Departamento)] = valor;
-
-        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
-        var response = await http.Get<List<DepartamentoDTO>>($"api/departamento?{url}");
-        if (response.Error)
-        {
-            await ms.MostrarMensajeError(await response.GetBody());
-        }
-        else
-        {
-            Departamentos = response.Response;
-        }
-    }
-
     private async Task CargarInfo()
     {
-        var dictionary = SetFiltro();
-        dictionary[nameof(QPreguntasFiltroDTO.Excel)] = false.ToString();
-        await infoLoad.LoadInfo(dictionary);
+        await infoLoad.LoadInfo(SetFiltro());
     }
 
     private async Task ExportarData()
     {
-        var dictionary = SetFiltro();
-        dictionary[nameof(QPreguntasFiltroDTO.Excel)] = true.ToString();
-        var bytes = await infoLoad.ExportData(dictionary);
+        var bytes = await infoLoad.ExportData(SetFiltro(true));
 
         await js.GuardarComo($"{Filtro.TipoQuiz.Descripcion()}_{DateTime.Now:s}.xlsx", bytes);
     }
 
-    private Dictionary<string, string> SetFiltro()
+    private Dictionary<string, string> SetFiltro(bool IsExcel = false)
     {
-        QueryFiltro[nameof(Filtro.ZonaId)] = Filtro.ZonaId.ToString();
+        Dictionary<string, string> QueryFiltro = new();
+
         QueryFiltro[nameof(Filtro.EstacionId)] = Filtro.EstacionId.ToString();
-        QueryFiltro[nameof(Filtro.DepartamentoId)] = Filtro.DepartamentoId.ToString();
-        QueryFiltro[nameof(Filtro.TipoQuiz)] = Filtro.TipoQuiz.ToString();
+        QueryFiltro[nameof(Filtro.TipoQuizEmpleado)] = Filtro.TipoQuizEmpleado.ToString();
         QueryFiltro[nameof(Filtro.Division)] = Filtro.Division;
         QueryFiltro[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM/dd/yyyy");
         QueryFiltro[nameof(Filtro.Fecha_Fin)] = Filtro.Fecha_Fin.ToString("MM/dd/yyyy");
+        QueryFiltro[nameof(Filtro.Excel)] = IsExcel.ToString();
 
         return QueryFiltro;
     }

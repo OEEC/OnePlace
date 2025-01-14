@@ -14,7 +14,7 @@ namespace OnePlace.Client.Helpers
                 if (parametros is not null)
                 {
                     var DefaultValues = new List<string>() { "false", "", "0" };
-                    var uri = string.Join("&", parametros.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                    var uri = string.Join("&", parametros.Where(x => x.Key != null && !DefaultValues.Contains(x.Value.ToLower()))
                     .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
                     return uri;
                 }

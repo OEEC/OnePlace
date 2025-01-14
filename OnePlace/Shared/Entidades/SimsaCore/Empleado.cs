@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
+using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.IdentityModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace OnePlace.Shared.Entidades.SimsaCore
 {
@@ -103,6 +105,95 @@ namespace OnePlace.Shared.Entidades.SimsaCore
         [NotMapped] public IdentityUsuario Usuario { get; set; } = null!;
         [NotMapped] public List<Estacion> Estaciones { get; set; } = new();
         [NotMapped] public List<EmpleadoEstacion> EmpleadoEstaciones { get; set; } = new();
+        public string ObtenerEncargado()
+        {
+            if (!string.IsNullOrEmpty(Division))
+            {
+                if (Estacion.EmpleadoEstaciones.Any())
+                {
+                    int supervisorId = 0;
+                    int jefeId = 0;
+                    var supervisorEstacionId = 40;
+                    var supervisorTiendaId = 77;
+                    var jefeTiendaPuestoId = 214;
+                    var jefeDeTurnoPuestoId = 32;
+                    var gerentePuestoIds = new List<int?>() { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
+                                                208, 209, 210, 211, 212, 213, 219 };
+
+                    if (Division == "TIENDAS")
+                    {
+                        supervisorId = 77;
+                        jefeId = 214;
+                    }
+                    else if (Division == "ESTACIONES")
+                    {
+                        supervisorId = 40;
+                        jefeId = 32;
+                    }
+
+                    if (Idpuesto == supervisorEstacionId || Idpuesto == supervisorTiendaId)
+                    {
+                        return "VICTOR ARROYO ALONSO";
+                    }
+                    else if (gerentePuestoIds.Contains(Idpuesto))
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId)?.Empleado?.Persona?.FullName;
+                    }
+                    else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId))?.Empleado?.Persona?.FullName;
+                    }
+                    else
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeId)?.Empleado?.Persona?.FullName;
+                    }
+                }
+            }
+            return string.Empty;
+        }
+
+        public string ObtenerPuestoEncargado()
+        {
+            if (!string.IsNullOrEmpty(Division))
+            {
+                if (Estacion.EmpleadoEstaciones.Any())
+                {
+                    int supervisorId = 0;
+                    int jefeId = 0;
+                    var jefeTiendaPuestoId = 214;
+                    var jefeDeTurnoPuestoId = 32;
+                    var gerentePuestoIds = new List<int?>() { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                                               142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
+                                                208, 209, 210, 211, 212, 213, 219 };
+
+                    if (Division == "TIENDAS")
+                    {
+                        supervisorId = 77;
+                        jefeId = 214;
+                    }
+                    else if (Division == "ESTACIONES")
+                    {
+                        supervisorId = 40;
+                        jefeId = 32;
+                    }
+
+                    if (gerentePuestoIds.Contains(Idpuesto))
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId)?.Puesto?.Puesto1;
+                    }
+                    else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId))?.Puesto?.Puesto1;
+                    }
+                    else
+                    {
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeId)?.Puesto?.Puesto1;
+                    }
+                }
+            }
+            return string.Empty;
+        }
     }
     public class ImagenesCumpleEmpleado
     {

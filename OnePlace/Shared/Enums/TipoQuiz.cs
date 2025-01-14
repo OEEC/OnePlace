@@ -11,4 +11,11 @@ namespace OnePlace.Shared.Enums
         [Description("Quiz de trato")]
         QuizTrato
     }
+    public enum TipoQuizEmpleado
+    {
+        [Description("Recomendación")]
+        Recomendacion,
+        [Description("Quiz de trato")]
+        QuizTrato
+    }
 }

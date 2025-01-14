@@ -790,6 +790,12 @@ namespace OnePlace.Server.Data
                 r => r.HasOne(x => x.Estacion).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EstacionId).OnDelete(DeleteBehavior.Restrict),
                 l => l.HasOne(x => x.Empleado).WithMany(x => x.EmpleadoEstaciones).HasForeignKey(x => x.EmpleadoId).OnDelete(DeleteBehavior.Restrict));
 
+            modelBuilder.Entity<EmpleadoEstacion>()
+                .HasOne(x => x.Puesto)
+                .WithMany()
+                .HasForeignKey(x => x.PuestoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Empleado>()

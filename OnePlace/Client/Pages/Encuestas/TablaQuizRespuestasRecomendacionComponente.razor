@@ -5,6 +5,10 @@
 <table class="table table-bordered table-striped ctable" style="font-size:.7rem; text-align:center;">
     <thead>
         <tr>
+            @if (ShowEmpleados)
+            {
+                <th>Empleado</th>
+            }
             <th>Estacion / Tienda</th>
             @for (int i = 1; i <= RespuestasQuizDTO.CantidadPreguntas; i++)
             {
@@ -20,6 +24,10 @@
     <tbody>
         <Virtualize Items="RespuestasQuizDTO.Respuestas" Context="item">
             <tr>
+                @if (ShowEmpleados)
+                {
+                    <td><p>@item.Empleado</p></td>
+                }
                 <td><p>@item.EstacionTienda</p></td>
                 @for (int i = 0; i < item.Preguntas.Count; i++)
                 {
@@ -44,12 +52,13 @@
 </style>
 
 @code {
+    [Parameter] public bool ShowEmpleados { get; set; } = false;
     QuizPreguntasRecomendacionDTO RespuestasQuizDTO = new();
 
     public async Task LoadInfo(Dictionary<string, string> dictionary)
     {
         var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
-        var response = await http.Get<QuizPreguntasRecomendacionDTO>($"api/pregunta/respuestas?{url}");
+        var response = await http.Get<QuizPreguntasRecomendacionDTO>($"api/pregunta/respuestas{(ShowEmpleados ? "/empleados" : "")}?{url}");
         if (response.Error)
         {
             await ms.MostrarMensajeError(await response.GetBody());
@@ -64,7 +73,7 @@
     public async Task<byte[]> ExportData(Dictionary<string, string> dictionary)
     {
         var url = Constructor_De_URL_Parametros.Generar_URL(dictionary);
-        var response = await http.Get<byte[]>($"api/pregunta/respuestas?{url}");
+        var response = await http.Get<byte[]>($"api/pregunta/respuestas{(ShowEmpleados ? "/empleados" : "")}?{url}");
         if (response.Error)
         {
             await ms.MostrarMensajeError(await response.GetBody());

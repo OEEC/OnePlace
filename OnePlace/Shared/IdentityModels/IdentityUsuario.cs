@@ -33,5 +33,6 @@ namespace OnePlace.Shared.IdentityModels
 
         [NotMapped]
         public List<QRespuesta> Respuestas { get; set; } = new();
+        public string FullName => $"{Nombre?.Trim()} {ApellidoPaterno?.Trim()} {ApellidoMaterno?.Trim()}";
     }
 }
