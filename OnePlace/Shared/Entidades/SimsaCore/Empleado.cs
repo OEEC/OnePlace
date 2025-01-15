@@ -142,7 +142,10 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     }
                     else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId) && x.Esgerente)?.Empleado?.Persona?.FullName;
+                        var encargado = Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId) && x.Esgerente)?.Empleado?.Persona?.FullName;
+                        if (Estacion.EmpleadoEstaciones.Any(x => x.EmpleadoId == Idempleado && x.Esgerente))
+                            encargado ??= Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && !x.Esgerente && !x.Esjefeturno)?.Empleado?.Persona?.FullName;
+                        return encargado;
                     }
                     else
                     {
@@ -188,7 +191,10 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     }
                     else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId) && x.Esgerente)?.Puesto?.Puesto1;
+                        var encargado = Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId) && x.Esgerente)?.Puesto?.Puesto1;
+                        if (Estacion.EmpleadoEstaciones.Any(x => x.EmpleadoId == Idempleado && x.Esgerente))
+                            encargado ??= Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && !x.Esgerente && !x.Esjefeturno)?.Puesto?.Puesto1;
+                        return encargado;
                     }
                     else
                     {
