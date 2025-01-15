@@ -138,15 +138,15 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     }
                     else if (gerentePuestoIds.Contains(Idpuesto))
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId)?.Empleado?.Persona?.FullName;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => !x.Esgerente && !x.Esjefeturno)?.Empleado?.Persona?.FullName;
                     }
                     else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId))?.Empleado?.Persona?.FullName;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.Esgerente)?.Empleado?.Persona?.FullName;
                     }
                     else
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeId)?.Empleado?.Persona?.FullName;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.Esjefeturno)?.Empleado?.Persona?.FullName;
                     }
                 }
             }
@@ -180,15 +180,15 @@ namespace OnePlace.Shared.Entidades.SimsaCore
 
                     if (gerentePuestoIds.Contains(Idpuesto))
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId)?.Puesto?.Puesto1;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => !x.Esgerente && !x.Esjefeturno)?.Puesto?.Puesto1;
                     }
                     else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId))?.Puesto?.Puesto1;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.Esgerente)?.Puesto?.Puesto1;
                     }
                     else
                     {
-                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeId)?.Puesto?.Puesto1;
+                        return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.Esjefeturno)?.Puesto?.Puesto1;
                     }
                 }
             }
