@@ -235,7 +235,7 @@ namespace OnePlace.Server.Controllers
                                                                         .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                         .FirstOrDefault();
 
-                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && x.Empleado.Division == empleado.Division)
+                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && gerentePuestoIds.Contains(x.PuestoId))
                                                                      .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                      .FirstOrDefault();
                 }
@@ -247,7 +247,7 @@ namespace OnePlace.Server.Controllers
                     encargados.JefeTurno = relacionencargadosestaciones.Where(x => x.Esjefeturno && x.PuestoId == jefeId)
                                                                        .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                        .FirstOrDefault();
-                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && x.Empleado.Division == empleado.Division)
+                    encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && gerentePuestoIds.Contains(x.PuestoId))
                                                                      .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                      .FirstOrDefault();
                 }
