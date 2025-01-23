@@ -223,10 +223,20 @@ namespace OnePlace.Server.Controllers
                 }
                 else if (gerentePuestoIds.Contains(empleado.Puesto.Id))
                 {
-
-                    encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
-                                                                        .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
-                                                                        .FirstOrDefault();
+                    //if (empleado.Estacion.Zona == 5)
+                    //{
+                    //    encargados.Supervisor = context.Empleados
+                    //    .Where(x => x.Noemp == "0006868")
+                    //    .Include(x => x.Persona)
+                    //    .Select(mapper.Map<EmpleadoDTO>)
+                    //    .FirstOrDefault();
+                    //}
+                    //else
+                    //{
+                        encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
+                                                                            .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                                                                            .FirstOrDefault();
+                    //}
                     encargados.Gerente = encargados.Supervisor;
                 }
                 else if (empleado.Puesto.Id == jefeDeTurnoPuestoId || jefeTiendaPuestoId == empleado.Puesto.Id)
@@ -236,8 +246,12 @@ namespace OnePlace.Server.Controllers
                                                                         .FirstOrDefault();
 
                     encargados.Gerente = relacionencargadosestaciones.Where(x => x.Esgerente && gerentePuestoIds.Contains(x.PuestoId))
-                                                                     .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
-                                                                     .FirstOrDefault();
+                                                                         .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                                                                         .FirstOrDefault();
+
+                    if (await context.EmpleadoEstaciones.AnyAsync(x => x.EmpleadoId == empleado.Idempleado && x.Esgerente))
+                        encargados.Gerente = encargados.Supervisor;
+
                 }
                 else
                 {

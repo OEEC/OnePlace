@@ -138,13 +138,17 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     }
                     else if (gerentePuestoIds.Contains(Idpuesto))
                     {
+                        //if(Estacion.Zona == 5)
+                        //{
+                        //    return "MAURICCIO VAZQUEZ SILVA";
+                        //}
                         return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && !x.Esgerente && !x.Esjefeturno)?.Empleado?.Persona?.FullName;
                     }
                     else if (Idpuesto == jefeDeTurnoPuestoId || Idpuesto == jefeTiendaPuestoId)
                     {
                         var encargado = Estacion.EmpleadoEstaciones.FirstOrDefault(x => gerentePuestoIds.Contains(x.PuestoId) && x.Esgerente)?.Empleado?.Persona?.FullName;
                         if (Estacion.EmpleadoEstaciones.Any(x => x.EmpleadoId == Idempleado && x.Esgerente))
-                            encargado ??= Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && !x.Esgerente && !x.Esjefeturno)?.Empleado?.Persona?.FullName;
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && !x.Esgerente && !x.Esjefeturno)?.Empleado?.Persona?.FullName ?? encargado;
                         return encargado;
                     }
                     else
