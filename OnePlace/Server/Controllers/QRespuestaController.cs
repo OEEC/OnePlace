@@ -205,7 +205,7 @@ namespace OnePlace.Server.Controllers
                     .Include(x => x.Empleado.Persona)
                     .ToListAsync();
 
-                if (empleado.Division == "ADMINISTRATIVO")
+                if (empleado.Division == "ADMINISTRATIVO" || empleado.Division == "ADMINISTRATIVOS")
                 {
                     supervisorId = 242;
                     jefeId = 159;
