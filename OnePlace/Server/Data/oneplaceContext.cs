@@ -803,6 +803,12 @@ namespace OnePlace.Server.Data
                 .WithMany()
                 .HasForeignKey(x => x.Idpuesto)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Empleado>()
+                .HasOne(x => x.Departamento)
+                .WithMany()
+                .HasForeignKey(x => x.Iddepartamento)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         //esto lo genera databasefirst 

@@ -22,6 +22,18 @@
                 </DropDownFilter>
             </div>
             <div class="col-4">
+                <label>Departamento</label>
+                <DropDownFilter TValue="int" TListado="DepartamentoDTO" Listado="Departamentos" @bind-Valor="Filtro.DepartamentoId" FiltrarValor="CargarDepartamentos"
+                                Default_Placeholder="Seleccione un departamento" Propiedad_Valor="Id">
+                    <Render Context="departamento">
+                        @departamento.Departamento
+                    </Render>
+                    <RenderValue Context="departamento">
+                        @departamento.Departamento
+                    </RenderValue>
+                </DropDownFilter>
+            </div>
+            <div class="col-4">
                 <label>Tienda / Estacion</label>
                 <DropDownFilter TValue="int" TListado="EstacionDTO" Listado="Estaciones" @bind-Valor="Filtro.EstacionId" FiltrarValor="CargarEstaciones"
                                 Default_Placeholder="Seleccione una estacion" Propiedad_Valor="Id">
@@ -100,7 +112,7 @@
     List<ZonaDTO> Zonas = new();
     List<EstacionDTO> Estaciones = new();
     List<DepartamentoDTO> Departamentos = new();
-    List<string> Divisiones = new() { "TODAS", "ESTACIONES", "TIENDAS" };
+    List<string> Divisiones = new() { "TODAS", "ESTACIONES", "TIENDAS", "ADMINISTRATIVO" };
 
     IComponentInfoLoad infoLoad;
 

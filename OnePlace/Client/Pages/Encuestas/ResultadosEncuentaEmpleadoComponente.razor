@@ -22,6 +22,18 @@
                 </DropDownFilter>
             </div>
             <div class="col-4">
+                <label>Departamento</label>
+                <DropDownFilter TValue="int" TListado="DepartamentoDTO" Listado="Departamentos" @bind-Valor="Filtro.DepartamentoId" FiltrarValor="CargarDepartamentos"
+                                Default_Placeholder="Seleccione un departamento" Propiedad_Valor="Id">
+                    <Render Context="departamento">
+                        @departamento.Departamento
+                    </Render>
+                    <RenderValue Context="departamento">
+                        @departamento.Departamento
+                    </RenderValue>
+                </DropDownFilter>
+            </div>
+            <div class="col-4">
                 <label>Tipo</label>
                 <select @bind="Filtro.Division" class="form-control form-control-sm">
                     @foreach (var item in Divisiones)
@@ -88,7 +100,8 @@
     protected override async Task OnInitializedAsync()
     {
         await Task.WhenAll(
-        CargarEstaciones());
+        CargarEstaciones(),
+        CargarDepartamentos());
     }
 
     private async Task CargarEstaciones(string valor = "")
@@ -106,6 +119,24 @@
         else
         {
             Estaciones = response.Response;
+        }
+    }
+
+    private async Task CargarDepartamentos(string valor = "")
+    {
+        Dictionary<string, string> Query = new();
+
+        Query[nameof(DepartamentoDTO.Departamento)] = valor;
+
+        var url = Constructor_De_URL_Parametros.Generar_URL(Query);
+        var response = await http.Get<List<DepartamentoDTO>>($"api/departamento?{url}");
+        if (response.Error)
+        {
+            await ms.MostrarMensajeError(await response.GetBody());
+        }
+        else
+        {
+            Departamentos = response.Response;
         }
     }
 

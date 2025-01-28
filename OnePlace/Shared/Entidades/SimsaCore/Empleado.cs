@@ -117,9 +117,32 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     var supervisorTiendaId = 77;
                     var jefeTiendaPuestoId = 214;
                     var jefeDeTurnoPuestoId = 32;
-                    var gerentePuestoIds = new List<int?>() { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                    var gerenteadministrativo = 23;
+                    var gerentePuestoIds = new List<int?>() { 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
                                                142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
-                                                208, 209, 210, 211, 212, 213, 219 };
+                                                209, 210, 211, 212, 213, 219 };
+                    var jefeadministrativo = 159;
+
+                    if (Division == "ADMINISTRATIVO")
+                    {
+                        supervisorId = 242;
+                        jefeId = 159;
+
+                        if (Idpuesto == gerenteadministrativo)
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && x.EstacionId == Idestacion)?.Empleado.Persona.FullName;
+                        }
+                        else if (Idpuesto == jefeadministrativo)
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == gerenteadministrativo && x.EstacionId == Idestacion
+                        && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                        }
+                        else
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeadministrativo && x.EstacionId == Idestacion
+                        && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                        }
+                    }
 
                     if (Division == "TIENDAS")
                     {
@@ -174,9 +197,31 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                     int jefeId = 0;
                     var jefeTiendaPuestoId = 214;
                     var jefeDeTurnoPuestoId = 32;
-                    var gerentePuestoIds = new List<int?>() { 23, 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
+                    var gerenteadministrativo = 23;
+                    var gerentePuestoIds = new List<int?>() { 24, 25, 26, 27, 28, 39, 49, 50, 139, 140, 141,
                                                142, 143, 144, 145, 146, 147, 148, 149, 150, 151,
-                                                208, 209, 210, 211, 212, 213, 219 };
+                                                209, 210, 211, 212, 213, 219 };
+                    var jefeadministrativo = 159;
+                    if (Division == "ADMINISTRATIVO")
+                    {
+                        supervisorId = 242;
+                        jefeId = 159;
+
+                        if (Idpuesto == gerenteadministrativo)
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && x.EstacionId == Idestacion)?.Puesto?.Puesto1;
+                        }
+                        else if (Idpuesto == jefeadministrativo)
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == gerenteadministrativo && x.EstacionId == Idestacion
+                            && x.DepartamentoId == Iddepartamento)?.Puesto?.Puesto1;
+                        }
+                        else
+                        {
+                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeadministrativo && x.EstacionId == Idestacion
+                            && x.DepartamentoId == Iddepartamento)?.Puesto?.Puesto1;
+                        }
+                    }
 
                     if (Division == "TIENDAS")
                     {

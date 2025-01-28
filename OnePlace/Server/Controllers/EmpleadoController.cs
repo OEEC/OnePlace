@@ -122,7 +122,6 @@ namespace OnePlace.Server.Controllers
             bool hasErrors = false;
             bool existe = false;
             string Errors = string.Empty;
-            int count_Empleados = 0;
 
             foreach (var file in files)
             {

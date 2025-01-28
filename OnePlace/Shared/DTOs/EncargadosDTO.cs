@@ -7,5 +7,6 @@ namespace OnePlace.Shared.DTOs
         public EmpleadoDTO Supervisor { get; set; } = null!;
         public EmpleadoDTO JefeTurno { get; set; } = null!;
         public EmpleadoDTO Gerente { get; set; } = null!;
+        public EmpleadoDTO Encargado { get; set; } = null!;
     }
 }
