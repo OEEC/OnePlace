@@ -134,13 +134,14 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                         }
                         else if (Idpuesto == jefeadministrativo)
                         {
-                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == gerenteadministrativo && x.EstacionId == Idestacion
-                        && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                            var encargado = Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == gerenteadministrativo && x.EstacionId == Idestacion && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                            encargado ??= Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == supervisorId && x.EstacionId == Idestacion && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
                         }
                         else
                         {
-                            return Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeadministrativo && x.EstacionId == Idestacion
-                        && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                            var encargado = Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == jefeadministrativo && x.EstacionId == Idestacion && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                            encargado ??= Estacion.EmpleadoEstaciones.FirstOrDefault(x => x.PuestoId == gerenteadministrativo && x.EstacionId == Idestacion && x.DepartamentoId == Iddepartamento)?.Empleado.Persona.FullName;
+                            return encargado;
                         }
                     }
 

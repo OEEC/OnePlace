@@ -200,6 +200,7 @@ namespace OnePlace.Server.Controllers
                     .Select(x => mapper.Map<EmpleadoDTO>(x)).FirstOrDefaultAsync();
                 if (empleado is null) return BadRequest();
 
+                //cargar las relaciones de encargados en la estacion asignada del empleado
                 var relacionencargadosestaciones = await context.EmpleadoEstaciones
                     .Where(x => x.EstacionId == empleado.Estacion.Id)
                     .Include(x => x.Empleado.Persona)
@@ -218,17 +219,26 @@ namespace OnePlace.Server.Controllers
                     }
                     else if (empleado.Puesto.Id == jefeadministrativo)
                     {
-                        encargados.Encargado = relacionencargadosestaciones.Where(x => x.PuestoId == gerenteadministrativo && x.EstacionId == empleado.Estacion.Id 
+                        encargados.Encargado = relacionencargadosestaciones.Where(x => x.PuestoId == gerenteadministrativo && x.EstacionId == empleado.Estacion.Id
                         && x.DepartamentoId == empleado.Departamento.Id)
+                            .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                            .FirstOrDefault();
+
+                        encargados.Encargado ??= relacionencargadosestaciones.Where(x => x.PuestoId == supervisorId && x.EstacionId == empleado.Estacion.Id)
                             .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                             .FirstOrDefault();
                     }
                     else
                     {
-                        encargados.Encargado = relacionencargadosestaciones.Where(x => x.PuestoId == jefeadministrativo && x.EstacionId == empleado.Estacion.Id 
+                        encargados.Encargado = relacionencargadosestaciones.Where(x => x.PuestoId == jefeadministrativo && x.EstacionId == empleado.Estacion.Id
                         && x.DepartamentoId == empleado.Departamento.Id)
                             .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                             .FirstOrDefault();
+
+                        encargados.Encargado ??= relacionencargadosestaciones.Where(x => x.PuestoId == gerenteadministrativo && x.EstacionId == empleado.Estacion.Id
+                            && x.DepartamentoId == empleado.Departamento.Id)
+                                .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
+                                .FirstOrDefault();
                     }
 
                     return Ok(encargados);
@@ -255,20 +265,9 @@ namespace OnePlace.Server.Controllers
                 }
                 else if (gerentePuestoIds.Contains(empleado.Puesto.Id))
                 {
-                    //if (empleado.Estacion.Zona == 5)
-                    //{
-                    //    encargados.Supervisor = context.Empleados
-                    //    .Where(x => x.Noemp == "0006868")
-                    //    .Include(x => x.Persona)
-                    //    .Select(mapper.Map<EmpleadoDTO>)
-                    //    .FirstOrDefault();
-                    //}
-                    //else
-                    //{
                     encargados.Supervisor = relacionencargadosestaciones.Where(x => !x.Esgerente && !x.Esjefeturno && x.PuestoId == supervisorId)
                                                                         .Select(x => mapper.Map<EmpleadoDTO>(x.Empleado))
                                                                         .FirstOrDefault();
-                    //}
                     encargados.Gerente = encargados.Supervisor;
                 }
                 else if (empleado.Puesto.Id == jefeDeTurnoPuestoId || jefeTiendaPuestoId == empleado.Puesto.Id)
