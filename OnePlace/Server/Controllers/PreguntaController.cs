@@ -114,6 +114,7 @@ namespace OnePlace.Server.Controllers
                 .Where(x => x.fecha >= filtroDTO.Fecha_Inicio && x.fecha <= filtroDTO.Fecha_Fin && x.Usuario.Empleado.Estacion.ZonaR != null)
                 .Include(x => x.Pregunta)
                 .Include(x => x.Usuario.Empleado.Estacion.ZonaR)
+                .Include(x => x.Usuario.Empleado.Departamento)
                 .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
                 .ThenInclude(x => x.Empleado.Persona)
                 .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
@@ -194,6 +195,7 @@ namespace OnePlace.Server.Controllers
                 var respuestasgrouptrato = respuestaslist.GroupBy(x => (x.UsuarioId, x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1),
                     x => x, (baseres, res) => new QuizRespuestasTratoDTO
                     {
+                        Departamento = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Departamento.Departamento1 ?? string.Empty,
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Respuestas = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
                                         .OrderBy(x => x.PreguntaId)
@@ -218,6 +220,13 @@ namespace OnePlace.Server.Controllers
                 {
                     DataTable table = new("QuizTrato");
                     DataColumn column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Departamento),
+                        Caption = "Departamento"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
                     {
                         DataType = System.Type.GetType("System.String"),
                         ColumnName = nameof(QuizRespuestasTratoDTO.EstacionTienda),
@@ -251,6 +260,7 @@ namespace OnePlace.Server.Controllers
                     for (int i = 0; i < Preguntas.Respuestas.Count; i++)
                     {
                         DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasTratoDTO.Departamento)] = Preguntas.Respuestas[i].Departamento;
                         row[nameof(QuizRespuestasTratoDTO.EstacionTienda)] = Preguntas.Respuestas[i].EstacionTienda;
                         row[nameof(QuizRespuestasTratoDTO.Suma)] = Preguntas.Respuestas[i].Suma;
                         for (int j = 0; j < Preguntas.Respuestas[i].Respuestas.Count; j++)
@@ -328,6 +338,7 @@ namespace OnePlace.Server.Controllers
                 var quizrecomendacion = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.UsuarioId),
                     x => x, (baseres, res) => new QuizRespuestasRecomendacionDTO
                     {
+                        Departamento = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Departamento.Departamento1 ?? string.Empty,
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1 && x.Idpregunta != 30).ToList(),
                         Fecha = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.fecha ?? DateTime.MinValue,
@@ -349,7 +360,14 @@ namespace OnePlace.Server.Controllers
                     DataColumn column = new()
                     {
                         DataType = System.Type.GetType("System.String"),
-                        ColumnName = nameof(QuizRespuestasTratoDTO.EstacionTienda),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Departamento),
+                        Caption = "Departamento"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.EstacionTienda),
                         Caption = "Estacion / Tienda"
                     };
                     table.Columns.Add(column);
@@ -401,6 +419,7 @@ namespace OnePlace.Server.Controllers
                     for (int i = 0; i < preguntas.Respuestas.Count; i++)
                     {
                         DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasRecomendacionDTO.Departamento)] = preguntas.Respuestas[i].Departamento;
                         row[nameof(QuizRespuestasRecomendacionDTO.EstacionTienda)] = preguntas.Respuestas[i].EstacionTienda;
                         for (int j = 0; j < preguntas.Respuestas[i].Preguntas.Count; j++)
                         {
@@ -447,6 +466,7 @@ namespace OnePlace.Server.Controllers
                 .Where(x => x.fecha >= filtroDTO.Fecha_Inicio && x.fecha <= filtroDTO.Fecha_Fin && x.Usuario.Empleado.Estacion.ZonaR != null)
                 .Include(x => x.Pregunta)
                 .Include(x => x.Usuario.Empleado.Estacion.ZonaR)
+                .Include(x => x.Usuario.Empleado.Departamento)
                 .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
                 .ThenInclude(x => x.Empleado.Persona)
                 .Include(x => x.Usuario.Empleado.Estacion.EmpleadoEstaciones)
@@ -491,6 +511,7 @@ namespace OnePlace.Server.Controllers
                 var respuestasgrouptrato = respuestaslist.GroupBy(x => (x.UsuarioId, x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.Usuario.FullName),
                     x => x, (baseres, res) => new QuizRespuestasTratoDTO
                     {
+                        Departamento = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Departamento.Departamento1 ?? string.Empty,
                         Empleado = baseres.FullName,
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Respuestas = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
@@ -516,6 +537,13 @@ namespace OnePlace.Server.Controllers
                 {
                     DataTable table = new("QuizTrato");
                     DataColumn column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasTratoDTO.Departamento),
+                        Caption = "Departamento"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
                     {
                         DataType = System.Type.GetType("System.String"),
                         ColumnName = nameof(QuizRespuestasTratoDTO.Empleado),
@@ -556,6 +584,7 @@ namespace OnePlace.Server.Controllers
                     for (int i = 0; i < Preguntas.Respuestas.Count; i++)
                     {
                         DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasTratoDTO.Departamento)] = Preguntas.Respuestas[i].Departamento;
                         row[nameof(QuizRespuestasTratoDTO.Empleado)] = Preguntas.Respuestas[i].Empleado;
                         row[nameof(QuizRespuestasTratoDTO.EstacionTienda)] = Preguntas.Respuestas[i].EstacionTienda;
                         row[nameof(QuizRespuestasTratoDTO.Suma)] = Preguntas.Respuestas[i].Suma;
@@ -634,6 +663,7 @@ namespace OnePlace.Server.Controllers
                 var quizrecomendacion = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.UsuarioId, x.Usuario.FullName),
                     x => x, (baseres, res) => new QuizRespuestasRecomendacionDTO
                     {
+                        Departamento = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Departamento.Departamento1 ?? string.Empty,
                         Empleado = baseres.FullName,
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Preguntas = resdtos.Where(x => x.UsuarioId == baseres.UsuarioId && x.Estatus == 1 && x.Idpregunta != 30).ToList(),
@@ -656,14 +686,21 @@ namespace OnePlace.Server.Controllers
                     DataColumn column = new()
                     {
                         DataType = System.Type.GetType("System.String"),
-                        ColumnName = nameof(QuizRespuestasTratoDTO.Empleado),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Departamento),
+                        Caption = "Departamento"
+                    };
+                    table.Columns.Add(column);
+                    column = new()
+                    {
+                        DataType = System.Type.GetType("System.String"),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.Empleado),
                         Caption = "Empleado"
                     };
                     table.Columns.Add(column);
                     column = new()
                     {
                         DataType = System.Type.GetType("System.String"),
-                        ColumnName = nameof(QuizRespuestasTratoDTO.EstacionTienda),
+                        ColumnName = nameof(QuizRespuestasRecomendacionDTO.EstacionTienda),
                         Caption = "Estacion / Tienda"
                     };
                     table.Columns.Add(column);
@@ -715,6 +752,7 @@ namespace OnePlace.Server.Controllers
                     for (int i = 0; i < preguntas.Respuestas.Count; i++)
                     {
                         DataRow row = table.NewRow();
+                        row[nameof(QuizRespuestasRecomendacionDTO.Departamento)] = preguntas.Respuestas[i].Departamento;
                         row[nameof(QuizRespuestasRecomendacionDTO.Empleado)] = preguntas.Respuestas[i].Empleado;
                         row[nameof(QuizRespuestasRecomendacionDTO.EstacionTienda)] = preguntas.Respuestas[i].EstacionTienda;
                         for (int j = 0; j < preguntas.Respuestas[i].Preguntas.Count; j++)

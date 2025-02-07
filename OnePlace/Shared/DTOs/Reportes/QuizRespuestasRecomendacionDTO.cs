@@ -6,6 +6,7 @@ namespace OnePlace.Shared.DTOs.Reportes
 {
     public class QuizRespuestasRecomendacionDTO
     {
+        public string Departamento { get; set; } = string.Empty;
         public string Empleado { get; set; } = string.Empty;
         public string EstacionTienda { get; set; }
         public List<QzPreguntaDTO> Preguntas { get; set; } = new();
