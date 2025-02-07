@@ -5,6 +5,7 @@
 <table class="table table-bordered table-striped" style="font-size:.8rem; text-align:center;">
     <thead>
         <tr>
+            <th>Departamento</th>
             <th>Estacion / Tienda</th>
             <th>Organizacion</th>
             <th>Comunicacion</th>
@@ -19,6 +20,7 @@
     <tbody>
         <Virtualize Items="RespuestasQuizDTO" Context="item">
             <tr>
+                <td>@item.</td>
                 <td>@item.EstacionTienda</td>
                 <td>@item.Organizacion</td>
                 <td>@item.Comunacion</td>

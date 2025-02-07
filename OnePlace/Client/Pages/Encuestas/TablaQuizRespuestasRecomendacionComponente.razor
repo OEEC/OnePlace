@@ -5,6 +5,7 @@
 <table class="table table-bordered table-striped ctable" style="font-size:.7rem; text-align:center;">
     <thead>
         <tr>
+            <th>Departamento</th>
             @if (ShowEmpleados)
             {
                 <th>Empleado</th>
@@ -24,6 +25,7 @@
     <tbody>
         <Virtualize Items="RespuestasQuizDTO.Respuestas" Context="item">
             <tr>
+                <td><p>@item.Departamento</p></td>
                 @if (ShowEmpleados)
                 {
                     <td><p>@item.Empleado</p></td>
