@@ -5,16 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using OnePlace.Client.Pages.QuizAmbiente;
 using OnePlace.Server.Data;
 using OnePlace.Shared.DTOs;
 using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.DTOs.Reportes;
-using OnePlace.Shared.Entidades;
 using OnePlace.Shared.Enums;
 using OnePlace.Shared.Extensiones;
 using OnePlace.Shared.IdentityModels;
-using Org.BouncyCastle.Asn1.Crmf;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -152,9 +149,10 @@ namespace OnePlace.Server.Controllers
             //creacion de responce de acuerdo al tipo de quiz seleccionado
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Quiz))
             {
-                var respuestagroup = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1),
+                var respuestagroup = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.Usuario.Empleado.Departamento.Departamento1),
                     x => x, (baseres, res) => new QuizRespuestasDTO
                     {
+                        Departamento = baseres.Departamento1,
                         EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
                         Organizacion = res.Where(x => x.Pregunta.GrupoId == 1 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
                         Comunacion = res.Where(x => x.Pregunta.GrupoId == 2 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
