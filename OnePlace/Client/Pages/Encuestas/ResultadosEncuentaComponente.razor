@@ -89,6 +89,10 @@
         </button>
     </div>
 </div>
+@if (Loading)
+{
+    <SpinnerLoading />
+}
 <div class="overflow-auto my-2">
     @if (Filtro.TipoQuiz.Equals(TipoQuiz.Quiz))
     {
@@ -115,6 +119,7 @@
     List<string> Divisiones = new() { "TODAS", "ESTACIONES", "TIENDAS", "ADMINISTRATIVO" };
 
     IComponentInfoLoad infoLoad;
+    bool Loading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -182,7 +187,9 @@
     {
         var dictionary = SetFiltro();
         dictionary[nameof(QPreguntasFiltroDTO.Excel)] = false.ToString();
+        Loading = true;
         await infoLoad.LoadInfo(dictionary);
+        Loading = false;
     }
 
     private async Task ExportarData()
