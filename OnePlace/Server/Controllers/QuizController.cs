@@ -815,6 +815,20 @@ namespace OnePlace.Server.Controllers
 
             return model;
         }
+
+        [Route("tipo/empleado")]
+        [HttpGet]
+        public async Task<ActionResult<bool>> Get()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user?.Idempleado == null) return Unauthorized();
+
+            return await context.Empleados
+                .Where(e => e.Idempleado == user.Idempleado)
+                .Select(e => e.Division.ToUpper() == "TIENDAS") // Case-insensitive
+                .FirstOrDefaultAsync();
+
+        }
     }  
 }
 

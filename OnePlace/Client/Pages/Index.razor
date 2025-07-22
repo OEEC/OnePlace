@@ -53,7 +53,19 @@
                 </div>
             </div>
         }*@
-
+        @if (esTienda)
+        {
+            <div class="text-center mt-3" style="background: rgb(244,180,0);
+                                        background: linear-gradient(90deg, rgba(244,180,0,0.5998774509803921) 0%, rgba(232,230,9,0) 50%, rgba(244,180,0,0.6026785714285714) 100%);">
+                <div class="pt-5 pb-5">
+                    <img src="img/tiendaone.png" class="img-fluid mx-auto d-block mb-4" alt="Evaluacion">
+                    <p class="h4" style="color: #f4b400 ;">
+                        <strong>Evaluacion Tiendas</strong>
+                    </p>
+                    <button class="btn btn-outline-danger" @onclick="goToEvaluacion">Responder</button>
+                </div>
+            </div>
+        }
         <div class="container-xxl py-5" id="promociones">
             <div class="container px-lg-5">
                 <div class="row g-5">
@@ -243,6 +255,7 @@ else
 @code {
     private string Color_Hex = string.Empty;
     private bool showBanner = true;
+    private bool esTienda = false;
 
     ClaimsPrincipal user;
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -269,7 +282,7 @@ else
         FechadeHoy = DateTime.Today;
 
         await Obtener_Color();
-
+        
         @if (user.IsInRole("Usuario"))
         {
             //cambiar el diseño dependiendo del rol del usuario logueado
@@ -282,8 +295,10 @@ else
             // await CargarCumple();
             // await CargarEventos();
             await MostrarBanner();
+            await esEmpleadoTienda();
             await CargarCursosUser();
             await CargarCarrusel();
+            
         }
         else
         {
@@ -504,6 +519,32 @@ else
     private void goToQuiz()
     {
         navigationManager.NavigateTo("/quiz");
+    }
+
+    private async Task esEmpleadoTienda()
+    {
+        try
+        {
+            // Deserializar directamente a bool
+            var response = await repositorio.Get<bool>($"api/quiz/tipo/empleado");
+            esTienda = response.Response;
+        }
+        catch (HttpRequestException ex)
+        {
+            // Manejar errores específicos
+            Console.WriteLine($"Error verificando empleado: {ex.Message}");
+            esTienda = false;
+        }
+    }
+    //Evaluacion Tiendas
+    private void goToEvaluacion()
+    {
+        //buscar / noemp /{ noemp}
+        //var esTienda = await repositorio.Get<bool>("api/Empleado/tipo/empleado");
+        if (esTienda)
+        {
+            navigationManager.NavigateTo("https://forms.office.com/r/kQWky5UktS");
+        }
     }
 
     private void goToFotos()
