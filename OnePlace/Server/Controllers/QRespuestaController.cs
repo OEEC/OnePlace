@@ -417,12 +417,15 @@ namespace OnePlace.Server.Controllers
             // 2. Obtener cuántos grupos hay en total
             var totalGrupos = await context.QGrupo.CountAsync();
 
+            var fechaRespuesta = new DateTime(2025, 11, 01);
+
             // 3. Obtener los ID de grupo que el usuario ya respondió
             var gruposRespondidos = await (
                 from respuesta in context.QRespuesta
                 join pregunta in context.QPreguntas
                     on respuesta.PreguntaId equals pregunta.Idpregunta
                 where respuesta.UsuarioId == user.Id
+                && respuesta.fecha >= fechaRespuesta
                 select pregunta.GrupoId
             ).Distinct().ToListAsync();
 
