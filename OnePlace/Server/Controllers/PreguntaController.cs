@@ -151,23 +151,48 @@ namespace OnePlace.Server.Controllers
             //creacion de responce de acuerdo al tipo de quiz seleccionado
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Quiz))
             {
-                var respuestagroup = respuestaslist.GroupBy(x => (x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1, x.Usuario.Empleado.Departamento.Departamento1),
-                    x => x, (baseres, res) => new QuizRespuestasDTO
+                // 2. GroupBy seguro
+                var respuestagroup = respuestaslist
+                    .GroupBy(x => new
                     {
-                        Departamento = baseres.Departamento1,
-                        EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
-                        Organizacion = res.Where(x => x.Pregunta.GrupoId == 1 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Comunacion = res.Where(x => x.Pregunta.GrupoId == 2 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Realizacion = res.Where(x => x.Pregunta.GrupoId == 3 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Motivacion = res.Where(x => x.Pregunta.GrupoId == 4 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Ambiente = res.Where(x => x.Pregunta.GrupoId == 5 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Trato = res.Where(x => x.Pregunta.GrupoId == 6 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        Seguridad = res.Where(x => x.Pregunta.GrupoId == 7 && x.Pregunta.TipoPreguntaId == 1).Sum(x => x.Respuesta.ToInt()),
-                        NoPersonas = res.GroupBy(z => z.UsuarioId).Select(x => x.Key).Count(),
+                        Estacion = x.Usuario?.Empleado?.Estacion?.Nombre ?? "Sin estación",
+                        Zona = x.Usuario?.Empleado?.Estacion?.ZonaR?.Zona1 ?? "Sin zona",
+                        Departamento = x.Usuario?.Empleado?.Departamento?.Departamento1 ?? "Sin departamento"
+                    })
+                    .Select(grp => new QuizRespuestasDTO
+                    {
+                        Departamento = grp.Key.Departamento,
+                        EstacionTienda = $"{grp.Key.Estacion} - {grp.Key.Zona}",
+
+                        Organizacion = grp.Where(x => x.Pregunta.GrupoId == 1 && x.Pregunta.TipoPreguntaId == 1)
+                                          .Sum(x => x.Respuesta.ToInt()),
+
+                        Comunacion = grp.Where(x => x.Pregunta.GrupoId == 2 && x.Pregunta.TipoPreguntaId == 1)
+                                        .Sum(x => x.Respuesta.ToInt()),
+
+                        Realizacion = grp.Where(x => x.Pregunta.GrupoId == 3 && x.Pregunta.TipoPreguntaId == 1)
+                                         .Sum(x => x.Respuesta.ToInt()),
+
+                        Motivacion = grp.Where(x => x.Pregunta.GrupoId == 4 && x.Pregunta.TipoPreguntaId == 1)
+                                        .Sum(x => x.Respuesta.ToInt()),
+
+                        Ambiente = grp.Where(x => x.Pregunta.GrupoId == 5 && x.Pregunta.TipoPreguntaId == 1)
+                                      .Sum(x => x.Respuesta.ToInt()),
+
+                        Trato = grp.Where(x => x.Pregunta.GrupoId == 6 && x.Pregunta.TipoPreguntaId == 1)
+                                   .Sum(x => x.Respuesta.ToInt()),
+
+                        Seguridad = grp.Where(x => x.Pregunta.GrupoId == 7 && x.Pregunta.TipoPreguntaId == 1)
+                                       .Sum(x => x.Respuesta.ToInt()),
+
+                        NoPersonas = grp.GroupBy(z => z.UsuarioId)
+                                        .Select(x => x.Key)
+                                        .Count(),
                     })
                     .OrderBy(x => x.EstacionTienda)
                     .ToList();
 
+                // 3. Exportar a Excel
                 if (filtroDTO.Excel)
                 {
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -192,20 +217,33 @@ namespace OnePlace.Server.Controllers
                     .Select(x => x.Pregunta)
                     .ToListAsync();
 
-                var respuestasgrouptrato = respuestaslist.GroupBy(x => (x.UsuarioId, x.Usuario.Empleado.Estacion.Nombre, x.Usuario.Empleado.Estacion.ZonaR.Zona1),
-                    x => x, (baseres, res) => new QuizRespuestasTratoDTO
+                var respuestasgrouptrato = respuestaslist
+                    .GroupBy(x => new
                     {
-                        Departamento = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.Departamento.Departamento1 ?? string.Empty,
-                        EstacionTienda = $"{baseres.Nombre} - {baseres.Zona1}",
-                        Respuestas = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
-                                        .OrderBy(x => x.PreguntaId)
-                                        .Select(x => x.Respuesta.ToInt())
-                                        .ToList(),
-                        Suma = res.Where(x => x.Pregunta.TipoPreguntaId == 1 && x.UsuarioId == baseres.UsuarioId)
-                                  .OrderBy(x => x.PreguntaId)
-                                  .Select(x => x.Respuesta.ToInt())
-                                  .Sum(x => x),
-                        Encargado = res.FirstOrDefault(x => x.UsuarioId == baseres.UsuarioId)?.Usuario.Empleado.ObtenerEncargado() ?? string.Empty,
+                        x.UsuarioId,
+                        Estacion = x.Usuario?.Empleado?.Estacion?.Nombre ?? "Sin estación",
+                        Zona = x.Usuario?.Empleado?.Estacion?.ZonaR?.Zona1 ?? "Sin zona"
+                    })
+                    .Select(grp => new QuizRespuestasTratoDTO
+                    {
+                        Departamento = grp.FirstOrDefault()?.Usuario?.Empleado?.Departamento?.Departamento1
+                                       ?? string.Empty,
+
+                        EstacionTienda = $"{grp.Key.Estacion} - {grp.Key.Zona}",
+
+                        Respuestas = grp
+                            .Where(x => x.Pregunta?.TipoPreguntaId == 1)
+                            .OrderBy(x => x.PreguntaId)
+                            .Select(x => x.Respuesta.ToInt())
+                            .ToList(),
+
+                        Suma = grp
+                            .Where(x => x.Pregunta?.TipoPreguntaId == 1)
+                            .Select(x => x.Respuesta.ToInt())
+                            .Sum(),
+
+                        Encargado = grp.FirstOrDefault()?.Usuario?.Empleado?.ObtenerEncargado()
+                                    ?? string.Empty
                     })
                     .OrderBy(x => x.EstacionTienda)
                     .ToList();
