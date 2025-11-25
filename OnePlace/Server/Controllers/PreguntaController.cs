@@ -106,6 +106,8 @@ namespace OnePlace.Server.Controllers
         [HttpGet("respuestas")]
         public async Task<ActionResult> GetRespuestas([FromQuery] QPreguntasFiltroDTO filtroDTO)
         {
+            var gerenteadministrativo = 23;
+
             //consulta de respuestas entre fechas
             var respuestas = context.QRespuesta
                 .AsNoTracking()
@@ -144,6 +146,9 @@ namespace OnePlace.Server.Controllers
             if (filtroDTO.TipoQuiz.Equals(TipoQuiz.Recomendacion))
                 respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8 || x.PreguntaId == 30);
 
+            if(filtroDTO.TipoUsuario.Equals(TipoUsuario.GERENTE))
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Idpuesto == gerenteadministrativo);
+
             #endregion
             //ejecucion de la consulta
             var respuestaslist = await respuestas.ToListAsync();
@@ -158,11 +163,10 @@ namespace OnePlace.Server.Controllers
                         Estacion = x.Usuario?.Empleado?.Estacion?.Nombre ?? "Sin estación",
                         Zona = x.Usuario?.Empleado?.Estacion?.ZonaR?.Zona1 ?? "Sin zona",
                         Departamento = x.Usuario?.Empleado?.Departamento?.Departamento1 ?? "Sin departamento"
-                    })
-                    .Select(grp => new QuizRespuestasDTO
+                    }, x => x, (y, grp) => new QuizRespuestasDTO
                     {
-                        Departamento = grp.Key.Departamento,
-                        EstacionTienda = $"{grp.Key.Estacion} - {grp.Key.Zona}",
+                        Departamento = y.Departamento,
+                        EstacionTienda = $"{y.Estacion} - {y.Zona}",
 
                         Organizacion = grp.Where(x => x.Pregunta.GrupoId == 1 && x.Pregunta.TipoPreguntaId == 1)
                                           .Sum(x => x.Respuesta.ToInt()),
@@ -497,6 +501,8 @@ namespace OnePlace.Server.Controllers
         [HttpGet("respuestas/empleados")]
         public async Task<ActionResult> GetRespuestasEmpleados([FromQuery] QPreguntasFiltroDTO filtroDTO)
         {
+            var gerenteadministrativo = 23;
+
             // Asegura que las fechas estén en el orden correcto
             if (filtroDTO.Fecha_Inicio > filtroDTO.Fecha_Fin)
             {
@@ -547,6 +553,9 @@ namespace OnePlace.Server.Controllers
 
             if (filtroDTO.TipoQuizEmpleado.Equals(TipoQuizEmpleado.Recomendacion))
                 respuestas = respuestas.Where(x => x.Pregunta.GrupoId == 8 || x.PreguntaId == 30);
+
+            if (filtroDTO.TipoUsuario.Equals(TipoUsuario.GERENTE))
+                respuestas = respuestas.Where(x => x.Usuario.Empleado.Idpuesto == gerenteadministrativo);
 
             #endregion
             //ejecucion de la consulta

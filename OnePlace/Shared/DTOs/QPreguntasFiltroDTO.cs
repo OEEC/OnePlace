@@ -15,6 +15,7 @@ namespace OnePlace.Shared.DTOs
         public DateTime Fecha_Fin { get; set; } = DateTime.Today;
         public TipoQuiz TipoQuiz { get; set; }
         public TipoQuizEmpleado TipoQuizEmpleado { get; set; }
+        public TipoUsuario TipoUsuario { get; set; } = TipoUsuario.TODOS;
         public bool Excel { get; set; } = false;
     }
 }
