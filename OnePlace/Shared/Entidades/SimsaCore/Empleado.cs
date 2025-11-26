@@ -100,8 +100,7 @@ namespace OnePlace.Shared.Entidades.SimsaCore
                 return string.Empty;
             }
         }
-        [NotMapped] public string Nombre_usuario { get; set; }
-        [NotMapped] public string Password_usuario { get; set; }
+
         [NotMapped] public IdentityUsuario Usuario { get; set; } = null!;
         [NotMapped] public List<Estacion> Estaciones { get; set; } = new();
         [NotMapped] public List<EmpleadoEstacion> EmpleadoEstaciones { get; set; } = new();

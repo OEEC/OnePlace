@@ -1,13 +1,10 @@
+using FluentValidation;
 using Hangfire;
-using Hangfire.MySql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,11 +16,11 @@ using OnePlace.Server.Extenciones;
 using OnePlace.Server.Helpers;
 using OnePlace.Server.Mapper;
 using OnePlace.Server.Services;
+using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.IdentityModels;
+using OnePlace.Shared.Validaciones;
 using System;
-using System.Linq;
 using System.Text;
-using System.Transactions;
 
 namespace OnePlace.Server
 {
@@ -119,6 +116,7 @@ namespace OnePlace.Server
             services.AddRazorPages();
 
             services.AddScoped<IUsuarioHelper, UsuarioHelper>();
+            services.AddScoped<IValidator<EmpleadoPostDTO>, EmpleadoValidation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,6 +8,7 @@ using OnePlace.Client.ComponentesGenericos.Services;
 using OnePlace.Client.Helpers;
 using OnePlace.Client.Repositorios;
 using OnePlace.Client.Service;
+using OnePlace.Shared.Validaciones;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -69,6 +70,8 @@ namespace OnePlace.Client
             //ponemos el servicio de loginservice y le pasamos la instancia de proveedorautenticacionjwt
             services.AddScoped<ILoginService, ProveedorAutenticacionJWT>(
                provider => provider.GetRequiredService<ProveedorAutenticacionJWT>());
+
+            services.AddScoped<EmpleadoValidation>();
         }
     }
 }

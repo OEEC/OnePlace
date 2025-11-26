@@ -12,6 +12,7 @@ using OfficeOpenXml.Table;
 using OnePlace.Server.Data;
 using OnePlace.Server.Helpers;
 using OnePlace.Shared.DTOs;
+using OnePlace.Shared.DTOs.Modelos;
 using OnePlace.Shared.Entidades.SimsaCore;
 using OnePlace.Shared.IdentityModels;
 using System;
@@ -42,57 +43,53 @@ namespace OnePlace.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Crear_Empleado([FromBody] PersonaEmpleadoDTO per)
+        public async Task<ActionResult> Crear_Empleado([FromBody] EmpleadoPostDTO dto)
         {
             try
             {
-                if (per is null) { return BadRequest(); }
+                if (dto is null) { return BadRequest(); }
 
                 var errors = string.Empty;
 
-                Empleado empleado = per.Obtener_Empleado();
-                Persona persona = per.Obtener_Persona();
-
-                //if (context.Personas.Any(x => x.Rfc.ToLower().Equals(persona.Rfc.ToLower())))
-                //    return BadRequest("Ya existe una persona con el mismo RFC");
-
-                //if (context.Personas.Any(x => x.Curp.ToLower().Equals(persona.Curp.ToLower())))
-                //    return BadRequest("Ya existe una persona con el mismo CURP");
-
-                //if (context.Personas.Any(x => x.Nss.ToLower().Equals(persona.Nss.ToLower())))
-                //    return BadRequest("Ya existe una persona con el mismo NSS");
+                Empleado empleado = new()
+                {
+                    Iddepartamento = dto.IdDepartamento,
+                    Idestacion = dto.IdEstacion,
+                    Idpuesto = dto.IdPuesto,
+                    ZonaId = dto.IdZona,
+                    Noemp = dto.NoEmpleado,
+                    Division = dto.Division,
+                    Idestatus = "1",
+                    Fchalta = dto.Fchalta,
+                    Persona = new()
+                    {
+                        Nombre = dto.Nombre,
+                        Ape_pat = dto.ApellidoPat,
+                        Ape_mat = dto.ApellidoMat
+                    }
+                };
 
                 if (context.Empleados.Any(x => x.Noemp.ToLower().Equals(empleado.Noemp.ToLower()) && x.ZonaId == empleado.ZonaId))
                     return BadRequest("Ya existe un emplado con el mismo No de empleado");
 
-                if (string.IsNullOrEmpty(empleado.Nombre_usuario) || string.IsNullOrWhiteSpace(empleado.Nombre_usuario) || string.IsNullOrEmpty(empleado.Password_usuario) || string.IsNullOrWhiteSpace(empleado.Password_usuario))
-                    return BadRequest("Datos de usuario invalidos");
-
-                if (!Validar_Contraseña(empleado.Password_usuario, out errors))
+                if (!Validar_Contraseña(dto.Password, out errors))
                     return BadRequest(errors);
-
-                context.Add(persona);
-                await context.SaveChangesAsync();
-
-                empleado.Idpersona = persona.Idpersona;
 
                 context.Add(empleado);
                 await context.SaveChangesAsync();
 
-                if (!context.Users.Any(x => x.UserName == empleado.Nombre_usuario))
+                if (!context.Users.Any(x => x.UserName == dto.Usuario))
                 {
                     //Asigna valores a objeto usuario
                     var user = new IdentityUsuario
                     {
-                        //UserName = item.Noemp.Trim() + inicialesZona,
-                        UserName = empleado.Nombre_usuario,
+                        UserName = dto.Usuario,
                         noemp = empleado.Noemp,
                         Idempleado = empleado.Idempleado,
-                        Nombre = persona.Nombre,
-                        ApellidoMaterno = persona.Ape_mat,
-                        ApellidoPaterno = persona.Ape_pat,
-                        //Empleado = null,
-                        ContraseñaTextoPlano = empleado.Password_usuario,
+                        Nombre = empleado.Persona.Nombre,
+                        ApellidoMaterno = empleado.Persona.Ape_mat,
+                        ApellidoPaterno = empleado.Persona.Ape_pat,
+                        ContraseñaTextoPlano = dto.Password,
                         Activo = true
                     };
 
@@ -120,8 +117,17 @@ namespace OnePlace.Server.Controllers
             var filesProcessed = 0;
             List<UploadResult> uploadResults = new();
             bool hasErrors = false;
-            bool existe = false;
             string Errors = string.Empty;
+
+            #region Pre-carga de datos
+            var estaciones = await context.Estaciones.AsNoTracking().Where(x => x.Estatus == 1).ToListAsync();
+            var zonas = await context.Zonas.AsNoTracking().Where(x => x.Idestatus == 1).ToListAsync();
+            var departamentos = await context.Departamentos.AsNoTracking().Where(x => x.Idestatus == 1).ToListAsync();
+            var puestos = await context.Puestos.AsNoTracking().ToListAsync();
+            var empresas = await context.Empresas.AsNoTracking().Where(x => x.Idestatus == 1).ToListAsync();
+            var usernames = await context.Users.AsNoTracking().Select(x => new { x.UserName, x.ContraseñaTextoPlano }).ToListAsync();
+            var empleados = await context.Empleados.AsNoTracking().Select(x => new { x.Idempleado, x.Noemp, x.Idpersona }).ToListAsync();
+            #endregion
 
             foreach (var file in files)
             {
@@ -163,10 +169,8 @@ namespace OnePlace.Server.Controllers
                             {
                                 using (ExcelWorksheet ws = package.Workbook.Worksheets.First())
                                 {
-                                    hasErrors = false;
                                     for (int r = 2; r < (ws.Dimension.End.Row + 1); r++)
                                     {
-                                        existe = false;
                                         Persona persona = new();
                                         Empleado empleado = new();
 
@@ -174,59 +178,8 @@ namespace OnePlace.Server.Controllers
 
                                         if (row.Count > 0)
                                         {
-                                            //if (ws.Cells[r, 5].Value is not null)
-                                            //{
-                                            //    if (!context.Personas.Any(x => x.Rfc == ws.Cells[r, 5].Value.ToString()))
-                                            //    {
-                                            //        //uploadResult.ErrorMessage = $"{thrustFileName} el RFC ingresado ya existe. RFC: {row[4].Value} Fila: {r} (Err: 10)";
-                                            //        //hasErrors = true;
-                                            //        persona.Rfc = ws.Cells[r, 5].Value.ToString();
-                                            //    }
-                                            //    else
-                                            //        existe = true;
-                                            //}
-                                            //else
-                                            //{
-                                            //    uploadResult.ErrorMessage = $"{thrustFileName} el RFC no puede estar vacio. Fila: {r} (Err: 11)";
-                                            //    hasErrors = true; uploadResult.HasError = true; break;
-                                            //}
-                                            //if (ws.Cells[r, 6].Value is not null)
-                                            //{
-                                            //    if (!context.Personas.Any(x => x.Curp == ws.Cells[r, 6].Value.ToString()))
-                                            //    {
-                                            //        //uploadResult.ErrorMessage = $"{thrustFileName} la CURP ingresada ya existe. CURP: {row[5].Value} Fila: {r} (Err: 10)";
-                                            //        //hasErrors = true;
-                                            //        persona.Curp = ws.Cells[r, 6].Value.ToString();
-                                            //    }
-                                            //    else
-                                            //        existe = true;
-                                            //}
-                                            //else
-                                            //{
-                                            //    uploadResult.ErrorMessage = $"{thrustFileName} la CURP no puede estar vacio. Fila: {r} (Err: 11)";
-                                            //    hasErrors = true; uploadResult.HasError = true; break;
-                                            //}
-                                            //if (ws.Cells[r, 7].Value is not null)
-                                            //{
-                                            //    if (!context.Personas.Any(x => x.Nss == ws.Cells[r, 7].Value.ToString()))
-                                            //    {
-                                            //        //uploadResult.ErrorMessage = $"{thrustFileName} el NSS ingresado ya existe. NSS: {row[6].Value} Fila: {r} (Err: 10)";
-                                            //        //hasErrors = true;
-                                            //        persona.Nss = ws.Cells[r, 7].Value.ToString();
-                                            //    }
-                                            //    else
-                                            //        existe = true;
-                                            //}
-                                            //else
-                                            //{
-                                            //    uploadResult.ErrorMessage = $"{thrustFileName} el NSS no puede estar vacio. Fila: {r} (Err: 11)";
-                                            //    hasErrors = true; uploadResult.HasError = true; break;
-                                            //}
-
                                             if (ws.Cells[r, 1].Value is not null && ws.Cells[r, 2].Value is not null && ws.Cells[r, 3].Value is not null)
                                             {
-                                                //uploadResult.ErrorMessage = $"{thrustFileName} el nombre de la persona no puede estar vacio. Fila: {r} (Err: 11)";
-                                                //hasErrors = true;
                                                 persona.Nombre = ws.Cells[r, 1].Value.ToString();
                                                 persona.Ape_pat = ws.Cells[r, 2].Value.ToString();
                                                 persona.Ape_mat = ws.Cells[r, 3].Value.ToString();
@@ -240,6 +193,12 @@ namespace OnePlace.Server.Controllers
                                             if (ws.Cells[r, 4].Value is not null)
                                             {
                                                 empleado.Noemp = ws.Cells[r, 4].Value.ToString();
+                                                if (empleados.Any(x => x.Noemp == empleado.Noemp))
+                                                {
+                                                    var emp = empleados.First(x => x.Noemp == empleado.Noemp);
+                                                    empleado.Idempleado = emp.Idempleado;
+                                                    empleado.Idpersona = emp.Idpersona;
+                                                }
                                             }
                                             else
                                             {
@@ -259,13 +218,13 @@ namespace OnePlace.Server.Controllers
 
                                             if (ws.Cells[r, 6].Value is not null)
                                             {
-                                                if (!context.Zonas.Any(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower() && x.Idestatus == 1))
+                                                if (!zonas.Any(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower()))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} la zona ingresada no existe. Zona: {ws.Cells[r, 6].Value} Fila: {r} (Err: 12)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
                                                 }
                                                 else
-                                                    empleado.ZonaId = context.Zonas.First(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower() && x.Idestatus == 1).ZonaId;
+                                                    empleado.ZonaId = zonas.First(x => x.Zona1.ToLower() == ws.Cells[r, 6].Value.ToString().ToLower()).ZonaId;
                                             }
                                             else
                                             {
@@ -273,31 +232,15 @@ namespace OnePlace.Server.Controllers
                                                 hasErrors = true; uploadResult.HasError = true; break;
                                             }
 
-                                            //if (ws.Cells[r, 14].Value is not null)
-                                            //{
-                                            //    if (!context.Empresas.Any(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1))
-                                            //    {
-                                            //        uploadResult.ErrorMessage = $"{thrustFileName} la empresa ingresada no existe. Empresa: {ws.Cells[r, 14].Value} Fila: {r} (Err: 12)";
-                                            //        hasErrors = true; uploadResult.HasError = true; break;
-                                            //    }
-                                            //    else
-                                            //        empleado.Idpagadora = context.Empresas.First(x => x.Razonsocial == ws.Cells[r, 14].Value.ToString() && x.Idestatus == 1).Idempresa;
-                                            //}
-                                            //else
-                                            //{
-                                            //    uploadResult.ErrorMessage = $"{thrustFileName} la empresa no puede estar vacia. Fila: {r} (Err: 11)";
-                                            //    hasErrors = true; uploadResult.HasError = true; break;
-                                            //}
-
                                             if (ws.Cells[r, 7].Value is not null)
                                             {
-                                                if (!context.Estaciones.Any(x => x.Nombre == ws.Cells[r, 7].Value.ToString() && x.Estatus == 1))
+                                                if (!estaciones.Any(x => x.Nombre == ws.Cells[r, 7].Value.ToString()))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} la estacion ingresada no existe. Estacion: {ws.Cells[r, 7].Value} Fila: {r} (Err: 12)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
                                                 }
                                                 else
-                                                    empleado.Idestacion = context.Estaciones.First(x => x.Nombre == ws.Cells[r, 7].Value.ToString() && x.Estatus == 1).Idestacion;
+                                                    empleado.Idestacion = estaciones.First(x => x.Nombre == ws.Cells[r, 7].Value.ToString() && x.Estatus == 1).Idestacion;
                                             }
                                             else
                                             {
@@ -307,13 +250,13 @@ namespace OnePlace.Server.Controllers
 
                                             if (ws.Cells[r, 8].Value is not null)
                                             {
-                                                if (!context.Departamentos.Any(x => x.Departamento1 == ws.Cells[r, 8].Value.ToString() && x.Idestatus == 1))
+                                                if (!departamentos.Any(x => x.Departamento1 == ws.Cells[r, 8].Value.ToString()))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} el departamento ingresado no existe. Departamento: {ws.Cells[r, 8].Value} Fila: {r} (Err: 12)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
                                                 }
                                                 else
-                                                    empleado.Iddepartamento = context.Departamentos.First(x => x.Departamento1 == ws.Cells[r, 8].Value.ToString() && x.Idestatus == 1).Iddepartamento;
+                                                    empleado.Iddepartamento = departamentos.First(x => x.Departamento1 == ws.Cells[r, 8].Value.ToString() && x.Idestatus == 1).Iddepartamento;
                                             }
                                             else
                                             {
@@ -321,31 +264,15 @@ namespace OnePlace.Server.Controllers
                                                 hasErrors = true; uploadResult.HasError = true; break;
                                             }
 
-                                            //if (ws.Cells[r, 17].Value is not null)
-                                            //{
-                                            //    if (!context.Areas.Any(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1))
-                                            //    {
-                                            //        uploadResult.ErrorMessage = $"{thrustFileName} el area ingresada no existe. Area: {ws.Cells[r, 17].Value} Fila: {r} (Err: 12)";
-                                            //        hasErrors = true; uploadResult.HasError = true; break;
-                                            //    }
-                                            //    else
-                                            //        empleado.Idarea = context.Areas.First(x => x.Area1 == ws.Cells[r, 17].Value.ToString() && x.Idestatus == 1).Idarea;
-                                            //}
-                                            //else
-                                            //{
-                                            //    uploadResult.ErrorMessage = $"{thrustFileName} el area no puede estar vacia. Fila: {r} (Err: 11)";
-                                            //    hasErrors = true; uploadResult.HasError = true; break;
-                                            //}
-
                                             if (ws.Cells[r, 9].Value is not null)
                                             {
-                                                if (!context.Puestos.Any(x => x.Puesto1 == ws.Cells[r, 9].Value.ToString()))
+                                                if (!puestos.Any(x => x.Puesto1 == ws.Cells[r, 9].Value.ToString()))
                                                 {
                                                     uploadResult.ErrorMessage = $"{thrustFileName} el puesto ingresado no existe. Puesto: {ws.Cells[r, 9].Value} Fila: {r} (Err: 12)";
                                                     hasErrors = true; uploadResult.HasError = true; break;
                                                 }
                                                 else
-                                                    empleado.Idpuesto = context.Puestos.First(x => x.Puesto1 == ws.Cells[r, 9].Value.ToString()).Idpuesto;
+                                                    empleado.Idpuesto = puestos.First(x => x.Puesto1 == ws.Cells[r, 9].Value.ToString()).Idpuesto;
                                             }
                                             else
                                             {
@@ -355,7 +282,7 @@ namespace OnePlace.Server.Controllers
 
                                             if (ws.Cells[r, 10].Value is not null && ws.Cells[r, 11].Value is not null)
                                             {
-                                                if (!context.Users.Any(x => x.UserName == ws.Cells[r, 10].Value.ToString()))
+                                                if (!usernames.Any(x => x.UserName == ws.Cells[r, 10].Value.ToString()))
                                                 {
                                                     if (!Validar_Contraseña(ws.Cells[r, 11].Value.ToString(), out Errors))
                                                     {
@@ -363,46 +290,59 @@ namespace OnePlace.Server.Controllers
                                                         hasErrors = true; uploadResult.HasError = true; break;
                                                     }
                                                 }
-                                                else
-                                                    existe = true;
                                             }
 
 
-                                            if (!hasErrors && !existe)
+                                            if (!hasErrors)
                                             {
-                                                //persona.Correo = ws.Cells[r, 8].Value is not null ? ws.Cells[r, 8].Value.ToString() : string.Empty;
-                                                //persona.Telefono = ws.Cells[r, 9].Value is not null ? ws.Cells[r, 9].Value.ToString() : string.Empty;
-
-                                                //empleado.Correo = ws.Cells[r, 10].Value is not null ? ws.Cells[r, 10].Value.ToString() : string.Empty;
-                                                //empleado.Telefono = ws.Cells[r, 11].Value is not null ? ws.Cells[r, 11].Value.ToString() : string.Empty;
-
-                                                empleado.Fchalta = DateTime.Now;
-                                                empleado.Persona = persona;
                                                 empleado.Idestatus = "1";
 
-                                                await context.AddAsync(empleado);
-                                                await context.SaveChangesAsync();
+                                                if (empleado.Idempleado != 0)
+                                                {
+                                                    empleado.Fchactualizado = DateTime.Now;
+                                                    context.Update(empleado);
+                                                    context.Update(persona);
+                                                    await context.SaveChangesAsync();
+                                                }
+                                                else
+                                                {
+                                                    empleado.Persona = persona;
+                                                    empleado.Fchalta = DateTime.Now;
+                                                    await context.AddAsync(empleado);
+                                                    await context.SaveChangesAsync();
+                                                }
 
                                                 if (ws.Cells[r, 10].Value is not null && ws.Cells[r, 11].Value is not null)
                                                 {
                                                     var user = new IdentityUsuario
                                                     {
-                                                        //UserName = item.Noemp.Trim() + inicialesZona,
                                                         UserName = ws.Cells[r, 10].Value.ToString(),
                                                         noemp = empleado.Noemp,
                                                         Idempleado = empleado.Idempleado,
                                                         Nombre = persona.Nombre,
                                                         ApellidoMaterno = persona.Ape_mat,
                                                         ApellidoPaterno = persona.Ape_pat,
-                                                        //Empleado = null,
                                                         ContraseñaTextoPlano = ws.Cells[r, 11].Value.ToString(),
                                                         Activo = true
                                                     };
 
-                                                    var result = await _userManager.CreateAsync(user, user.ContraseñaTextoPlano);
+                                                    if (await _userManager.FindByNameAsync(user.UserName) != null)
+                                                    {
+                                                        var result = await _userManager.UpdateAsync(user);
+                                                        if (result.Succeeded)
+                                                        {
+                                                            var pass = usernames.First(x => x.UserName == ws.Cells[r, 10].Value.ToString());
+                                                            if (pass.ContraseñaTextoPlano != user.ContraseñaTextoPlano)
+                                                                await _userManager.ChangePasswordAsync(user, pass.ContraseñaTextoPlano, user.ContraseñaTextoPlano);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
 
-                                                    if (result.Succeeded)
-                                                        await _userManager.AddToRoleAsync(user, "Usuario");
+                                                        var result = await _userManager.CreateAsync(user, user.ContraseñaTextoPlano);
+                                                        if (result.Succeeded)
+                                                            await _userManager.AddToRoleAsync(user, "Usuario");
+                                                    }
                                                 }
                                             }
                                         }
@@ -432,6 +372,7 @@ namespace OnePlace.Server.Controllers
             }
             return uploadResults;
         }
+
 
         [HttpPost("file/baja")]
         public async Task<ActionResult<IList<UploadResult>>> Subir_Excel_Empleados_Baja([FromForm] IEnumerable<IFormFile> files)
@@ -710,11 +651,8 @@ namespace OnePlace.Server.Controllers
             var ws_empleados = excel.Workbook.Worksheets.Add("Empleados");
 
             ws_empleados.Cells["A1"].LoadFromCollection(new List<PersonaEmpleadoDTO>(), x => { x.PrintHeaders = true; x.TableStyle = TableStyles.Medium2; });
-
-            ws_empleados.Cells["D2"].Style.Numberformat.Format = "@";
-
-            ws_empleados.Cells["S2"].Formula = "SI(ISTEXT(M2),SI(ISTEXT(D2),CONCATENATE(D2,MID(MAYUSC(M2),1,2)),\"\"),\"\")";
-            ws_empleados.Cells["T2"].Formula = "CONCATENATE(\"S1msa*\",D2)";
+            ws_empleados.Cells["J2"].Formula = "SI(ISTEXT(M2),SI(ISTEXT(D2),CONCATENATE(D2,MID(MAYUSC(M2),1,2)),\"\"),\"\")";
+            ws_empleados.Cells["K2"].Formula = "CONCATENATE(\"S1msa*\",D2)";
 
             ws_empleados.Cells[1, 1, ws_empleados.Dimension.End.Row, ws_empleados.Dimension.End.Column].AutoFitColumns();
             return Ok(excel.GetAsByteArray());

@@ -1,10 +1,12 @@
 ﻿@page "/actualizar-registros"
+@using OnePlace.Shared.Validaciones
 @inject IRepositorio repositorio
 @inject HttpClient http
 @inject NavigationManager navigationManager
 @inject IMostrarMensaje mostrarMensajes
 @inject ILogger<DatosApiABasedeDatos> Logger
 @inject IJSRuntime js
+@inject EmpleadoValidation validator
 @attribute [Authorize(Roles = "Administrador")]
 
 <div class="card">
@@ -76,84 +78,37 @@
     </div>
     <div class="card-body">
         <div class="col-12">
-            <EditForm Model="Persona" OnValidSubmit="Crear_Persona" class="col-12 row" Context="Form_Crear">
-                <DataAnnotationsValidator />
+            <EditForm Model="Empleado" OnValidSubmit="Crear_Persona" class="col-12 row" Context="Form_Crear">
                 <ValidationSummary />
                 <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Nombre/s" placeholder="Nombre" @bind-Value="@Persona.Nombre" /> *@
-                    <input class="form-control form-control-sm" placeholder="Nombre" @bind="@Persona.Nombre" />
-                    <ValidationMessage For="@(()=>Persona.Nombre)" />
+                    <InputText class="form-control form-control-sm" placeholder="Nombre" @bind-Value="@Empleado.Nombre" />
+                    <ValidationMessage For="@(()=>Empleado.Nombre)" />
                 </div>
                 <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Apellido paterno" placeholder="Apellido paterno" @bind-Value="@Persona.ApePat" /> *@
-                    <input class="form-control form-control-sm" placeholder="Apellido paterno" @bind="@Persona.Apellido_Pat" />
-                    <ValidationMessage For="@(()=>Persona.Apellido_Pat)" />
+                    <InputText class="form-control form-control-sm" DisplayName="Apellido paterno" placeholder="Apellido paterno" @bind-Value="@Empleado.ApellidoPat" />
+                    <ValidationMessage For="@(()=>Empleado.ApellidoPat)" />
                 </div>
                 <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Apellido materno" placeholder="Apellido materno" @bind-Value="@Persona.ApeMat" /> *@
-                    <input class="form-control form-control-sm" placeholder="Apellido materno" @bind="@Persona.Apellido_Mat" />
-                    <ValidationMessage For="@(()=>Persona.Apellido_Mat)" />
+                    <InputText class="form-control form-control-sm" DisplayName="Apellido materno" placeholder="Apellido materno" @bind-Value="@Empleado.ApellidoMat" />
+                    <ValidationMessage For="@(()=>Empleado.ApellidoMat)" />
                 </div>
                 <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="No. empleado" placeholder="No. empleado" @bind-Value="@Persona.Empleado.Noemp" @oninput="Generar_Usuario" /> *@
-                    <input class="form-control form-control-sm" placeholder="No. empleado" @bind="@Persona.NoEmpleado" @oninput="Generar_Usuario" />
-                    <ValidationMessage For="@(()=>Persona.NoEmpleado)" />
+                    <InputText class="form-control form-control-sm" DisplayName="No. empleado" placeholder="No. empleado" @bind-Value="@Empleado.NoEmpleado" @oninput="Generar_Usuario" />
+                    <ValidationMessage For="@(()=>Empleado.NoEmpleado)" />
                 </div>
                 <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="RFC" placeholder="RFC" @bind-Value="@Persona.RFC" /> *@
-                    <input class="form-control form-control-sm" placeholder="RFC" @bind="@Persona.RFC" />
-                    <ValidationMessage For="@(()=>Persona.RFC)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="CURP" placeholder="CURP" @bind-Value="@Persona.CURP" /> *@
-                    <input class="form-control form-control-sm" placeholder="CURP" @bind="@Persona.CURP" />
-                    <ValidationMessage For="@(()=>Persona.CURP)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="NSS" placeholder="NSS" @bind-Value="@Persona.NSS" /> *@
-                    <input class="form-control form-control-sm" placeholder="NSS" @bind="@Persona.NSS" />
-                    <ValidationMessage For="@(()=>Persona.NSS)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Correo" placeholder="Correo" @bind-Value="@Persona.Correo" /> *@
-                    <input class="form-control form-control-sm" placeholder="Correo" @bind="@Persona.Correo" />
-                    <ValidationMessage For="@(()=>Persona.Correo)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Correo" placeholder="Correo" @bind-Value="@Persona.Correo" /> *@
-                    <input class="form-control form-control-sm" placeholder="Correo de empleado" @bind="@Persona.Correo_Empleado" />
-                    <ValidationMessage For="@(()=>Persona.Correo_Empleado)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Telefono" placeholder="Telefono" @bind-Value="@Persona.Telefono" /> *@
-                    <input class="form-control form-control-sm" placeholder="Telefono" @bind="@Persona.Telefono" />
-                    <ValidationMessage For="@(()=>Persona.Telefono)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputText class="form-control form-control-sm" DisplayName="Telefono" placeholder="Telefono" @bind-Value="@Persona.Telefono" /> *@
-                    <input class="form-control form-control-sm" placeholder="Telefono de empleado" @bind="@Persona.Telefono_Empleado" />
-                    <ValidationMessage For="@(()=>Persona.Telefono_Empleado)" />
-                </div>
-                <div class="col-3 my-1">
-                    @* <InputSelect class="form-control form-control-sm" @bind-Value="Persona.Division">
-                    <option>Division</option>
-                    @foreach (var item in Division)
-                    {
-                    <option value="@item">@item</option>
-                    }
-                    </InputSelect> *@
-                    <select class="form-control form-control-sm" @bind="@Persona.Division">
+                    <InputSelect class="form-control form-control-sm" @bind-Value="Empleado.Division">
                         <option>Division</option>
                         @foreach (var item in Division)
                         {
                             <option value="@item">@item</option>
                         }
-                    </select>
-                    <ValidationMessage For="@(()=>Persona.Division)" />
+                    </InputSelect>
+                    <ValidationMessage For="@(()=>Empleado.Division)" />
                 </div>
                 <div class="col-3 my-1">
-                    <DropDownFilter TListado="Zona" TValue="int?" Listado="Zonas" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="ZonaId"
-                                    Default_Placeholder="Zona" @bind-Valor="@Persona.Id_Zona" On_Change_Method="Generar_Usuario" On_Cancel_Method="Generar_Usuario">
+                    <DropDownFilter TListado="Zona" TValue="int" Listado="Zonas" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="ZonaId"
+                                    Default_Placeholder="Zona" @bind-Valor="@Empleado.IdZona" On_Change_Method="Generar_Usuario" On_Cancel_Method="Generar_Usuario">
                         <RenderValue Context="zona">
                             @zona.Zona1
                         </RenderValue>
@@ -161,11 +116,11 @@
                             @zona.Zona1
                         </Render>
                     </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Zona)" />
+                    <ValidationMessage For="@(()=>Empleado.IdZona)" />
                 </div>
                 <div class="col-3 my-1">
-                    <DropDownFilter TListado="Estacion" TValue="int?" Listado="Estaciones" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="Idestacion"
-                                    Default_Placeholder="Estacion" @bind-Valor="@Persona.Id_Estacion">
+                    <DropDownFilter TListado="Estacion" TValue="int" Listado="Estaciones" FiltrarValor="Obtener_Estaciones" Propiedad_Valor="Idestacion"
+                                    Default_Placeholder="Estacion" @bind-Valor="@Empleado.IdEstacion">
                         <RenderValue Context="est">
                             @est.Nombre
                         </RenderValue>
@@ -173,23 +128,11 @@
                             @est.Nombre
                         </Render>
                     </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Estacion)" />
+                    <ValidationMessage For="@(()=>Empleado.IdEstacion)" />
                 </div>
                 <div class="col-3 my-1">
-                    <DropDownFilter TListado="Empresa" TValue="int?" Listado="Empresas" FiltrarValor="Obtener_Empresas" Propiedad_Valor="Idempresa"
-                                    Default_Placeholder="Razon social" @bind-Valor="@Persona.Id_Pagadora">
-                        <RenderValue Context="emp">
-                            @emp.Razonsocial
-                        </RenderValue>
-                        <Render Context="emp">
-                            @emp.Razonsocial
-                        </Render>
-                    </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Pagadora)" />
-                </div>
-                <div class="col-3 my-1">
-                    <DropDownFilter TListado="Departamento" TValue="int?" Listado="Departamentos" FiltrarValor="Obtener_Departamentos" Propiedad_Valor="Iddepartamento"
-                                    Default_Placeholder="Departamento" @bind-Valor="@Persona.Id_Departamento">
+                    <DropDownFilter TListado="Departamento" TValue="int" Listado="Departamentos" FiltrarValor="Obtener_Departamentos" Propiedad_Valor="Iddepartamento"
+                                    Default_Placeholder="Departamento" @bind-Valor="@Empleado.IdDepartamento">
                         <RenderValue Context="dep">
                             @dep.Departamento1
                         </RenderValue>
@@ -197,23 +140,11 @@
                             @dep.Departamento1
                         </Render>
                     </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Departamento)" />
+                    <ValidationMessage For="@(()=>Empleado.IdDepartamento)" />
                 </div>
                 <div class="col-3 my-1">
-                    <DropDownFilter TListado="Area" TValue="int?" Listado="Areas" FiltrarValor="Obtener_Areas" Propiedad_Valor="Idarea"
-                                    Default_Placeholder="Area" @bind-Valor="@Persona.Id_Area">
-                        <RenderValue Context="area">
-                            @area.Area1
-                        </RenderValue>
-                        <Render Context="area">
-                            @area.Area1
-                        </Render>
-                    </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Area)" />
-                </div>
-                <div class="col-3 my-1">
-                    <DropDownFilter TListado="Puesto" TValue="int?" Listado="Puestos" FiltrarValor="Obtener_Puestos" Propiedad_Valor="Idpuesto"
-                                    Default_Placeholder="Puesto" @bind-Valor="@Persona.Id_Puesto">
+                    <DropDownFilter TListado="Puesto" TValue="int" Listado="Puestos" FiltrarValor="Obtener_Puestos" Propiedad_Valor="Idpuesto"
+                                    Default_Placeholder="Puesto" @bind-Valor="@Empleado.IdPuesto">
                         <RenderValue Context="pue">
                             @pue.Puesto1
                         </RenderValue>
@@ -221,23 +152,23 @@
                             @pue.Puesto1
                         </Render>
                     </DropDownFilter>
-                    <ValidationMessage For="@(()=>Persona.Id_Puesto)" />
+                    <ValidationMessage For="@(()=>Empleado.IdPuesto)" />
                 </div>
                 <div class="col-3 my-1">
-                    <InputText class="form-control form-control-sm" DisplayName="Usuario" placeholder="Nombre de usuario" @bind-Value="@Persona.Nombre_Usuario" />
-                    <ValidationMessage For="@(()=>Persona.Nombre_Usuario)" />
+                    <InputText class="form-control form-control-sm" DisplayName="Usuario" placeholder="Nombre de usuario" @bind-Value="@Empleado.Usuario" />
+                    <ValidationMessage For="@(()=>Empleado.Usuario)" />
                 </div>
                 <div class="col-3 my-1">
                     <ToolTip>
                         <ChildContent>
-                            <InputText class="form-control form-control-sm" DisplayName="Constraseña" placeholder="Contraseña" @bind-Value="@Persona.Password_Usuario" />
+                            <InputText class="form-control form-control-sm" DisplayName="Constraseña" placeholder="Contraseña" @bind-Value="@Empleado.Password" />
                         </ChildContent>
                         <TooltipContent>
                             <p>La conseña debe tener almenos 6 caracteres, 1 letra mayuscula, 1 caracter especial y 1 numero</p>
                         </TooltipContent>
                     </ToolTip>
 
-                    <ValidationMessage For="@(()=>Persona.Password_Usuario)" />
+                    <ValidationMessage For="@(()=>Empleado.Password)" />
                 </div>
                 <div class="col-12 my-1">
                     <div class="col-3">
@@ -475,10 +406,9 @@
 
     Dictionary<string, string> Query = new();
 
-    List<string> Sexo = new() { "F", "M" };
-    List<string> Division = new() { "ESTACIONES", "TIENDAS" };
+    List<string> Division = new() { "ESTACIONES", "TIENDAS", "ADMINISTRATIVOS" };
 
-    PersonaEmpleadoDTO Persona { get; set; } = new();
+    EmpleadoPostDTO Empleado { get; set; } = new();
 
     private string No_empleado { get; set; } = string.Empty;
 
@@ -489,7 +419,6 @@
         await Obtener_Departamentos(string.Empty);
         await Obtener_Estaciones(string.Empty);
         await Obtener_Puestos(string.Empty);
-        await Obtener_Empresas(string.Empty);
     }
 
     public async Task ActualizarEP()
@@ -628,7 +557,7 @@
         try
         {
             loadingCrearEmpleado = true;
-            var httpResponse = await repositorio.Post<PersonaEmpleadoDTO>("api/empleado", Persona);
+            var httpResponse = await repositorio.Post<EmpleadoPostDTO>("api/empleado", Empleado);
             if (httpResponse.Error)
             {
                 loadingCrearEmpleado = false;
@@ -638,7 +567,7 @@
             {
                 loadingCrearEmpleado = false;
                 await mostrarMensajes.MostrarMensajeExitoso("Empleado creado");
-                Persona = new();
+                Empleado = new();
             }
         }
         catch (Exception e)
@@ -816,14 +745,14 @@
 
     private void Generar_Usuario()
     {
-        if (!string.IsNullOrEmpty(Persona.NoEmpleado) || !string.IsNullOrWhiteSpace(Persona.NoEmpleado))
+        if (!string.IsNullOrEmpty(Empleado.NoEmpleado) || !string.IsNullOrWhiteSpace(Empleado.NoEmpleado))
         {
             var inizona = "NA";
-            if (Persona.Id_Zona != null)
+            if (Empleado.IdZona != null)
             {
-                if (Zonas.Any(x => x.ZonaId == Persona.Id_Zona))
+                if (Zonas.Any(x => x.ZonaId == Empleado.IdZona))
                 {
-                    var zona = Zonas.First(x => x.ZonaId == Persona.Id_Zona);
+                    var zona = Zonas.First(x => x.ZonaId == Empleado.IdZona);
                     if (zona is not null)
                     {
 
@@ -833,8 +762,8 @@
                 }
             }
 
-            Persona.Nombre_Usuario = Persona.NoEmpleado.Trim() + inizona;
-            Persona.Password_Usuario = $"S1msa*{Persona.NoEmpleado}";
+            Empleado.Usuario = Empleado.NoEmpleado.Trim() + inizona;
+            Empleado.Password = $"S1msa*{Empleado.NoEmpleado}";
         }
 
     }
