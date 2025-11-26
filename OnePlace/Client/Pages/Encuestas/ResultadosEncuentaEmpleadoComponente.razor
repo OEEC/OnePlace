@@ -59,6 +59,15 @@
                 <label>A:</label>
                 <input @bind="Filtro.Fecha_Fin" class="form-control form-control-sm" type="date" />
             </div>
+            <div class="col-4">
+                <label>Tipo de empleado administrativo</label>
+                <select class="form-control form-control-sm" @bind="Filtro.TipoUsuario">
+                    @foreach (var item in Enum.GetValues(typeof(TipoUsuario)))
+                    {
+                        <option value="@item">@(((TipoUsuario)item).Descripcion())</option>
+                    }
+                </select>
+            </div>
         </div>
         <div class="col-12 row my-2">
             <div class="col-4">
@@ -165,6 +174,7 @@
 
         QueryFiltro[nameof(Filtro.EstacionId)] = Filtro.EstacionId.ToString();
         QueryFiltro[nameof(Filtro.TipoQuizEmpleado)] = Filtro.TipoQuizEmpleado.ToString();
+        QueryFiltro[nameof(Filtro.TipoUsuario)] = Filtro.TipoUsuario.ToString();
         QueryFiltro[nameof(Filtro.Division)] = Filtro.Division;
         QueryFiltro[nameof(Filtro.DepartamentoId)] = Filtro.DepartamentoId.ToString();
         QueryFiltro[nameof(Filtro.Fecha_Inicio)] = Filtro.Fecha_Inicio.ToString("MM/dd/yyyy");
